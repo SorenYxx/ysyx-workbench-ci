@@ -9,29 +9,32 @@
 int main(int argc, char** argv) {
     srand(time(NULL));
 
-    Verilated::commandArgs(argc, argv);
-    Verilated::traceEverOn(true);
-
-    VerilatedFstC* tfp = new VerilatedFstC;
-
     VerilatedContext* contextp = new VerilatedContext;
     contextp->commandArgs(argc, argv);
+    
     Vdouble_sw* top = new Vdouble_sw{contextp};
+
+    VerilatedFstC* tfp = new VerilatedFstC;
 
     top->trace(tfp, 99);
     tfp->open("wave.fst");
 
-    vluint64_t sim_time = 1;
-    //const int MAX_CYCLES = 100;
+    tfp->dump(0);
 
-    while (!contextp->gotFinish()) {
+    vluint64_t sim_time = 1;
+    const int MAX_CYCLES = 100;
+
+    while (sim_time <= MAX_CYCLES) {
 	int a = rand() & 1;
 	int b = rand() & 1;
+
 	top->a = a;
   	top->b = b;
  	top->eval();
+
         tfp->dump(sim_time);
   	printf("a = %d, b = %d, f = %d\n", a, b, top->f);
+
   	assert(top->f == (a ^ b));
         sim_time++;
     }
