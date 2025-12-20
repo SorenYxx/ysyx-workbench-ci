@@ -1,6 +1,6 @@
 VERILATOR = verilator
 VERILATOR_FLAGS = --trace-fst -Wall --cc
-CXX_FLAGS = -02 
+CXX_FLAGS = -O2 
 
 # 默认目标
 all:sim
