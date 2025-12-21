@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     top->trace(tfp, 99);
     tfp->open("wave.fst");
 
-    nboard_init();
+    nvboard_init();
     nvboard_bind_all_pins(top);
     
     top->a = 0;
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
         int a = rand() & 1;
         int b = rand() & 1;
         
-        nboard_update_input(top);
+        nvboard_update_input(top);
 
         top->a = a;
         top->b = b;
@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
         
         sim_time++;
 
-	nboard_update_output(top);
-	nboard_delay(1);
+	nvboard_update_output(top);
+	nvboard_delay(1);
     }
     
     tfp->close();
-    nboard_quit();
+    nvboard_quit();
     delete tfp;
     delete top;
     delete contextp;
