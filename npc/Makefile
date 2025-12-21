@@ -1,5 +1,5 @@
 TOPNAME = double_sw
-NXDC_FILE = nvboard.nxdc
+NXDC_FILE =nvboard.nxdc
 
 # 默认目标
 all:sim
