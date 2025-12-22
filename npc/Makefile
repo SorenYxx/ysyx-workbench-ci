@@ -1,5 +1,5 @@
 TOPNAME = double_sw
-NXDC_FILE = top.nxdc
+NXDC_FILE = constr/top.nxdc
 
 # 默认目标
 all:sim
