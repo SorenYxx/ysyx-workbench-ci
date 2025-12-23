@@ -14,7 +14,7 @@ run:
 	cd obj_dir && ./Vdouble_sw
 
 wave:
-	gtkwave wave.fst &
+	cd obj_dir && gtkwave wave.fst &
 
 clean: 
 	rm -rf obj_dir \
