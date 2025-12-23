@@ -1,5 +1,5 @@
 VERILATOR_FLAGS = --trace-vcd -Wall --cc
-CXXFLAGS = -O2 -std=c++11
+CXXFLAGS = -O2
 
 all: sim
 
