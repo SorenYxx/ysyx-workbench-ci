@@ -18,7 +18,7 @@ int main(int argc, char **argv) {
 
     VerilatedVcdC* tfp = new VerilatedVcdC;
     top->trace(tfp,99);
-    tfp->open("obj_dir/t_trace_ena_cc/simx.vcd");
+    tfp->open("wave.vcd");
 
     top->a = 0;
     top->b = 0;
