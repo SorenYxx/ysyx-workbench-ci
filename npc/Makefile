@@ -6,7 +6,7 @@ all: sim
 sim: clean
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	#verilator --cc --exe --build -j 0 -Wall double_sw.cpp double_sw.v
-	verilator $(VERILATOR_FLAGS) double_sw.v --exe double_sw.cpp \
+	verilator $(VERILATOR_FLAGS) double_sw.v --exe double_sw.cpp
 	cd obj_dir && make -j4 -f Vdouble_sw.mk CXXFLAGS="$(CXXFLAGS)" Vdouble_sw
 	
 run:
