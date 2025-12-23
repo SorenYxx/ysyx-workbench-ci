@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
     top->eval();
     tfp->dump(contextp->time());
 
-    const sim_time = 100;
+    const vluint64_t sim_time = 100;
 
     while (contextp->time() < sim_time && !contextp->gotFinish()) {
 	int a = rand() & 1;
