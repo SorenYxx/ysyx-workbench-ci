@@ -4,35 +4,45 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
+#include <memory>
 
 int main(int argc, char **argv) {
+    srand(time(NULL));
+
     const std::unique_ptr<VerilatedContext> contextp{new VerilatedContext};
-
-    VerilatedContext *contextp = new VerilatedContext;
     contextp->commandArgs(argc, argv);
-    Vdouble_sw *top = new Vdouble_sw{contextp};
-
     Verilated::traceEverOn(true);
+
+    Vdouble_sw *top = new Vdouble_sw{contextp.get()};
+
     VerilatedVcdC* tfp = new VerilatedVcdC;
-    topp->trace(tfp,99);
+    top->trace(tfp,99);
     tfp->open("obj_dir/t_trace_ena_cc/simx.vcd");
 
-    while (contextp->time() < sim_time && !contextp->gotFinish()) {
-	contextp->timeInc(1);
-	topp->eval();
-	tfp->dump(contextp->time());
+    top->a = 0;
+    top->b = 0;
+    top->eval();
+    top->dump(contextp->time());
 
+    const vluint64_t MAX_TIME = 100;
+
+    while (contextp->time() < sim_time && !contextp->gotFinish()) {
 	int a = rand() & 1;
 	int b = rand() & 1;
 	top->a = a;
 	top->b = b;
-	top->eval();
+
+        contextp->timeInc(1);
+        top->eval();
+       
+        tfp->dump(contextp->time());
+
 	printf("a = %d, b = %d, f = %d\n", a, b, top->f);
 	assert(top->f == (a ^ b));
     }
     tfp->close();
-    delete top;
-    delete contextp;
+    delete tfp;
 
     return 0;
 
