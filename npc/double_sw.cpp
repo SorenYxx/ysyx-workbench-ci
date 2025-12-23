@@ -1,6 +1,6 @@
 #include "Vdouble_sw.h"
 #include "verilated.h"
-#include "verilated_vcd_c.h"
+#include "verilated_fst_c.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
 
     Vdouble_sw *top = new Vdouble_sw{contextp.get()};
 
-    VerilatedVcdC* tfp = new VerilatedVcdC;
+    VerilatedFstC* tfp = new VerilatedFstC;
     top->trace(tfp,99);
-    tfp->open("wave.vcd");
+    tfp->open("wave.fst");
 
     top->a = 0;
     top->b = 0;

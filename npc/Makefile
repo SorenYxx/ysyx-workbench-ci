@@ -1,4 +1,4 @@
-VERILATOR_FLAGS = --trace -Wall --cc
+VERILATOR_FLAGS = --trace-fst -Wall --cc
 CXXFLAGS = -O2
 
 all: sim
@@ -14,7 +14,7 @@ run:
 	cd obj_dir && ./Vdouble_sw
 
 wave:
-	gtkwave wave.vcd &
+	gtkwave wave.fst &
 
 clean: 
 	rm -rf obj_dir \
