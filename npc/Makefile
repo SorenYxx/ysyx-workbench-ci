@@ -1,4 +1,4 @@
-VERILATOR_FLAGS = --trace-vcd -Wall --cc
+VERILATOR_FLAGS = --trace -Wall --cc
 CXXFLAGS = -O2
 
 all: sim
