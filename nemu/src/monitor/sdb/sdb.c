@@ -59,7 +59,7 @@ static int cmd_si(char *args) {
     char *a;
     n = strtol(args, &a, 10);
     if (a == args || *a != '\0' || n <= 0) {
-	printf("Usage: si [N]\n N: positive integer\n");
+	printf("Error: Unknown usage: '%s'\nUsage: si [N] -- N: positive integer --\n", a);
 	return 0;
     }
   }
