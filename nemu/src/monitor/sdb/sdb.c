@@ -101,7 +101,7 @@ static int cmd_x(char *args) {
     }
     for (vaddr_t i = cpu.pc; i < CONFIG_MSIZE ; i += 4) {
       uint32_t ab = vaddr_read(i, 4);
-      printf("%d: %08X", i, ab);
+      printf("good");
       if (s == ab) {
 	for (int c = 0; c < n; n ++) {
 	  vaddr_t current = i + c * 4;
