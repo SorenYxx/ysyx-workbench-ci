@@ -88,6 +88,7 @@ static int cmd_x(char *args) {
   int s;
   char *a0;
   char *a1;
+  char *arg = args;
   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
 
@@ -96,7 +97,7 @@ static int cmd_x(char *args) {
     s = strtol(arg1, &a1, 0);
 
     if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
-	printf("Error: Unknown usage: '%s'\n", args);    
+	printf("Error: Unknown usage: '%s'\n", arg);    
     }
     for (vaddr_t i = 0x80000000; i < CONFIG_MSIZE ; i += 4) {
       uint32_t ab = vaddr_read(i, 4);
@@ -106,6 +107,7 @@ static int cmd_x(char *args) {
 	  printf("%d: %08X\n", c, current);
 	  if (current >= CONFIG_MSIZE) break;
 	}
+	printf("Success");
       }
       else printf("Error: no this one");
 
