@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <memory/vaddr.h>
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -69,10 +70,10 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  char *arg = strtok(NULL, " ");
+  //char *arg = strtok(NULL, " ");
   char *b[] = {"r", "w"};
   for (int i = 0; i < 1; i ++) {
-    if (strcmp(arg, b[i]) == 0) {
+    if (strcmp(args, b[i]) == 0) {
       isa_reg_display();
     }
     else {
@@ -81,6 +82,44 @@ static int cmd_info(char *args) {
   }
   return 0;
 }
+
+static int cmd_x(char *args) {
+  int n = 0;
+  int s;
+  char *a0;
+  char *a1;
+  char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
+  char *arg1 = strtok(NULL, " ");//arg1 is the second argv
+
+  if (arg0 != NULL && arg1 != NULL) {
+    n = strtol(arg0, &a0, 10);
+    s = strtol(arg1, &a1, 0);
+
+    if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
+	printf("Error: Unknown usage: '%s'\n", args);    
+    }
+    for (vaddr_t i = 0x80000000; i < CONFIG_MSIZE ; i += 4) {
+      uint32_t ab = vaddr_read(i, 4);
+      if (s == ab) {
+	for (int c = 0; c < n; n ++) {
+	  vaddr_t current = i + c * 4;
+	  printf("%d: %08X\n", c, current);
+	  if (current >= CONFIG_MSIZE) break;
+	}
+      }
+      else printf("Error: no this one");
+
+      }
+    }
+  
+  return 0;
+}
+
+//static int cmd_p(char *args);
+
+//static int cmd_w(char *args);
+
+//static int cmd_d(char *args);
 
 static int cmd_help(char *args);
 
@@ -94,6 +133,10 @@ static struct {
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single-step implementation", cmd_si },
   { "info", "Print program status", cmd_info },
+  { "x", "Scanning memory", cmd_x },
+/*  { "p", "Expression evaluation", cmd_p},
+  { "w", "Set up a monitoring point", cmd_w},
+  { "d", "Delete the monitoring point", cmd_d},*/
   /* TODO: Add more commands */
 
 };
