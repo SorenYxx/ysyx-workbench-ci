@@ -95,18 +95,19 @@ static int cmd_x(char *args) {
   if (arg0 != NULL && arg1 != NULL) {
     n = strtol(arg0, &a0, 10);
     s = strtol(arg1, &a1, 0);
-    printf("%d %08X", n, s);
 
     if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
 	printf("Error: Unknown usage: '%s'\n", arg);    
     }
-    for (vaddr_t i = 0x80000000; i < CONFIG_MSIZE ; i += 4) {
+    for (vaddr_t i = cpu.pc; i < CONFIG_MSIZE ; i += 4) {
       uint32_t ab = vaddr_read(i, 4);
       if (s == ab) {
 	for (int c = 0; c < n; n ++) {
 	  vaddr_t current = i + c * 4;
-	  printf("%d: %08X\n", c, current);
 	  if (current >= CONFIG_MSIZE) break;
+
+	  uint32_t value = vaddr_read(current, 4);
+	  printf("%d: %08X", current, value);
 	}
 	printf("Success");
       }
