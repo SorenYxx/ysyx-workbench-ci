@@ -100,6 +100,7 @@ static int cmd_x(char *args) {
 	printf("Error: Unknown usage: '%s'\n", arg);    
     }
     for (vaddr_t i = cpu.pc; i < CONFIG_MSIZE ; i += 4) {
+      printf("good!");
       uint32_t ab = vaddr_read(i, 4);
       printf("good");
       if (s == ab) {
