@@ -68,6 +68,20 @@ static int cmd_si(char *args) {
   return 0;
 }
 
+static int cmd_info(char *args) {
+  char *arg = strtok(NULL, " ");
+  char *b[] = {"r", "w"};
+  for (int i = 0; i < 1; i ++) {
+    if (strcmp(arg, b[i]) == 0) {
+      isa_reg_display();
+    }
+    else {
+      printf("Unknown usage: '%s'\n", args);
+    }
+  }
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -79,7 +93,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
   { "si", "Single-step implementation", cmd_si },
-
+  { "info", "Print program status", cmd_info },
   /* TODO: Add more commands */
 
 };
