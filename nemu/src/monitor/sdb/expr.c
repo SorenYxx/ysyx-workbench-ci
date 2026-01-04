@@ -21,7 +21,7 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
+  TK_NOTYPE = 256, TK_EQ = 1, TK_NUM = 2
 
   /* TODO: Add more token types */
 
@@ -38,7 +38,14 @@ static struct rule {
 
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"-", '-'},
+  {"\\*", '*'},
+  {"/", '/'},
   {"==", TK_EQ},        // equal
+  {"[0-9]+", TK_NUM},
+//  {"", },
+  {"\\(", '('},
+  {"\\)", ')'},
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -72,8 +79,11 @@ static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
   int position = 0;
+  int n = 0;
   int i;
   regmatch_t pmatch;
+
+  Token tokens[100];
 
   nr_token = 0;
 
@@ -86,6 +96,13 @@ static bool make_token(char *e) {
 
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
+
+	if (rules[i].token_type != TK_NOTYPE) {
+	  tokens[n].type = rules[i].token_type;
+	  strcpy(tokens[n].str, e);
+	  printf("%d: %s\n", tokens[n].type, tokens[n].str);
+	  n++;
+	}
 
         position += substr_len;
 

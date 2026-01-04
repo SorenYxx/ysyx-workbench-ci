@@ -101,7 +101,6 @@ static int cmd_x(char *args) {
     }
     vaddr_t start = cpu.pc;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
-      //uint32_t ab = vaddr_read(i, 4);
       if (s == i) {
 	for (int c = 0; c < n; c ++) {
 	  vaddr_t current = i + c * 4;
@@ -119,7 +118,11 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-//static int cmd_p(char *args);
+/*static int cmd_p(char *args) {
+
+  return 0;
+}*/
+
 
 //static int cmd_w(char *args);
 
@@ -138,8 +141,8 @@ static struct {
   { "si", "Single-step implementation", cmd_si },
   { "info", "Print program status", cmd_info },
   { "x", "Scanning memory", cmd_x },
-/*  { "p", "Expression evaluation", cmd_p},
-  { "w", "Set up a monitoring point", cmd_w},
+//  { "p", "Expression evaluation", cmd_p},
+/*  { "w", "Set up a monitoring point", cmd_w},
   { "d", "Delete the monitoring point", cmd_d},*/
   /* TODO: Add more commands */
 
