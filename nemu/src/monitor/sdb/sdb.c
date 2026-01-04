@@ -110,12 +110,11 @@ static int cmd_x(char *args) {
 	  uint32_t value = vaddr_read(current, 4);
 	  printf("%d: %08X", current, value);
 	}
-	printf("Success");
-      }
-      else printf("Error: no this one");
-
+	printf("Success\n");
+        break;
       }
     }
+  }
   
   return 0;
 }
