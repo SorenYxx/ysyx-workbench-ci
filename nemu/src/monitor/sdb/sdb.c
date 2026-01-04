@@ -99,7 +99,9 @@ static int cmd_x(char *args) {
     if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
 	printf("Error: Unknown usage: '%s'\n", arg);    
     }
-    printf("do");
+    vaddr_t end = CONFIG_MSIZE;
+    vaddr_t start = cpu.pc;
+    printf("%08X %08X\n", end, start);
     for (vaddr_t i = cpu.pc; i < CONFIG_MSIZE ; i += 4) {
       uint32_t ab = vaddr_read(i, 4);
       if (s == ab) {
