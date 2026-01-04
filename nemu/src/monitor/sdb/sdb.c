@@ -103,12 +103,12 @@ static int cmd_x(char *args) {
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
       //uint32_t ab = vaddr_read(i, 4);
       if (s == i) {
-	for (int c = 0; c < n; n ++) {
+	for (int c = 0; c < n; c ++) {
 	  vaddr_t current = i + c * 4;
 	  if (current >= 0X88000000) break;
 
 	  uint32_t value = vaddr_read(current, 4);
-	  printf("%d: %08X", current, value);
+	  printf("-0X%08X: %08X\n", current, value);
 	}
 	printf("Success\n");
         break;
