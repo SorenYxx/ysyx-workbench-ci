@@ -105,7 +105,7 @@ static int cmd_x(char *args) {
       if (s == i) {
 	for (int c = 0; c < n; n ++) {
 	  vaddr_t current = i + c * 4;
-	  if (current >= CONFIG_MSIZE) break;
+	  if (current >= 0X88000000) break;
 
 	  uint32_t value = vaddr_read(current, 4);
 	  printf("%d: %08X", current, value);
