@@ -101,8 +101,8 @@ static int cmd_x(char *args) {
     }
     vaddr_t start = cpu.pc;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
-      uint32_t ab = vaddr_read(i, 4);
-      if (s == ab) {
+      //uint32_t ab = vaddr_read(i, 4);
+      if (s == i) {
 	for (int c = 0; c < n; n ++) {
 	  vaddr_t current = i + c * 4;
 	  if (current >= CONFIG_MSIZE) break;
