@@ -57,7 +57,7 @@ static regex_t re[NR_REGEX] = {};
  */
 void init_regex() {
   int i;
-  char error_msg[128];
+  char error_msg [128];
   int ret;
 
   for (i = 0; i < NR_REGEX; i ++) {
@@ -83,7 +83,7 @@ static bool make_token(char *e) {
   int i;
   regmatch_t pmatch;
 
-  Token tokens[100];
+  Token tokens[1000];
 
   nr_token = 0;
 
@@ -99,7 +99,8 @@ static bool make_token(char *e) {
 
 	if (rules[i].token_type != TK_NOTYPE) {
 	  tokens[n].type = rules[i].token_type;
-	  strcpy(tokens[n].str, e);
+	  //assert(strlen(e[position]) <= 32);
+	  tokens[n].str[0] = e[position];
 	  printf("%d: %s\n", tokens[n].type, tokens[n].str);
 	  n++;
 	}
@@ -129,14 +130,87 @@ static bool make_token(char *e) {
 }
 
 
+static bool check_parentheses(int p, int q) {
+  int state = 0;
+  if (tokens[p].type == 40 && tokens[q].type == 41) {
+    for (; p < q; p++) {
+      if (tokens[p].type == '(') state++;
+      else if (tokens[p].type == ')') state--;
+      else if (state < 0) assert(0);
+      else if(state == 0 && p != q) return false;
+    }
+  }
+  return true;
+}
+
+static int priority(char op) {
+    switch (op) {
+        case '+': case '-': return 1;
+        case '*': case '/': return 2;
+        default: return 0;
+    }
+}
+
+static int m_op(int p, int q) {
+    int pos = -1;
+    int op_priority = 2;
+    int bracket = 0;
+
+    for (; p != q; p++) {
+        if (tokens[p].type == '(') bracket++;
+        else if (tokens[p].type == ')') bracket--;
+        else if (bracket == 0) {
+	    char op = tokens[p].str[0];
+            int i = priority(op);
+            if (i > 0 && i <= op_priority) {
+                op_priority = i;
+                pos = p;
+            }
+        }
+    }
+
+    return pos;
+}
+
+uint32_t eval(int p, int q) {
+  uint32_t val1;
+  uint32_t val2;
+  int op;
+
+  if (p > q) return 0;
+
+  else if (p == q) {
+    return atoi((tokens[p].str));
+  }
+
+  else if (check_parentheses(p, q) == true) {
+    return eval(p + 1, q - 1);
+  }
+  
+  else {
+    op = m_op(p, q);
+    val1 = eval(p, op - 1);
+    val2 = eval(op + 1, q);
+
+    switch (tokens[op].type) {
+      case '+': return val1 + val2;
+      case '-': return val1 - val2;
+      case '*': return val1 * val2;
+      case '/': return val1 / val2;
+      default: assert(0);
+    }
+  }
+}
+
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
     *success = false;
     return 0;
   }
 
+  *success = true;
+  uint32_t str_len = strlen(e);
+  return (eval(0, str_len));
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
-
-  return 0;
 }
+

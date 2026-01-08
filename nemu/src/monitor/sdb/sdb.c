@@ -118,10 +118,15 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-/*static int cmd_p(char *args) {
-
-  return 0;
-}*/
+static int cmd_p(char *args) {
+  bool success;
+  int result = expr(args, &success);
+  if (success) {
+    printf("The result is: %d\n", result);
+    return 0;
+  }
+  else assert(0);
+}
 
 
 //static int cmd_w(char *args);
@@ -141,7 +146,7 @@ static struct {
   { "si", "Single-step implementation", cmd_si },
   { "info", "Print program status", cmd_info },
   { "x", "Scanning memory", cmd_x },
-//  { "p", "Expression evaluation", cmd_p},
+  { "p", "Expression evaluation", cmd_p},
 /*  { "w", "Set up a monitoring point", cmd_w},
   { "d", "Delete the monitoring point", cmd_d},*/
   /* TODO: Add more commands */

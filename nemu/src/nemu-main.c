@@ -31,5 +31,25 @@ int main(int argc, char *argv[]) {
   /* Start engine. */
   engine_start();
 
+/*  FILE *fp = fopen("input", "r");
+
+  int result = 0;
+  int state = 1;
+  char ep[100];
+
+  for () {
+    if (fp != ' ' && fp != '\0') {
+      if (state) result = *fp;
+      else {
+        ep = fp;
+        int r = expr(ep, 1);
+        ep = {};
+        state = 0;
+      }
+    }
+
+    assert(re == result);
+  }*/
+
   return is_exit_status_bad();
 }
