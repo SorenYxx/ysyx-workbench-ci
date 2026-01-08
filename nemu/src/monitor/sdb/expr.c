@@ -117,7 +117,7 @@ static bool make_token(char *e) {
           	      tokens[n].type = rules[i].token_type;
           	      //assert(strlen(e[position]) <= 32);
           	      tokens[n].str[0] = e[position];
-          	      printf("%d: %s\n", tokens[n].type, tokens[n].str);
+          	      printf("token[%d].type: %d\ntoken[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
 
@@ -219,7 +219,7 @@ word_t expr(char *e, bool *success) {
 
   *success = true;
   uint32_t str_len = strlen(e);
-  for (int k = 0; k < str_len; k++) printf("the tokens are %s", tokens[k].str);
+  for (int k = 0; k < str_len; k++) printf("the tokens are %s\n", tokens[k].str);
   return (eval(0, str_len));
   /* TODO: Insert codes to evaluate the expression. */
 }
