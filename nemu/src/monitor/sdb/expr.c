@@ -82,7 +82,6 @@ static bool make_token(char *e) {
   int position = 0;
   //int n = 0;
   int i;
-  //int Len = 0;
   regmatch_t pmatch;
 
   nr_token = 0;
@@ -100,7 +99,7 @@ static bool make_token(char *e) {
         switch (rules[i].token_type) {
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
-          	      //assert(strlen(e[position]) <= 32);
+          	      assert(strlen(substr_start) <= 32);
           	      /*if (tokens[n].type == 2 && tokens[n-1].type == 2) {
 			char s[2];
 			sprintf(s, "%c", e[position]);
@@ -109,7 +108,7 @@ static bool make_token(char *e) {
 			Len++;
 		      }
 		      else tokens[n].str[0] = e[position];*/
-		      strcpy(tokens[n].str, (e + position));
+		      strcpy(tokens[n].str, substr_start);
           	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
