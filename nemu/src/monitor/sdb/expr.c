@@ -105,6 +105,7 @@ static bool make_token(char *e) {
 			char s[2];
 			sprintf(s, "%c", e[position]);
 			strcpy(tokens[n-1].str, s);
+			printf("%s %s", s, tokens[n-1].str);
 			Len++;
 		      }
 		      else tokens[n].str[0] = e[position];
@@ -222,6 +223,8 @@ word_t expr(char *e, bool *success) {
   uint32_t str_len = n;
   printf("the len are: %d\n", str_len);
   int R = eval(0, str_len - 1);
+  
+  n = 0;
   return (R);
 }
 
