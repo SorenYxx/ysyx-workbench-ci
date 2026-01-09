@@ -193,6 +193,7 @@ uint32_t eval(int p, int q) {
   }
 
   else if (check_parentheses(p, q) == true) {
+    printf("..good match\n");
     return eval(p + 1, q - 1);
   }
   
@@ -200,6 +201,7 @@ uint32_t eval(int p, int q) {
     op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
+    printf("Last..op: %d val1: %d val2: %d\n", op, val1, val2);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
@@ -219,7 +221,7 @@ word_t expr(char *e, bool *success) {
 
   *success = true;
   uint32_t str_len = strlen(e);
-  for (int k = 0; k < str_len; k++) printf("the len are: %d\n", str_len);
+  printf("the len are: %d\n", str_len);
   int R = eval(0, str_len - 1);
   //tokens[]
   return (R);
