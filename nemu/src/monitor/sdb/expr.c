@@ -108,7 +108,9 @@ static bool make_token(char *e) {
 			Len++;
 		      }
 		      else tokens[n].str[0] = e[position];*/
-		      strcpy(tokens[n].str, substr_start);
+		      char s[32];
+		      sprintf(s, "%.*s", substr_len, substr_start);
+		      strcpy(tokens[n].str, s);
           	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
