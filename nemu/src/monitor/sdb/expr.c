@@ -146,9 +146,12 @@ static bool check_parentheses(int p, int q) {
     for (; p < q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
-      else if (state < 0) assert(0);
     }
     if (state == 0) return true;
+    else {
+      printf("Error: The parentheses do not match!\n");
+      assert(0);
+    }
   }
   return false;
 }
