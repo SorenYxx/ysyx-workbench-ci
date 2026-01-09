@@ -76,11 +76,13 @@ typedef struct token {
 
 static Token tokens[32] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
+static int n = 0;
 
 static bool make_token(char *e) {
   int position = 0;
-  int n = 0;
+  //int n = 0;
   int i;
+  int Len = 0;
   regmatch_t pmatch;
 
   nr_token = 0;
@@ -95,26 +97,17 @@ static bool make_token(char *e) {
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
-	/*if (rules[i].token_type != TK_NOTYPE) {
-	  tokens[n].type = rules[i].token_type;
-	  //assert(strlen(e[position]) <= 32);
-	  tokens[n].str[0] = e[position];
-	  printf("%d: %s\n", tokens[n].type, tokens[n].str);
-	  n++;
-	}
-
-        position += substr_len;*/
-
-        /* TODO: Now a new token is recognized with rules[i]. Add codes
-         * to record the token in the array `tokens'. For certain types
-         * of tokens, some extra actions should be performed.
-         */
-
         switch (rules[i].token_type) {
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
           	      //assert(strlen(e[position]) <= 32);
-          	      tokens[n].str[0] = e[position];
+          	      if (tokens[n].type == 2 && tokens[n-1].type == 2) {
+			char s[2];
+			sprintf(s, "%c", e[position]);
+			strcpy(tokens[n-1].str, s);
+			Len++;
+		      }
+		      else tokens[n].str[0] = e[position];
           	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
@@ -226,11 +219,9 @@ word_t expr(char *e, bool *success) {
   }
 
   *success = true;
-  uint32_t str_len = strlen(e);
+  uint32_t str_len = n;
   printf("the len are: %d\n", str_len);
   int R = eval(0, str_len - 1);
-  //tokens[]
   return (R);
-  /* TODO: Insert codes to evaluate the expression. */
 }
 
