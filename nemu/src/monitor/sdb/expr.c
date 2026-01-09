@@ -100,14 +100,7 @@ static bool make_token(char *e) {
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
           	      assert(strlen(substr_start) <= 32);
-          	      /*if (tokens[n].type == 2 && tokens[n-1].type == 2) {
-			char s[2];
-			sprintf(s, "%c", e[position]);
-			strcpy(tokens[n-1].str, s);
-			printf("%s %s", s, tokens[n-1].str);
-			Len++;
-		      }
-		      else tokens[n].str[0] = e[position];*/
+
 		      char s[32];
 		      sprintf(s, "%.*s", substr_len, substr_start);
 		      strcpy(tokens[n].str, s);
@@ -142,6 +135,7 @@ static bool check_parentheses(int p, int q) {
     for (; p < q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
+      printf("state: %d\n", state);
     }
     if (state == 0) return true;
     else {
