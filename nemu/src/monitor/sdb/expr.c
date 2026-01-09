@@ -140,14 +140,15 @@ static bool make_token(char *e) {
 static bool check_parentheses(int p, int q) {
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
+    printf("success in match...\n");
     for (; p < q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
       else if (state < 0) assert(0);
-      else if(state == 0 && p != q) return false;
+      else if(state == 0 && p == q) return true;
     }
   }
-  return true;
+  return false;
 }
 
 static int priority(char op) {
