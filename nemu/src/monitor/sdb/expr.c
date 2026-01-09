@@ -141,12 +141,14 @@ static bool check_parentheses(int p, int q) {
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
     printf("success in match...\n");
+    p++;
+    q--;
     for (; p < q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
       else if (state < 0) assert(0);
-      else if(state == 0 && p == q) return true;
     }
+    if (state == 0) return true;
   }
   return false;
 }
