@@ -187,7 +187,9 @@ uint32_t eval(int p, int q) {
   if (p > q) return 0;
 
   else if (p == q) {
-    return atoi((tokens[p].str));
+    uint32_t num = atoi(tokens[p].str);
+    printf("The num in tokens is: %d\n", num);
+    return (num);
   }
 
   else if (check_parentheses(p, q) == true) {
@@ -217,7 +219,7 @@ word_t expr(char *e, bool *success) {
 
   *success = true;
   uint32_t str_len = strlen(e);
-  for (int k = 0; k < str_len; k++) printf("the tokens are %s\n", tokens[k].str);
+  for (int k = 0; k < str_len; k++) printf("the len are: %d\n", str_len);
   int R = eval(0, str_len);
   //tokens[]
   return (R);
