@@ -220,7 +220,7 @@ word_t expr(char *e, bool *success) {
   *success = true;
   uint32_t str_len = strlen(e);
   for (int k = 0; k < str_len; k++) printf("the len are: %d\n", str_len);
-  int R = eval(0, str_len);
+  int R = eval(0, str_len - 1);
   //tokens[]
   return (R);
   /* TODO: Insert codes to evaluate the expression. */
