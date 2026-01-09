@@ -135,7 +135,7 @@ static bool check_parentheses(int p, int q) {
     for (; p < q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
-      printf("state: %d\n", state);
+      printf("state: %d %d\n", state, q);
     }
     if (state == 0) return true;
     else {
