@@ -140,7 +140,7 @@ static bool make_token(char *e) {
 static bool check_parentheses(int p, int q) {
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
-    printf("success in match...\n");
+    printf("check in match...\n");
     p++;
     q--;
     for (; p < q; p++) {
