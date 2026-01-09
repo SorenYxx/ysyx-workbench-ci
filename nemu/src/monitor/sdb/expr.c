@@ -83,8 +83,6 @@ static bool make_token(char *e) {
   int i;
   regmatch_t pmatch;
 
-  Token tokens[1000];
-
   nr_token = 0;
 
   while (e[position] != '\0') {
@@ -117,7 +115,7 @@ static bool make_token(char *e) {
           	      tokens[n].type = rules[i].token_type;
           	      //assert(strlen(e[position]) <= 32);
           	      tokens[n].str[0] = e[position];
-          	      printf("token[%d].type: %d\ntoken[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
+          	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
 
@@ -220,7 +218,9 @@ word_t expr(char *e, bool *success) {
   *success = true;
   uint32_t str_len = strlen(e);
   for (int k = 0; k < str_len; k++) printf("the tokens are %s\n", tokens[k].str);
-  return (eval(0, str_len));
+  int R = eval(0, str_len);
+  //tokens[]
+  return (R);
   /* TODO: Insert codes to evaluate the expression. */
 }
 
