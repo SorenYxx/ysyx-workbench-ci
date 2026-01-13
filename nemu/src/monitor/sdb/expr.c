@@ -21,9 +21,15 @@
 #include <regex.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ = 1, TK_NUM = 2
-
-  /* TODO: Add more token types */
+  TK_NOTYPE = 256,
+  TK_EQ = 257, 
+  TK_NEQ = 258, 
+  TK_NUM = 259, 
+  TK_AND = 260, 
+  TK_HEX = 261,
+  TK_REG = 262,
+  DEREF = 263,
+  
 
 };
 
@@ -36,16 +42,20 @@ static struct rule {
    * Pay attention to the precedence level of different rules.
    */
 
+  {"0x[0-9a-hA-H]{8}", TK_HEX},
+  {"\\$[a-z]\\d+", TK_REG},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},
   {"\\*", '*'},
   {"/", '/'},
   {"==", TK_EQ},        // equal
+  {"!=", TK_NEQ},
   {"[0-9]+", TK_NUM},
-//  {"", },
   {"\\(", '('},
   {"\\)", ')'},
+  {"&&",TK_AND},
+
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -145,24 +155,26 @@ static bool check_parentheses(int p, int q) {
   return false;
 }
 
-static int priority(char op) {
+static int priority(int op) {
     switch (op) {
-        case '+': case '-': return 1;
-        case '*': case '/': return 2;
+	case TK_AND: return 1;
+	case TK_EQ: case TK_NEQ: return 2;
+        case '+': case '-': return 3;
+        case '*': case '/': return 4;
         default: return 0;
     }
 }
 
 static int m_op(int p, int q) {
     int pos = -1;
-    int op_priority = 2;
+    int op_priority = 4;
     int bracket = 0;
 
     for (; p != q; p++) {
         if (tokens[p].type == '(') bracket++;
         else if (tokens[p].type == ')') bracket--;
         else if (bracket == 0) {
-	    char op = tokens[p].str[0];
+	    int op = tokens[p].type;
             int i = priority(op);
             if (i > 0 && i <= op_priority) {
                 op_priority = i;
@@ -193,6 +205,26 @@ uint32_t eval(int p, int q) {
   }
   
   else {
+    for (int k = p; k <= q; k ++) {
+      int thelen = strlen(tokens[k].str);
+      char reg0[32];
+      switch (tokens[k].type) {
+        case TK_HEX:if (true) {
+		      uint32_t num;
+		      sscanf(tokens[k].str, "%x", &num);
+		      sprintf(tokens[k].str, "%u", num);
+                    }
+
+	case TK_REG:if (true) {
+		      for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
+		      bool good;
+		      sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
+		      assert(good);
+      		    }
+      }
+
+    }
+
     op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
@@ -203,6 +235,9 @@ uint32_t eval(int p, int q) {
       case '-': return val1 - val2;
       case '*': return val1 * val2;
       case '/': return val1 / val2;
+      case TK_AND: return val1 && val2;
+      case TK_EQ: return val1 == val2;
+      case TK_NEQ: return val1 != val2;
       default: assert(0);
     }
   }
@@ -214,6 +249,12 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
+  for (int i = 0; i < nr_token; i ++) {
+    if (tokens[i].type == '*' && (i == 0 || tokens[i - 1].type == '(') ) {
+      tokens[i].type = DEREF;
+    }
+  }
+
   *success = true;
   uint32_t str_len = n;
   printf("the len are: %d\n", str_len);
@@ -222,4 +263,3 @@ word_t expr(char *e, bool *success) {
   n = 0;
   return (R);
 }
-
