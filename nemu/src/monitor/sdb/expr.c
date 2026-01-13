@@ -248,13 +248,12 @@ word_t expr(char *e, bool *success) {
                   sprintf(tokens[k].str, "%u", num);
                   printf("----tokens[%d]: %s\n", k, tokens[k].str);
 
-      case TK_REG:if (true) {
-		    printf("---1\n");
-                    for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
-                    bool good;
-                    sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
-                    assert(good);
-                  };
+      case TK_REG:printf("---1\n");
+                  for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
+                  bool good;
+                  sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
+                  assert(good);
+
       default: assert(1);
     }
     printf("---2: %s\n", tokens[1].str);
