@@ -260,7 +260,8 @@ word_t expr(char *e, bool *success) {
     }
 
   }
-  
+ 
+  printf("HEX: %s", tokens[1].str); 
   int R = eval(0, str_len - 1);
   
   n = 0;
