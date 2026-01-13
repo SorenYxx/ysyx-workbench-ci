@@ -43,7 +43,7 @@ static struct rule {
    */
 
   {"0x[0-9a-hA-H]{8}", TK_HEX},
-  {"\\$[a-z]\\d+", TK_REG},
+  {"^\\$[a-z]\\d+", TK_REG},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},
@@ -211,8 +211,10 @@ uint32_t eval(int p, int q) {
       switch (tokens[k].type) {
         case TK_HEX:if (true) {
 		      uint32_t num;
+		      printf("HEX_str: %s\n", tokens[k].str);
 		      sscanf(tokens[k].str, "%x", &num);
 		      sprintf(tokens[k].str, "%u", num);
+                      printf("HEX_num: %d\n", num);
                     }
 
 	case TK_REG:if (true) {
