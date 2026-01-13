@@ -213,7 +213,7 @@ uint32_t eval(int p, int q) {
 		      uint32_t num;
 		      sscanf(tokens[k].str, "%x", &num);
 		      sprintf(tokens[k].str, "%u", num);
-		      printf("----HEX[%d]: %s\n", k, tokens[k].str);
+		      printf("----tokens[%d]: %s\n", k, tokens[k].str);
                     }
 
 	case TK_REG:if (true) {
@@ -225,7 +225,7 @@ uint32_t eval(int p, int q) {
       }
 
     }
-    for (int o = 0; o <= 5; o ++) printf("%s", tokens[o].str);
+    printf("%s\n", tokens[1].str);
     op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
