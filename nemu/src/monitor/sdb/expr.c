@@ -251,6 +251,7 @@ word_t expr(char *e, bool *success) {
                   }
 
       case TK_REG:if (true) {
+		    printf("---1\n");
                     for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
                     bool good;
                     sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
@@ -258,10 +259,9 @@ word_t expr(char *e, bool *success) {
                   }
       default: assert(1);
     }
-
+    printf("---2: %s", tokens[1].str);
   }
  
-  printf("HEX: %s", tokens[1].str); 
   int R = eval(0, str_len - 1);
   
   n = 0;
