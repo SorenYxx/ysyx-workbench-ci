@@ -247,14 +247,15 @@ word_t expr(char *e, bool *success) {
                   sscanf(tokens[k].str, "%x", &num);
                   sprintf(tokens[k].str, "%u", num);
                   printf("----tokens[%d]: %s\n", k, tokens[k].str);
+		  break;
 
-      case TK_REG:printf("---1\n");
-                  for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
+      case TK_REG:for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
                   bool good;
                   sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
                   assert(good);
+		  break;
 
-      default: assert(1);
+      default: break;
     }
     printf("---2: %s\n", tokens[1].str);
   }
