@@ -211,10 +211,9 @@ uint32_t eval(int p, int q) {
       switch (tokens[k].type) {
         case TK_HEX:if (true) {
 		      uint32_t num;
-		      printf("HEX_str: %s\n", tokens[k].str);
 		      sscanf(tokens[k].str, "%x", &num);
 		      sprintf(tokens[k].str, "%u", num);
-                      printf("HEX_num: %d\n", num);
+                      printf("HEX_num: %s\n", tokens[k].str);
                     }
 
 	case TK_REG:if (true) {
