@@ -191,27 +191,6 @@ uint32_t eval(int p, int q) {
   uint32_t val2;
   int op;
 
-  for (int k = p; k <= q; k ++) {
-    int thelen = strlen(tokens[k].str);
-    char reg0[32];
-    switch (tokens[k].type) {
-      case TK_HEX:if (true) {
-                    uint32_t num;
-                    sscanf(tokens[k].str, "%x", &num);
-                    sprintf(tokens[k].str, "%u", num);
-                    printf("----tokens[%d]: %s\n", k, tokens[k].str);
-                  }
-
-      case TK_REG:if (true) {
-                    for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
-                    bool good;
-                    sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
-                    assert(good);
-                  }
-    }
-
-  }
-
   if (p > q) return 0;
 
   else if (p == q) {
@@ -226,28 +205,7 @@ uint32_t eval(int p, int q) {
   }
   
   else {
-/*    for (int k = p; k <= q; k ++) {
-      int thelen = strlen(tokens[k].str);
-      char reg0[32];
-      switch (tokens[k].type) {
-        case TK_HEX:if (true) {
-		      uint32_t num;
-		      sscanf(tokens[k].str, "%x", &num);
-		      sprintf(tokens[k].str, "%u", num);
-		      printf("----tokens[%d]: %s\n", k, tokens[k].str);
-                    }
-
-	case TK_REG:if (true) {
-		      for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
-		      bool good;
-		      sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
-		      assert(good);
-      		    }
-      }
-
-    }*/
-    printf("%s\n", tokens[1].str);
-    op = m_op(p, q);
+  op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
     printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
@@ -280,6 +238,29 @@ word_t expr(char *e, bool *success) {
   *success = true;
   uint32_t str_len = n;
   printf("the len are: %d\n", str_len);
+  
+  for (int k = 0; k <= n; k ++) {
+    int thelen = strlen(tokens[k].str);
+    char reg0[32];
+    switch (tokens[k].type) {
+      case TK_HEX:if (true) {
+                    uint32_t num;
+                    sscanf(tokens[k].str, "%x", &num);
+                    sprintf(tokens[k].str, "%u", num);
+                    printf("----tokens[%d]: %s\n", k, tokens[k].str);
+                  }
+
+      case TK_REG:if (true) {
+                    for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
+                    bool good;
+                    sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
+                    assert(good);
+                  }
+      default: assert(1);
+    }
+
+  }
+  
   int R = eval(0, str_len - 1);
   
   n = 0;
