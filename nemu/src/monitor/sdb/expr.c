@@ -243,12 +243,10 @@ word_t expr(char *e, bool *success) {
     int thelen = strlen(tokens[k].str);
     char reg0[32];
     switch (tokens[k].type) {
-      case TK_HEX:if (true) {
-                    uint32_t num;
-                    sscanf(tokens[k].str, "%x", &num);
-                    sprintf(tokens[k].str, "%u", num);
-                    printf("----tokens[%d]: %s\n", k, tokens[k].str);
-                  };
+      case TK_HEX:uint32_t num;
+                  sscanf(tokens[k].str, "%x", &num);
+                  sprintf(tokens[k].str, "%u", num);
+                  printf("----tokens[%d]: %s\n", k, tokens[k].str);
 
       case TK_REG:if (true) {
 		    printf("---1\n");
