@@ -213,6 +213,7 @@ uint32_t eval(int p, int q) {
 		      uint32_t num;
 		      sscanf(tokens[k].str, "%x", &num);
 		      sprintf(tokens[k].str, "%u", num);
+		      printf("----HEX[%d]: %s\n", k, tokens[k].str);
                     }
 
 	case TK_REG:if (true) {
