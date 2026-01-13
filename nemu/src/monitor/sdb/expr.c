@@ -248,7 +248,7 @@ word_t expr(char *e, bool *success) {
                     sscanf(tokens[k].str, "%x", &num);
                     sprintf(tokens[k].str, "%u", num);
                     printf("----tokens[%d]: %s\n", k, tokens[k].str);
-                  }
+                  };
 
       case TK_REG:if (true) {
 		    printf("---1\n");
@@ -256,10 +256,10 @@ word_t expr(char *e, bool *success) {
                     bool good;
                     sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
                     assert(good);
-                  }
+                  };
       default: assert(1);
     }
-    printf("---2: %s", tokens[1].str);
+    printf("---2: %s\n", tokens[1].str);
   }
  
   int R = eval(0, str_len - 1);
