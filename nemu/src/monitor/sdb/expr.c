@@ -250,6 +250,7 @@ word_t expr(char *e, bool *success) {
 
       case TK_REG:for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
                   bool good;
+		  printf("The reg is: %s\n", reg0);
                   sprintf(tokens[k].str, "%u", isa_reg_str2val(reg0, &good));
                   assert(good);
 		  break;
