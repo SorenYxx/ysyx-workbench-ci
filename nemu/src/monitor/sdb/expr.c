@@ -43,7 +43,7 @@ static struct rule {
    */
 
   {"0x[0-9a-hA-H]{8}", TK_HEX},
-  {"^\\$[a-z][0-9]+", TK_REG},
+  {"^\\$\\$?[a-z]+[0-9]?", TK_REG},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},
