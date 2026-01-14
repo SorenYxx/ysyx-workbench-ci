@@ -31,9 +31,12 @@ void isa_reg_display() {
 
 word_t isa_reg_str2val(const char *s, bool *success) {
   *success = false;
+  printf("The s are: %s\n", s);
   for (int i = 0; i < 32; i ++) {
+    printf("reg[%d]: %s\n", i, regs[i]);
     if (regs[i] == s) {
       *success = true;
+      printf("----good\n");
       return *(regs[i]);
     }
   }
