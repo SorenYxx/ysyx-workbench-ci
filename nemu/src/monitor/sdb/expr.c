@@ -106,15 +106,15 @@ static bool make_token(char *e) {
         Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
-        switch (rules[i].token_type) {
+        switch (rules[i].token_type) { //开始将匹配的type内容写入每个token中.
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
-          	      assert(strlen(substr_start) <= 32);
+          	      assert(strlen(substr_start) <= 32); //限制str长度.
 
 		      char s[32];
 		      sprintf(s, "%.*s", substr_len, substr_start);
 		      strcpy(tokens[n].str, s);
-          	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
+          	      //printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
 
@@ -122,7 +122,7 @@ static bool make_token(char *e) {
 
         }
 
-        break;
+      break;
       }
     }
 
@@ -136,7 +136,7 @@ static bool make_token(char *e) {
 }
 
 
-static bool check_parentheses(int p, int q) {
+static bool check_parentheses(int p, int q) { //状态机check
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
     printf("check in match...\n");
@@ -155,7 +155,7 @@ static bool check_parentheses(int p, int q) {
   return false;
 }
 
-static int priority(int op) {
+static int priority(int op) { //优先级排序
     switch (op) {
 	case TK_AND: return 1;
 	case TK_EQ: case TK_NEQ: return 2;
@@ -165,13 +165,13 @@ static int priority(int op) {
     }
 }
 
-static int m_op(int p, int q) {
+static int m_op(int p, int q) { //主运算符选取
     int pos = -1;
     int op_priority = 4;
     int bracket = 0;
 
     for (; p != q; p++) {
-        if (tokens[p].type == '(') bracket++;
+        if (tokens[p].type == '(') bracket++; //避免选择括号里的
         else if (tokens[p].type == ')') bracket--;
         else if (bracket == 0) {
 	    int op = tokens[p].type;
@@ -239,7 +239,8 @@ word_t expr(char *e, bool *success) {
   uint32_t str_len = n;
   printf("the len are: %d\n", str_len);
   
-  for (int k = 0; k <= n; k ++) {
+  //首先转换hex和reg
+  for (int k = 0; k <= n; k ++) { 
     int thelen = strlen(tokens[k].str);
     char reg0[32];
     switch (tokens[k].type) {
