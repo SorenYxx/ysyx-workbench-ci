@@ -43,7 +43,7 @@ static struct rule {
    */
 
   {"0x[0-9a-hA-H]{8}", TK_HEX},
-  {"^\\$[a-z]\\d+", TK_REG},
+  {"^\\$", TK_REG},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},
@@ -246,7 +246,6 @@ word_t expr(char *e, bool *success) {
       case TK_HEX:uint32_t num;
                   sscanf(tokens[k].str, "%x", &num);
                   sprintf(tokens[k].str, "%u", num);
-                  printf("----tokens[%d]: %s\n", k, tokens[k].str);
 		  break;
 
       case TK_REG:for (int b = 0; b < thelen; b ++) reg0[b] = tokens[k].str[b + 1];
@@ -257,7 +256,6 @@ word_t expr(char *e, bool *success) {
 
       default: break;
     }
-    printf("---2: %s\n", tokens[1].str);
   }
  
   int R = eval(0, str_len - 1);
