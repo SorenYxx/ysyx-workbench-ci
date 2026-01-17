@@ -20,4 +20,8 @@
 
 word_t expr(char *e, bool *success);
 
+int c_print(void);
+int c_w(char* args);
+int c_d(char* args);
+
 #endif

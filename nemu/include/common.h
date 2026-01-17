@@ -47,3 +47,7 @@ typedef uint16_t ioaddr_t;
 #include <debug.h>
 
 #endif
+
+#ifdef CONFIG_WATCHPOINT
+void check_watchpoints(void);
+#endif

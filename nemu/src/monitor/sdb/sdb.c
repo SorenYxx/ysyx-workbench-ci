@@ -70,16 +70,14 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
-  //char *arg = strtok(NULL, " ");
-  char *b[] = {"r", "w"};
+  char b[] = {"rw"};
   for (int i = 0; i < 1; i ++) {
-    if (strcmp(args, b[i]) == 0) {
-      isa_reg_display();
-    }
-    else {
-      printf("Unknown usage: '%s'\n", args);
+    switch (b[i]) {
+    case 'r': isa_reg_display(); return 0;
+    case 'w': return c_print();
     }
   }
+  printf("Unknown usage: '%s'\n", args);
   return 0;
 }
 
@@ -129,9 +127,13 @@ static int cmd_p(char *args) {
 }
 
 
-//static int cmd_w(char *args);
+static int cmd_w(char *args) {
+  return c_w(args);
+}
 
-//static int cmd_d(char *args);
+static int cmd_d(char *args) {
+  return c_d(args);
+}
 
 static int cmd_help(char *args);
 
@@ -147,9 +149,8 @@ static struct {
   { "info", "Print program status", cmd_info },
   { "x", "Scanning memory", cmd_x },
   { "p", "Expression evaluation", cmd_p},
-/*  { "w", "Set up a monitoring point", cmd_w},
-  { "d", "Delete the monitoring point", cmd_d},*/
-  /* TODO: Add more commands */
+  { "w", "Set up a monitoring point", cmd_w},
+  { "d", "Delete the monitoring point", cmd_d},
 
 };
 
