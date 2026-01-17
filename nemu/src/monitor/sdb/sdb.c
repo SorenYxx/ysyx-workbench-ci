@@ -73,8 +73,8 @@ static int cmd_info(char *args) {
   char b[] = {"rw"};
   for (int i = 0; i < 1; i ++) {
     switch (b[i]) {
-    case 'r': isa_reg_display(); return 0;
-    case 'w': return c_print();
+      case 'r': printf("args is : %c\n", b[i]); isa_reg_display(); return 0;
+      case 'w': return c_print();
     }
   }
   printf("Unknown usage: '%s'\n", args);
