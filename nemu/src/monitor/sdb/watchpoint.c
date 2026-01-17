@@ -94,9 +94,9 @@ int free_wp(WP *wp) {
   }
 
   //wp is the frist one or free_ is NULL
-  wp->next = free_->next;
+  wp->next = free_;
   free_ = wp;
-  printf("check: free wp at frist\n");
+  printf("check: free wp at frist -free: %d next: %d\n", free_->NO, free_->next->NO);
   return 0;
 }
 
