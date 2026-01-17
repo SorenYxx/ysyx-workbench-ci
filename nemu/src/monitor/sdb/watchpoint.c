@@ -68,8 +68,8 @@ int free_wp(WP *wp) {
     for (WP* q = head; q; q = q->next) {
       if (wp->NO == q->next->NO) {
       q->next = wp->next;
-      printf("check: d wp at middle\n");
       empty(wp);
+      printf("check: d wp at middle\n");
       }
     }
   }
