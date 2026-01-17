@@ -67,9 +67,10 @@ int free_wp(WP *wp) {
   else {
     for (WP* q = head; q; q = q->next) {
       if (wp->NO == q->next->NO) {
-      q->next = wp->next;
-      empty(wp);
-      printf("check: d wp at middle\n");
+        q->next = wp->next;
+        empty(wp);
+        printf("check: d wp at middle\n");
+        break;
       }
     }
   }
@@ -96,7 +97,7 @@ int free_wp(WP *wp) {
   //wp is the frist one or free_ is NULL
   wp->next = free_;
   free_ = wp;
-  printf("check: free wp at frist -free: %d next: %d\n", free_->NO, free_->next->NO);
+  //printf("check: free wp at frist -free: %d next: %d\n", free_->NO, free_->next->NO);
   return 0;
 }
 
