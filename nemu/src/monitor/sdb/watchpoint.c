@@ -125,8 +125,8 @@ void check_watchpoints() {
 }
 
 int c_print() {
-  for (WP* q = head; q; q ++) {
-    printf("Num: %d\n  What: %s", q->NO, q->str);
+  for (WP* q = head; q; q = q->next) {
+    printf("Num: %d  What: %s\n", q->NO, q->str);
   }
   return 0;
 }
