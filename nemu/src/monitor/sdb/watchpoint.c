@@ -125,9 +125,12 @@ void check_watchpoints() {
 }
 
 int c_print() {
-  for (WP* q = head; q; q = q->next) {
-    printf("Num: %d  What: %s\n", q->NO, q->str);
-  }
+  
+  if (head) {
+    for (WP* q = head; q; q = q->next) {
+      printf("Num: %d  What: %s\n", q->NO, q->str);
+    }
+  } else printf("You should set a watchpoint frist.\n");
   return 0;
 }
 
