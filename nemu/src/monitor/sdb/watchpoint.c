@@ -80,7 +80,7 @@ int free_wp(WP *wp) {
     //wp is the biggest
     if (p->next == NULL && p->NO < wp->NO) { 
       p->next = wp;
-      printf("check: w wp at last\n");
+      printf("check: free wp at last\n");
       return 0;
     }
 
@@ -88,7 +88,7 @@ int free_wp(WP *wp) {
     else if (p->NO <  wp->NO && wp->NO < p->next->NO) {
       wp->next = p->next;
       p->next = wp;
-      printf("check: w wp at middle\n");
+      printf("check: free wp at middle\n");
       return 0;
     }
   }
@@ -96,7 +96,7 @@ int free_wp(WP *wp) {
   //wp is the frist one or free_ is NULL
   wp->next = free_->next;
   free_ = wp;
-  printf("check: w wp at frist\n");
+  printf("check: free wp at frist\n");
   return 0;
 }
 
