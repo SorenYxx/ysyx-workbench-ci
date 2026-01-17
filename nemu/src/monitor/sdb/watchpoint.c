@@ -61,31 +61,42 @@ int free_wp(WP *wp) {
   //delete wp in head
   if (head == wp) {
     head = head->next;
+    printf("check: d wp at head\n");
     empty(wp);
   }
   else {
     for (WP* q = head; q; q = q->next) {
-      if (wp->NO == q->next->NO) q->next = wp->next;
+      if (wp->NO == q->next->NO) {
+      q->next = wp->next;
+      printf("check: d wp at middle\n");
       empty(wp);
+      }
     }
   }
 
   //wp in the free_
   for (WP* p = free_; p; p = p->next) {
-    if (p->next == NULL) {
+
+    //wp is the biggest
+    if (p->next == NULL && p->NO < wp->NO) { 
       p->next = wp;
+      printf("check: w wp at last\n");
       return 0;
     }
 
+   //wp is the middle
     else if (p->NO <  wp->NO && wp->NO < p->next->NO) {
       wp->next = p->next;
       p->next = wp;
+      printf("check: w wp at middle\n");
       return 0;
     }
   }
 
   //wp is the frist one or free_ is NULL
   wp->next = free_->next;
+  free_ = wp;
+  printf("check: w wp at frist\n");
   return 0;
 }
 
