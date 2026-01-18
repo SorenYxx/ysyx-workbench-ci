@@ -38,11 +38,7 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  /* TODO: Add more rules.
-   * Pay attention to the precedence level of different rules.
-   */
-
-  {"0x[0-9a-hA-H]{8}", TK_HEX},
+  {"0x[0-9a-hA-H]*", TK_HEX},
   {"^\\$\\$?[a-z]*[0-9]*", TK_REG},
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
@@ -57,6 +53,21 @@ static struct rule {
   {"&&",TK_AND},
 
 };
+
+int certain_type(int type) {
+  if (type == '+' ||
+      type == '-' ||
+      type == '*' ||
+      type == '/' ||
+      type == '(' ||
+      type == DEREF ||
+      type == TK_EQ ||
+      type == TK_NEQ ||
+      type == TK_AND
+     ) return 1;
+
+  else return 0;
+}
 
 #define NR_REGEX ARRLEN(rules)
 
@@ -230,7 +241,7 @@ word_t expr(char *e, bool *success) {
   }
 
   for (int i = 0; i < nr_token; i ++) {
-    if (tokens[i].type == '*' && (i == 0 || tokens[i - 1].type == '(') ) {
+    if (tokens[i].type == '*' && (i == 0 || certain_type(tokens[i - 1].type)) ) {
       tokens[i].type = DEREF;
     }
   }
