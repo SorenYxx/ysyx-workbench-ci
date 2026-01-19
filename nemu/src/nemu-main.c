@@ -19,6 +19,7 @@ void init_monitor(int, char *[]);
 void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
+word_t expr(char *e, bool *success);
 
 int main(int argc, char *argv[]) {
   /* Initialize the monitor. */
@@ -31,25 +32,25 @@ int main(int argc, char *argv[]) {
   /* Start engine. */
   engine_start();
 
-/*  FILE *fp = fopen("input", "r");
+  FILE *fp = fopen("input", "r");
+
+  if (!fp) {
+    perror("打开文件失败\n");
+    return 1;
+} 
 
   int result = 0;
-  int state = 1;
   char ep[100];
+  bool success;
 
-  for () {
-    if (fp != ' ' && fp != '\0') {
-      if (state) result = *fp;
-      else {
-        ep = fp;
-        int r = expr(ep, 1);
-        ep = {};
-        state = 0;
-      }
+  for (uint32_t i = 0; i < 10000; i ++) {
+    assert(fscanf(fp, "%u %s", &result, ep) == 2);
+    if (result != expr(ep, &success) || !success) {
+      printf("Error\n");
+      assert(0);
     }
-
-    assert(re == result);
-  }*/
+  printf("success!\n");
+  }
 
   return is_exit_status_bad();
 }
