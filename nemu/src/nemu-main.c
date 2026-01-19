@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  FILE *fp = fopen("input.txt", "r");
+  FILE *fp = fopen("input", "r");
   printf("1\n");
 
   if (!fp) {
