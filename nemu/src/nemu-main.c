@@ -30,6 +30,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   /* Start engine. */
+  printf("start engine\n");
   engine_start();
 
   FILE *fp = fopen("input", "r");
