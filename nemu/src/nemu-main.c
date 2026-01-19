@@ -29,16 +29,13 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  /* Start engine. */
-  engine_start();
-
   FILE *fp = fopen("input", "r");
   printf("1\n");
 
   if (!fp) {
     perror("打开文件失败\n");
     return 1;
-  } 
+  }
 
   int result = 0;
   char ep[100];
@@ -55,5 +52,9 @@ int main(int argc, char *argv[]) {
   }
 
   printf("3\n");
+
+  /* Start engine. */
+  engine_start();
+
   return is_exit_status_bad();
 }
