@@ -30,20 +30,21 @@ int main(int argc, char *argv[]) {
 #endif
 
   /* Start engine. */
-  printf("start engine\n");
   engine_start();
 
   FILE *fp = fopen("input", "r");
+  printf("1\n");
 
   if (!fp) {
     perror("打开文件失败\n");
     return 1;
-} 
+  } 
 
   int result = 0;
   char ep[100];
   bool success;
 
+  printf("2\n");
   for (uint32_t i = 0; i < 10000; i ++) {
     assert(fscanf(fp, "%u %s", &result, ep) == 2);
     if (result != expr(ep, &success) || !success) {
@@ -53,5 +54,6 @@ int main(int argc, char *argv[]) {
   printf("success!\n");
   }
 
+  printf("3\n");
   return is_exit_status_bad();
 }
