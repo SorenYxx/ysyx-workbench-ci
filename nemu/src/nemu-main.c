@@ -29,8 +29,7 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  FILE *fp = fopen("input", "r");
-  printf("1\n");
+/*  FILE *fp = fopen("input", "r");
 
   if (!fp) {
     perror("打开文件失败\n");
@@ -41,7 +40,6 @@ int main(int argc, char *argv[]) {
   char ep[100];
   bool success;
 
-  printf("2\n");
   for (uint32_t i = 0; i < 10000; i ++) {
     assert(fscanf(fp, "%u %s", &result, ep) == 2);
     if (result != expr(ep, &success) || !success) {
@@ -49,9 +47,7 @@ int main(int argc, char *argv[]) {
       assert(0);
     }
   printf("success!\n");
-  }
-
-  printf("3\n");
+  } */
 
   /* Start engine. */
   engine_start();
