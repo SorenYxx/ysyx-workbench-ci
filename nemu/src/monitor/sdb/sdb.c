@@ -88,6 +88,9 @@ static int cmd_x(char *args) {
   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
 
+  printf("%s\n", args);
+  printf("%s %s\n", arg0, arg1);
+
   if (arg0 != NULL && arg1 != NULL) {
     n = strtol(arg0, &a0, 10);
     s = strtol(arg1, &a1, 0);
@@ -95,6 +98,7 @@ static int cmd_x(char *args) {
     if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
 	printf("Error: Unknown usage: '%s'\n", arg);    
     }
+
     vaddr_t start = cpu.pc;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
       if (s == i) {
