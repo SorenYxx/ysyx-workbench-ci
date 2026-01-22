@@ -150,7 +150,7 @@ static bool make_token(char *e) {
 static bool check_parentheses(int p, int q) { //状态机check
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
-    printf("check in match...\n");
+//    printf("check in match...\n");
     p++;
     q--;
     for (; p <= q; p++) {
@@ -206,12 +206,12 @@ uint32_t eval(int p, int q) {
 
   else if (p == q) {
     uint32_t num = atoi(tokens[p].str);
-    printf("The num in tokens is: %d\n", num);
+//    printf("The num in tokens is: %d\n", num);
     return (num);
   }
 
   else if (check_parentheses(p, q) == true) {
-    printf("..good match\n");
+//    printf("..good match\n");
     return eval(p + 1, q - 1);
   }
   
@@ -219,7 +219,7 @@ uint32_t eval(int p, int q) {
   op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
-    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
+//    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
@@ -248,7 +248,7 @@ word_t expr(char *e, bool *success) {
 
   *success = true;
   uint32_t str_len = n;
-  printf("the len are: %d\n", str_len);
+//  printf("the len are: %d\n", str_len);
   
   //首先转换hex和reg
   for (int k = 0; k <= n; k ++) { 
