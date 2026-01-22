@@ -13,7 +13,7 @@ int main(int argc, char** argv) {
     while (1) {
 	nvboard_update();
 	dut.eval();
-}
+    }
 
     nvboard_quit();
     return 0;

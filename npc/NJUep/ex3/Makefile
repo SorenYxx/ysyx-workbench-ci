@@ -20,7 +20,9 @@ $(SRC_AUTO_BIND): $(NXDC_FILES)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # project source - 修改find范围，只搜索当前目录
-VSRCS = bcd_7seg.v \
+VSRCS = add.v \
+	sub.v \
+	bcd_7seg.v \
 	ep.v
 CSRCS = sim_main.cpp $(SRC_AUTO_BIND)
 CSRCS += $(SRC_AUTO_BIND)

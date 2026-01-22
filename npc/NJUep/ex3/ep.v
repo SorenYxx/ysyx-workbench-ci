@@ -1,8 +1,8 @@
-module ep(op, a, b, s, o, i, hex0);
+module ep(op, a, b, s, o, hex0);
     input [2:0] op;
     input [3:0] a, b;
     output [3:0] s;
-    output o, i;
+    output o;
     output [6:0] hex0;
 
     reg [3:0]s0;
@@ -42,5 +42,5 @@ module ep(op, a, b, s, o, i, hex0);
 
     assign s = s0;
     assign o = o0;
-    bcd7seg seg0(s, hex0, i);
+    bcd7seg seg0(s, hex0);
 endmodule
