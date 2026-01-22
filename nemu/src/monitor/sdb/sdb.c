@@ -82,20 +82,23 @@ static int cmd_info(char *args) {
 static int cmd_x(char *args) {
   int n = 0;
   int s;
+  bool success;
   char *a0;
-  char *a1;
+  //char *a1;
   char *arg = args;
   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
 
-  printf("%s\n", args);
+  printf("%s %s %s\n", args, arg + 1, arg + 2);
   printf("%s %s\n", arg0, arg1);
 
+  if (!success) return 0;
   if (arg0 != NULL && arg1 != NULL) {
     n = strtol(arg0, &a0, 10);
-    s = strtol(arg1, &a1, 0);
+    s = expr(arg1, &success);
+    //s = strtol(arg1, &a1, 0);
 
-    if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
+    if (a0 == arg0 || *a0 != '\0' || n <= 0) {
 	printf("Error: Unknown usage: '%s'\n", arg);    
     }
 
