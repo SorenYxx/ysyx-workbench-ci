@@ -26,7 +26,5 @@ int main() {
     while(1) {
 	nvboard_update();
 	single_cycle();
-
-	printf("The code is %02X.\n", dut.code);
     }
 }

@@ -32,6 +32,7 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data,code,valid,c);
                         end else if (~valid) begin
                             valid <= 1'b1;
                             code <= 8'h00;
+                            $display("receive %x  count:%d", buffer[8:1], c);
                         end else code <= buffer[8:1];
                 end
                 count <= 0;     // for next
