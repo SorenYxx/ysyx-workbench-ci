@@ -138,7 +138,7 @@ static int cmd_d(char *args) {
 }
 
 static int cmd_ext(char *args) {
-  FILE *fp = fopen("nemu/input", "r");
+  FILE *fp = fopen("input", "r");
 
   if (!fp) {
     perror("打开文件失败\n");
