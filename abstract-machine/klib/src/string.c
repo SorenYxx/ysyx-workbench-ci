@@ -71,9 +71,10 @@ void *memmove(void *dst, const void *src, size_t n) {
   if (d < s) {
     while (n--) *d++ = *s++;
   } else if (d > s) {
-    d += n - 1;
-    s += n - 1;
-    while (n--) *d-- = *s--;
+    while (n > 0) {
+      n--;
+      d[n] = s[n];
+    }
   }
 
   return dst;
