@@ -94,7 +94,7 @@ static int cmd_x(char *args) {
   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
 
-  if (arg0 != NULL && arg1 != NULL) {
+  if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
     s = strtol(arg1, &a1, 0);
     printf("s: %d\n", s);
