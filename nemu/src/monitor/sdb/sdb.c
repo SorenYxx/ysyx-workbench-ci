@@ -85,11 +85,14 @@ static int cmd_x(char *args) {
   char *a0;
   char *a1;
   char *arg = args;
+
+  if (args == NULL) {
+    printf("Now: 0x%08X\n", cpu.pc);
+    return 0;
+  }
+
   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
-
-  printf("%s %s %s\n", args, arg + 1, arg + 2);
-  printf("%s %s\n", arg0, arg1);
 
   if (arg0 != NULL && arg1 != NULL) {
     n = strtol(arg0, &a0, 10);
