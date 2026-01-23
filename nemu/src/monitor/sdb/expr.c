@@ -19,6 +19,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#define MAX 100
 
 enum {
   TK_NOTYPE = 256,
@@ -92,10 +93,10 @@ void init_regex() {
 
 typedef struct token {
   int type;
-  char str[32];
+  char str[MAX];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[MAX] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 static int n = 0;
 
@@ -120,9 +121,9 @@ static bool make_token(char *e) {
         switch (rules[i].token_type) { //开始将匹配的type内容写入每个token中.
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
-          	      assert(strlen(substr_start) <= 32); //限制str长度.
+          	      //assert(strlen(substr_start) <= 32); //限制str长度.
 
-		      char s[32];
+		      char s[MAX];
 		      sprintf(s, "%.*s", substr_len, substr_start);
 		      strcpy(tokens[n].str, s);
           	      //printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
@@ -253,7 +254,7 @@ word_t expr(char *e, bool *success) {
   //首先转换hex和reg
   for (int k = 0; k <= n; k ++) { 
     int thelen = strlen(tokens[k].str);
-    char reg0[32];
+    char reg0[MAX];
     switch (tokens[k].type) {
       case TK_HEX:uint32_t num;
                   sscanf(tokens[k].str, "%x", &num);
