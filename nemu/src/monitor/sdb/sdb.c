@@ -137,6 +137,29 @@ static int cmd_d(char *args) {
   return c_d(args);
 }
 
+static int cmd_ext(char *args) {
+  FILE *fp = fopen("nemu/input", "r");
+
+  if (!fp) {
+    perror("打开文件失败\n");
+    return 1;
+  }
+
+  word_t all = atoi(args);
+  word_t pass = all;
+  int result = 0;
+  char ep[100];
+  bool success;
+
+  for (uint32_t i = 0; i < all; i ++) {
+    assert(fscanf(fp, "%u %s", &result, ep) == 2);
+    if (result != expr(ep, &success) || !success) pass--;
+  }
+
+  printf("pass:%d all:%d\n", pass, all);
+  return 0;
+}
+
 static int cmd_help(char *args);
 
 static struct {
@@ -153,6 +176,7 @@ static struct {
   { "p", "Expression evaluation", cmd_p},
   { "w", "Set up a monitoring point", cmd_w},
   { "d", "Delete the monitoring point", cmd_d},
+  { "ext", "Test the expression", cmd_ext}
 
 };
 

@@ -68,7 +68,6 @@ static void gen_rand_expr() {
     return;
   }
 
-  //buf[0] = '\0';
   switch (choose(3)) {
     case 0: gen_num(); break;
     case 1: gen('('); gen_rand_expr(); gen(')'); break;
