@@ -96,11 +96,10 @@ static int cmd_x(char *args) {
 
   if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
-    s = strtol(arg1, &a1, 0);
-    printf("s: %d\n", s);
-    if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) {
-	printf("Error: Unknown usage: '%s'\n", arg);    
-    }
+    if (arg1 != NULL) s = strtol(arg1, &a1, 0);
+    else s = 0;
+
+    if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) printf("Error: Unknown usage: '%s'\n", arg);
 
     vaddr_t start = cpu.pc;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
