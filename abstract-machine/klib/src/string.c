@@ -13,9 +13,10 @@ size_t strlen(const char *s) {
 
 char *strcpy(char *dst, const char *src) {
   char *p = dst;
+  const char *s = src;
 
-  while ((*p++ = *src++) != '\0');
-  return p;
+  while ((*p++ = *s++) != '\0');
+  return dst;
 }
 
 char *strncpy(char *dst, const char *src, size_t n) {
@@ -33,9 +34,9 @@ char *strcat(char *dst, const char *src) {
   char *p = dst;
   
   while (*p != '\0') p++;
-  while ((*p++ == *src++) != '\0');
+  strcpy(p, src);
 
-  return p;
+  return dst;
 }
 
 int strcmp(const char *s1, const char *s2) {
