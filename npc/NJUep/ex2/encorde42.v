@@ -1,4 +1,4 @@
-module ep(x,en,y);
+module ep2(x,en,y);
   input  [3:0] x;
   input  en;
   output reg [1:0]y;
