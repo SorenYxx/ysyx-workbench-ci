@@ -198,6 +198,8 @@ static int m_op(int p, int q) { //主运算符选取
     return pos;
 }
 
+int key = 0;
+
 uint32_t eval(int p, int q) {
   uint32_t val1;
   uint32_t val2;
@@ -217,14 +219,17 @@ uint32_t eval(int p, int q) {
   }
   
   else {
-  op = m_op(p, q);
+    op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
 //    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
-      case '-': return val1 - val2;
+      case '-': if (val1 - val2 < 0) {
+	          key++;	  
+		  return (val2 - val1);
+		}
       case '*': return val1 * val2;
       case '/': return val1 / val2;
       case TK_AND: return val1 && val2;
@@ -249,7 +254,6 @@ word_t expr(char *e, bool *success) {
 
   *success = true;
   uint32_t str_len = n;
-//  printf("the len are: %d\n", str_len);
   
   //首先转换hex和reg
   for (int k = 0; k <= n; k ++) { 
