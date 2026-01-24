@@ -152,8 +152,8 @@ static bool check_parentheses(int p, int q, int y) { //状态机check
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
 //    printf("check in match...\n");
-//    p++;
-//    q--;
+    p++;
+    q--;
     for (; p <= q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
