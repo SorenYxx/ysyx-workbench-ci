@@ -101,7 +101,7 @@ static int cmd_x(char *args) {
 
     if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
   
-    vaddr_t start = cpu.pc;
+    vaddr_t start = 0x80000000;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
       if (s == i) {
 	for (int c = 0; c < n; c ++) {
