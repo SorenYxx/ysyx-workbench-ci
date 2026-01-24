@@ -98,7 +98,7 @@ static int cmd_x(char *args) {
   if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
     s = (arg1 == NULL) ? cpu.pc: expr(arg1, &success);
-    printf("a\n");
+
     if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
   
     vaddr_t start = cpu.pc;
@@ -111,9 +111,12 @@ static int cmd_x(char *args) {
 	  uint32_t value = vaddr_read(current, 4);
 	  printf("0x%08X: %08X\n", current, value);
 	}
-	printf("Success\n");
-        break;
+        return 0;
       }
+    }
+    for (int c = 0; c < n; c ++) {
+      vaddr_t current = s + c * 4;
+      printf("0x%08X: NULL\n", current);
     }
   }
   
