@@ -215,7 +215,6 @@ uint32_t eval(int p, int q) {
 
   else if (check_parentheses(p, q, y) == true) {
     if (!y) return eval(p + 1, q - 1);
-    else return eval(p, q);
   }
   
   else {
@@ -235,6 +234,8 @@ uint32_t eval(int p, int q) {
       default: assert(0);
     }
   }
+  assert(0);
+  return 0;
 }
 
 word_t expr(char *e, bool *success) {
