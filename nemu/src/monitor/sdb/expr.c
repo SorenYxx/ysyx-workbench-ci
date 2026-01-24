@@ -115,9 +115,9 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        /*Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
             i, rules[i].regex, position, substr_len, substr_len, substr_start);
-        */  
+          
         switch (rules[i].token_type) { //开始将匹配的type内容写入每个token中.
           default: if (rules[i].token_type != TK_NOTYPE) {
           	      tokens[n].type = rules[i].token_type;
@@ -220,7 +220,7 @@ uint32_t eval(int p, int q) {
   op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
-//    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
+    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
