@@ -126,7 +126,7 @@ static bool make_token(char *e) {
 		      char s[MAX];
 		      sprintf(s, "%.*s", substr_len, substr_start);
 		      strcpy(tokens[n].str, s);
-          	      printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
+          	      //printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
         	    }
 
