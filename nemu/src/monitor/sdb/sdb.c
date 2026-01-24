@@ -98,7 +98,7 @@ static int cmd_x(char *args) {
   if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
     s = (arg1 == NULL) ? cpu.pc: expr(arg1, &success);
-
+    printf("a\n");
     if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
   
     vaddr_t start = cpu.pc;
