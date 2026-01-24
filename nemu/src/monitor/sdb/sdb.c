@@ -150,7 +150,7 @@ static int cmd_ext(char *args) {
     return 1;
   }
 
-  word_t all = atoi(args);
+  word_t all = (args != NULL) ? atoi(args) : 1000;
   word_t pass = all;
   int result = 0;
   char ep[100];
