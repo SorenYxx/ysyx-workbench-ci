@@ -148,7 +148,7 @@ static bool make_token(char *e) {
 }
 
 
-static bool check_parentheses(int p, int q) { //状态机check
+static bool check_parentheses(int p, int q, int y) { //状态机check
   int state = 0;
   if (tokens[p].type == 40 && tokens[q].type == 41) {
 //    printf("check in match...\n");
@@ -157,6 +157,7 @@ static bool check_parentheses(int p, int q) { //状态机check
     for (; p <= q; p++) {
       if (tokens[p].type == '(') state++;
       else if (tokens[p].type == ')') state--;
+      else if (state < 0) y = 1;
     }
     if (state == 0) return true;
     else {
@@ -202,6 +203,7 @@ uint32_t eval(int p, int q) {
   uint32_t val1;
   uint32_t val2;
   int op;
+  int y = 0;
 
   if (p > q) return 0;
 
@@ -211,9 +213,9 @@ uint32_t eval(int p, int q) {
     return (num);
   }
 
-  else if (check_parentheses(p, q) == true) {
-//    printf("..good match\n");
-    return eval(p + 1, q - 1);
+  else if (check_parentheses(p, q, y) == true) {
+    if (!y) return eval(p + 1, q - 1);
+    else return eval(p, q);
   }
   
   else {
