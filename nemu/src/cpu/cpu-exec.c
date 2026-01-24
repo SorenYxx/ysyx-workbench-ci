@@ -80,10 +80,9 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
-    printf("this\n");
     trace_and_difftest(&s, cpu.pc);
-    printf("this\n");
     if (nemu_state.state != NEMU_RUNNING) break;
+    printf("this\n");
     IFDEF(CONFIG_DEVICE, device_update());
   }
 }
