@@ -220,7 +220,7 @@ uint32_t eval(int p, int q) {
   op = m_op(p, q);
     val1 = eval(p, op - 1);
     val2 = eval(op + 1, q);
-    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
+//    printf("Last..op: %s val1: %d val2: %d\n", tokens[op].str, val1, val2);
 
     switch (tokens[op].type) {
       case '+': return val1 + val2;
