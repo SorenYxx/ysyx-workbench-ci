@@ -1,12 +1,32 @@
-module RegisterFile #(ADDR_WIDTH = 1, DATA_WIDTH = 1) (
+
+module minirv(
   input clk,
-  input [DATA_WIDTH-1:0] wdata,
-  input [ADDR_WIDTH-1:0] waddr,
-  input wen
+  input reset,
+  input
+  output
+
 );
-  reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
+  reg 
+  
+  
   always @(posedge clk) begin
-    if (wen) rf[waddr] <= wdata;
+    case (inst[6:0])inst
+      //addi
+      2'h13: begin 
+        
+        
+      end
+      /*2'h33: begin end
+      2'h67: begin end
+      2'h37: begin end
+      2'h03: begin end
+      2'h23: begin end
+      2'h73: begin end*/
+      
+    
+    
   end
-endmodule
+  
+
+
 
