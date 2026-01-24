@@ -126,14 +126,13 @@ void check_watchpoints() {
     if (new_result != q->last_result) {
       printf("watchpoint[%d] is triggered\n", q->NO);
       printf("The last result: 0x%08X -- %u\n", q->last_result, q->last_result);
-      printf("The new result: 0x%08X -- %u\n", new_result, new_result);
+      printf("The  new result: 0x%08X -- %u\n", new_result, new_result);
 
       q->last_result = new_result;
       nemu_state.state = NEMU_STOP;
-      return;
     }
   }
-
+  return;
 }
 
 int c_print() {
