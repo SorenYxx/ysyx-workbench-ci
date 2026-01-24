@@ -19,7 +19,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
-#define MAX 100
+#define MAX 200
 
 enum {
   TK_NOTYPE = 256,
@@ -93,7 +93,7 @@ void init_regex() {
 
 typedef struct token {
   int type;
-  char str[MAX];
+  char str[32];
 } Token;
 
 static Token tokens[MAX] __attribute__((used)) = {};
@@ -102,7 +102,6 @@ static int n = 0;
 
 static bool make_token(char *e) {
   int position = 0;
-  //int n = 0;
   int i;
   regmatch_t pmatch;
 
