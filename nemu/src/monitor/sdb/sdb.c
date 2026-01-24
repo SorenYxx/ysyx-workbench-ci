@@ -81,10 +81,11 @@ static int cmd_info(char *args) {
 
 static int cmd_x(char *args) {
   int n = 0;
-  int s;
+  uint32_t s;
   char *a0;
-  char *a1;
+  //char *a1;
   char *arg = args;
+  bool success;
 
   if (args == NULL) {
     printf("Now: 0x%08X\n", cpu.pc);
@@ -96,9 +97,9 @@ static int cmd_x(char *args) {
 
   if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
-    s = (arg1 == NULL) ? cpu.pc: strtol(arg1, &a1, 0);
+    s = (arg1 == NULL) ? cpu.pc: expr(arg1, &success);
 
-    if (a0 == arg0 || *a0 != '\0' || n <= 0 || a1 == arg1) printf("Error: Unknown usage: '%s'\n", arg);
+    if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
   
     vaddr_t start = cpu.pc;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
