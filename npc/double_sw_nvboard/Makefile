@@ -1,4 +1,3 @@
-# 根据示例修改，适配你的双控开关项目
 TOPNAME = double_sw
 NXDC_FILES = double_sw.nxdc
 INC_PATH ?=
