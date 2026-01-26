@@ -127,10 +127,6 @@ static bool make_token(char *e) {
 		      strcpy(tokens[n].str, s);
           	      //printf("tokens[%d].type: %d\ntokens[%d].str: %s\n", n, tokens[n].type, n, tokens[n].str);
           	      n++;
-		      if (n >= MAX) {
-		        printf("Too many tokens!\n");
-  		        return false;
-			}
         	    }
 
         position += substr_len;
@@ -242,7 +238,7 @@ uint32_t eval(int p, int q) {
 }
 
 word_t expr(char *e, bool *success) {
-//  n = 0;
+  n = 0;
 
   if (!make_token(e)) {
     *success = false;
