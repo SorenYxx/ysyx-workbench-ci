@@ -158,7 +158,7 @@ static int cmd_ext(char *args) {
 
   for (uint32_t i = 0; i < all; i ++) {
     int k = fscanf(fp, "%u %s", &result, ep);
-    printf("k: %d\n", k);
+//    printf("k: %d\n", k);
     assert(k == 2);
     if (result != expr(ep, &success) || !success) pass--;
   }
