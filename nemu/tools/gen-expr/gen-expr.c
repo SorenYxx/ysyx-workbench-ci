@@ -63,7 +63,7 @@ static void gen_rand_op() {
 }
 
 static void gen_rand_expr() {
-  if (depth == 5) {
+  if (depth > 15) {
     gen_num();
     return;
   }

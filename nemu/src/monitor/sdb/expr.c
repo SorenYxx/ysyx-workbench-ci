@@ -199,7 +199,6 @@ static int m_op(int p, int q) { //主运算符选取
 }
 
 uint32_t eval(int p, int q) {
-  Log("eval(p=%d, q=%d)\n", p, q);
   uint32_t val1;
   uint32_t val2;
   int op;
