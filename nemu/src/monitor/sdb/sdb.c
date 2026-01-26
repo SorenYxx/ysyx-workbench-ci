@@ -158,9 +158,13 @@ static int cmd_ext(char *args) {
 
   for (uint32_t i = 0; i < all; i ++) {
     int k = fscanf(fp, "%u %s", &result, ep);
+    uint32_t data = expr(ep, &success);
 //    printf("k: %d\n", k);
     assert(k == 2);
-    if (result != expr(ep, &success) || !success) pass--;
+    if (result != data || !success) {
+      pass--;
+      printf("%s != %d\n", ep, data);
+    }
   }
 
   printf("pass:%d all:%d\n", pass, all);
