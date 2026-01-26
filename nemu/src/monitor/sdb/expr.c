@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include <isa.h>
+#include <memory/vaddr.h>
 
 /* We use the POSIX regex functions to process regular expressions.
  * Type 'man regex' for more information about POSIX regex functions.
@@ -172,7 +173,7 @@ static int priority(int op) { //优先级排序
 	case TK_AND: return 1;
 	case TK_EQ: case TK_NEQ: return 2;
         case '+': case '-': return 3;
-        case '*': case '/': return 4;
+        case '*': case '/': case DEREF:return 4;
         default: return 0;
     }
 }
@@ -230,6 +231,7 @@ uint32_t eval(int p, int q) {
       case TK_AND: return val1 && val2;
       case TK_EQ: return val1 == val2;
       case TK_NEQ: return val1 != val2;
+      case DEREF: uint32_t addr = eval(p + 1, q); return vaddr_read(addr, 4);
       default: assert(0);
     }
   }
@@ -254,10 +256,11 @@ word_t expr(char *e, bool *success) {
   *success = true;
   uint32_t str_len = n;
   
-  //首先转换hex和reg
+  //首先转换hex和reg和*
   for (int k = 0; k <= n; k ++) { 
     int thelen = strlen(tokens[k].str);
     char reg0[MAX];
+
     switch (tokens[k].type) {
       case TK_HEX:uint32_t num;
                   sscanf(tokens[k].str, "%x", &num);
