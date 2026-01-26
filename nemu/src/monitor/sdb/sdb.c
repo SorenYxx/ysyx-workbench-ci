@@ -127,7 +127,7 @@ static int cmd_p(char *args) {
   bool success;
   int result = expr(args, &success);
   if (success) {
-    printf("%u\n", result);
+    printf("%d\n", result);
     return 0;
   }
   else assert(0);

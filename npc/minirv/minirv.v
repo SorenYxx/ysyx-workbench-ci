@@ -19,7 +19,7 @@ module minirv(
   
   EXU my_EXU(type, rdata1, rdata2, imm, r_result);
   
-  LSU my_LSU(mem_w, mem_r, rdata2, r_result, m_result);
+  LSU my_LSU(mem_w, mem_r, imm, rdata2, r_result, m_result);
   
   WBU my_WBU(pc, n_pc, rd, r_result, m_result, type, reg_w, waddr, wdata);
   
@@ -38,6 +38,7 @@ module minirv(
       out_data <= 32'b0;
     end
     
+    else pc <= n_pc;
   end
 endmodule
   

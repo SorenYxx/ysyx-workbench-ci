@@ -10,43 +10,14 @@ module LSU(mem_w,mem_r, wmask, wdata, addr, out_data);
 
   output reg [31:0] out_data;
   
+  //lbu, lw
+  assign out_data = mem_r ? pmem_read(addr): 32'b0;
   
+  //sw, sb
   always @(*) begin
-    //lbu, lw
-    if (mem_r) begin
-      case(type)
-        6:begin
-            out_data = pmem_read(addr);
-          end
-        
-        7:begin
-            out_data = pmem_read(addr);
-          end
-        
-        default 
-      endcase
-      
-    end
-    
-    //sw, sb
     if (mem_w) begin
-      case(type)
-        4:begin
-            pmem_write(addr, src2, 4);
-          end
-        
-        5:begin
-            
-            peme_write(addr, src2, {4'b0,wmask});
-          end
-        
-        default
-      endcase
-      
+      peme_write(addr, src2, {4'b0,wmask});
     end
-  
-    else out_data = data;
-    
   end
   
 endmodule

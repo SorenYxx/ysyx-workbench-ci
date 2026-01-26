@@ -21,8 +21,8 @@ module WBU(pc, n_pc, rd, r_result, m_result, type, reg_w, waddr, wdata);
       end
       
       3'd8:begin
+        waddr = rd;
         wdata = pc + 32'd4;
-        n_pc = r_result;
       end
       
       default:
@@ -32,7 +32,7 @@ module WBU(pc, n_pc, rd, r_result, m_result, type, reg_w, waddr, wdata);
         end
       
     endcase
-    
   end
+  assign n_pc = (type == 3'd8) ? r_result : pc + 32'd4;
   
 endmodule
