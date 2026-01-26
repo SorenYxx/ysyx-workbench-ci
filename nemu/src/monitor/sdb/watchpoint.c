@@ -147,7 +147,9 @@ int c_print() {
 }
 
 int c_w(char *args) {
+  assert(args == NULL); 
   WP* p = new_wp(args);
+
   printf("Set a watchpoint[%d]: %s\n", p->NO, p->str);
   return 0;
 }
