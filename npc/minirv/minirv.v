@@ -25,7 +25,7 @@ module minirv(
   
   EXU my_EXU(op_type, rdata1, rdata2, imm, r_result);
   
-  LSU my_LSU(mem_w, mem_r, op_type, r_result, rdata2, m_result);
+  LSU my_LSU(clk, mem_w, mem_r, op_type, r_result, rdata2, m_result);
   
   WBU my_WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
   

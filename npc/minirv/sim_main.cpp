@@ -10,6 +10,7 @@
 
 uint8_t pmem[MSB] = {};
 uint32_t R;
+int pp = 0;
 
 static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //get the uint8_t addr
 
@@ -37,7 +38,7 @@ extern "C" void get_reg(int r) {
 }
 
 extern "C" void ebreak() {
-  if (R == 0) printf("HIT GOOD TRAP\n");
+  if (R == 0) { printf("HIT GOOD TRAP\n"); pp = 1; }
   else printf("HIT BAD TRAP with R[0x0A]: 0x%08x\n", R);
 }
 
@@ -75,8 +76,8 @@ int main(int argc, char *argv[]) {
   top->eval();
   top->rst = 0;
 
-  while (main_time != 100) {    
-    //printf("PC = 0x%08x, Inst = 0x%08x\n", top->cur_pc, top->cur_inst);
+  while (main_time != 5900) {    
+    if (pp) printf("--%ld PC = 0x%08x, Inst = 0x%08x\n", main_time, top->cur_pc, top->cur_inst);
 
     top->clk = 0;
     top->eval();

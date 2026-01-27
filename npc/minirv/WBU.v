@@ -28,7 +28,7 @@ module WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
       //jalr
       3'd7:begin
         waddr = rd;
-        wdata = (pc - 32'h80000000) + 32'd4;
+        wdata = (pc) + 32'd4;
       end
       
       //add, addi, lui || sw, sb
@@ -40,6 +40,6 @@ module WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
       
     endcase
   end
-  assign n_pc = (op_type == 3'd7) ? (r_result + 32'h80000000): pc + 32'd4;
+  assign n_pc = (op_type == 3'd7) ? (r_result): pc + 32'd4;
   
 endmodule

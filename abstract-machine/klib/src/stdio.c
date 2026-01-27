@@ -6,9 +6,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  va_list ap;
-  va_start(ap, fmt);
-   
+  panic("no\n"); 
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
