@@ -104,12 +104,13 @@ static int cmd_x(char *args) {
     vaddr_t start = 0x80000000;
     for (vaddr_t i = start; i < 0X88000000 ; i += 4) {
       if (s == i) {
+        printf("0x%08x\n", cpu.pc);
 	for (int c = 0; c < n; c ++) {
 	  vaddr_t current = i + c * 4;
 	  if (current >= 0X88000000) break;
 
 	  uint32_t value = vaddr_read(current, 4);
-	  printf("0x%08X\n", value);
+	  printf("%08X\n", value);
 	}
         return 0;
       }
