@@ -12,21 +12,23 @@ module WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
   always @(*) begin
     case(op_type)
     
-      //lw, lbu
-      3'd3:begin
+      //lbu, lw
+      3'd5:begin
         waddr = rd;
         wdata = m_result;
+        //$display("-----lbu:Addr: %d data: %h\n", waddr, wdata);
       end
       
-      3'd4:begin
+      3'd6:begin
         waddr = rd;
         wdata = m_result;
+        //$display("-----lw:Addr: %d data: %h\n", waddr, wdata);
       end
       
       //jalr
       3'd7:begin
         waddr = rd;
-        wdata = pc + 32'd4;
+        wdata = (pc - 32'h80000000) + 32'd4;
       end
       
       //add, addi, lui || sw, sb
@@ -38,6 +40,6 @@ module WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
       
     endcase
   end
-  assign n_pc = (op_type == 3'd7) ? r_result : pc + 32'd4;
+  assign n_pc = (op_type == 3'd7) ? (r_result + 32'h80000000): pc + 32'd4;
   
 endmodule

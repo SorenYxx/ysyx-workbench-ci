@@ -6,7 +6,9 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  panic("no\n");
+  va_list ap;
+  va_start(ap, fmt);
+   
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
@@ -14,66 +16,66 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
 }
 
 static char *i2a(int n, char *s, int base) {
-    static char digits[] = "0123456789abcdef";
-    char buf[32];
-    int i = 0;
-    unsigned int num = (n < 0 && base == 10) ? -n : (unsigned int)n;
+  static char digits[] = "0123456789abcdef";
+  char buf[32];
+  int i = 0;
+  unsigned int num = (n < 0 && base == 10) ? -n : (unsigned int)n;
 
-    if (n == 0) buf[i++] = '0';
-    while (num > 0) {
-        buf[i++] = digits[num % base];
-        num /= base;
-    }
-    if (n < 0 && base == 10) buf[i++] = '-';
+  if (n == 0) buf[i++] = '0';
+  while (num > 0) {
+      buf[i++] = digits[num % base];
+      num /= base;
+  }
+  if (n < 0 && base == 10) buf[i++] = '-';
 
-    while (i > 0) {
-        *s++ = buf[--i];
-    }
-    return s;
+  while (i > 0) {
+      *s++ = buf[--i];
+  }
+  return s;
 }
 
 int sprintf(char *out, const char *fmt, ...) {
   va_list ap;
-    va_start(ap, fmt);
-    char *p = out;
+  va_start(ap, fmt);
+  char *p = out;
 
-    for (const char *f = fmt; *f != '\0'; f++) {
-        if (*f != '%') {
-            *p++ = *f;
-            continue;
-        }
+  for (const char *f = fmt; *f != '\0'; f++) {
+      if (*f != '%') {
+          *p++ = *f;
+          continue;
+      }
 
-        f++;
-        switch (*f) {
-            case 's': {
-                char *s = va_arg(ap, char *);
-                while (*s) *p++ = *s++;
-                break;
-            }
-            case 'd': {
-                int n = va_arg(ap, int);
-                p = i2a(n, p, 10);
-                break;
-            }
-            case 'x':
-            case 'p': {
-                unsigned int n = va_arg(ap, unsigned int);
-                p = i2a(n, p, 16);
-                break;
-            }
-            case '%': {
-                *p++ = '%';
-                break;
-            }
-            default:
-                *p++ = *f;
-                break;
-        }
-    }
+      f++;
+      switch (*f) {
+          case 's': {
+              char *s = va_arg(ap, char *);
+              while (*s) *p++ = *s++;
+              break;
+          }
+          case 'd': {
+              int n = va_arg(ap, int);
+              p = i2a(n, p, 10);
+              break;
+          }
+          case 'x':
+          case 'p': {
+              unsigned int n = va_arg(ap, unsigned int);
+              p = i2a(n, p, 16);
+              break;
+          }
+          case '%': {
+              *p++ = '%';
+              break;
+          }
+          default:
+              *p++ = *f;
+              break;
+      }
+  }
 
-    *p = '\0';
-    va_end(ap);
-    return (p - out);
+  *p = '\0';
+  va_end(ap);
+  return (p - out);
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

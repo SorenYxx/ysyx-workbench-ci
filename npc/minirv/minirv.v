@@ -19,13 +19,13 @@ module minirv(
   
   GPR R(clk, waddr, wdata, reg_w, rs1, rs2, rdata1, rdata2);
   
-  IFU my_IFU(clk, pc, inst);
+  IFU my_IFU(pc, inst);
   
   IDU my_IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
   
   EXU my_EXU(op_type, rdata1, rdata2, imm, r_result);
   
-  LSU my_LSU(mem_w, mem_r, imm[3:0], r_result, rdata2, m_result);
+  LSU my_LSU(mem_w, mem_r, op_type, r_result, rdata2, m_result);
   
   WBU my_WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
   
@@ -33,7 +33,7 @@ module minirv(
     if (rst) pc <= 32'h80000000;
     else pc <= n_pc;
     
-    if (pc == 32'h80001220) ebreak();
+    if (inst == 32'h00020067) ebreak();
     
   end
   

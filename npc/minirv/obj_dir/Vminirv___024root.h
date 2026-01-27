@@ -26,6 +26,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     CData/*0:0*/ minirv__DOT__mem_r;
     CData/*6:0*/ minirv__DOT__my_IDU__DOT__opcode;
     CData/*2:0*/ minirv__DOT__my_IDU__DOT__funct3;
+    CData/*3:0*/ minirv__DOT__my_LSU__DOT__wmask;
     CData/*0:0*/ __VstlFirstIteration;
     CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
     CData/*0:0*/ __Vtrigprevexpr___TOP__rst__0;
@@ -37,16 +38,19 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     IData/*31:0*/ minirv__DOT__m_result;
     IData/*31:0*/ minirv__DOT__wdata;
     IData/*31:0*/ minirv__DOT__my_EXU__DOT__src1;
+    IData/*31:0*/ minirv__DOT__my_EXU__DOT__src2;
     IData/*31:0*/ minirv__DOT__my_EXU__DOT__result;
     IData/*31:0*/ minirv__DOT__my_WBU__DOT__n_pc;
+    IData/*31:0*/ __Vfunc_pmem_read__2__Vfuncout;
     IData/*31:0*/ __Vfunc_pmem_read__3__Vfuncout;
+    IData/*31:0*/ __Vfunc_pmem_read__4__Vfuncout;
     IData/*31:0*/ __VdfgRegularize_h6e95ff9d_0_8;
     IData/*31:0*/ __VactIterCount;
     VlUnpacked<IData/*31:0*/, 32> minirv__DOT__R__DOT__rf;
     VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
     VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
     VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
-    VlUnpacked<CData/*0:0*/, 2> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 5> __Vm_traceActivity;
 
     // INTERNAL VARIABLES
     Vminirv__Syms* vlSymsp;

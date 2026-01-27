@@ -14,15 +14,16 @@ module GPR #(parameter ADDR_WIDTH = 5,parameter DATA_WIDTH = 32) (
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
-
-  initial begin
-    get_reg(rf[10]);
-  end
   
   always @(posedge clk) begin
 
     if (wen && (waddr != 0)) begin
       rf[waddr] <= wdata;
+      if (waddr == 10) begin
+        get_reg(rf[10]);
+        $display("R[10]: 0x%h", rf[10]);
+      end
+      //$display("-----R[%d]: 0x%h\n", waddr, wdata);
     end
   end
 

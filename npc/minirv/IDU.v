@@ -1,5 +1,5 @@
 module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
-  input reg [31:0] inst;
+  input [31:0] inst;
   
   output reg [31:0] imm;
   output reg [4:0] rs1, rs2, rd;
@@ -44,7 +44,7 @@ module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
       
       //sw, sb
       {7'b0100011, 3'b???}: begin
-        imm = {{20{inst[31]}}, {inst[31:25], inst[11:7]}};
+        imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
         mem_w = 1'b1;
         op_type = (funct3 == 3'b010)? 3'd3: 3'd4;
       end

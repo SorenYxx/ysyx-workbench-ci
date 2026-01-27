@@ -1,6 +1,6 @@
 module EXU(op_type, src1, src2, imm, result);
   input [2:0] op_type;
-  input reg [31:0] src1, src2, imm;
+  input [31:0] src1, src2, imm;
 
   output reg [31:0] result;
   
