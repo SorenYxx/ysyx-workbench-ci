@@ -233,7 +233,7 @@ uint32_t eval(int p, int q) {
       case TK_NEQ: return val1 != val2;
       case DEREF: printf("2\n");
 		  uint32_t addr = eval(p + 1, q);
-		  printf("0x%08x: 0x%08x", addr, vaddr_read(addr, 4));
+		  printf("0x%08x: 0x%08x\n", addr, vaddr_read(addr, 4));
 	          return vaddr_read(addr, 4);
       default: assert(0);
     }
@@ -251,10 +251,8 @@ word_t expr(char *e, bool *success) {
   }
 
   for (int i = 0; i < n; i ++) {
-    printf("1\n");
     if (tokens[i].type == '*' && (i == 0 || certain_type(tokens[i - 1].type)) ) {
       tokens[i].type = DEREF;
-      printf("2\n");
     }
   }
 
