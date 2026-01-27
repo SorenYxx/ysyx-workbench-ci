@@ -1,7 +1,25 @@
-all: sim
+SIMULATOR = verilator
+TOP = minirv
+VFLAGS = ./vsrc
+CFLAGS = ./csrc
+DUMP = wave.fst
 
-sim: clean
-        $(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	verilator --cc --exe --build -j 0 -Wall ds.cpp double_sw.v
+all: sim compile run
+
+compile:
+	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
+        $(VFLAGS) $(CFLAGS) --o V$(TOP)
+
+run:
+	./obj_dir/V$(TOP) --fst-trace $(DUMP)
+
+wave:
+	gtkwave $(DUMP) &
+
+sim:
+	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
+
+clean:
+	@rm -rf obj_dir $(DUMP) *~ *.log
 
 include ../Makefile
