@@ -250,7 +250,7 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  for (int i = 0; i < nr_token; i ++) {
+  for (int i = 0; i < n; i ++) {
     printf("1\n");
     if (tokens[i].type == '*' && (i == 0 || certain_type(tokens[i - 1].type)) ) {
       tokens[i].type = DEREF;
