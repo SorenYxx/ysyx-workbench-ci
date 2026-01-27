@@ -110,7 +110,7 @@ static int cmd_x(char *args) {
 	  if (current >= 0X88000000) break;
 
 	  uint32_t value = vaddr_read(current, 4);
-	  printf("%08X\n", value);
+	  printf("0x%08X\n", value);
 	}
         return 0;
       }
