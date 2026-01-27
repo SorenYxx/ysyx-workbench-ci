@@ -231,7 +231,9 @@ uint32_t eval(int p, int q) {
       case TK_AND: return val1 && val2;
       case TK_EQ: return val1 == val2;
       case TK_NEQ: return val1 != val2;
-      case DEREF: uint32_t addr = eval(p + 1, q); return vaddr_read(addr, 4);
+      case DEREF: uint32_t addr = eval(p + 1, q);
+		  printf("0x%08x: 0x%08x", addr, vaddr_read(addr, 4));
+	          return vaddr_read(addr, 4);
       default: assert(0);
     }
   }
