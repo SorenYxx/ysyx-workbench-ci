@@ -231,7 +231,8 @@ uint32_t eval(int p, int q) {
       case TK_AND: return val1 && val2;
       case TK_EQ: return val1 == val2;
       case TK_NEQ: return val1 != val2;
-      case DEREF: uint32_t addr = eval(p + 1, q);
+      case DEREF: printf("1\n");
+		  uint32_t addr = eval(p + 1, q);
 		  printf("0x%08x: 0x%08x", addr, vaddr_read(addr, 4));
 	          return vaddr_read(addr, 4);
       default: assert(0);
@@ -258,7 +259,7 @@ word_t expr(char *e, bool *success) {
   *success = true;
   uint32_t str_len = n;
   
-  //首先转换hex和reg和*
+  //首先转换hex和reg
   for (int k = 0; k <= n; k ++) { 
     int thelen = strlen(tokens[k].str);
     char reg0[MAX];
