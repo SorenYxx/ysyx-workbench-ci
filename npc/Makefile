@@ -1,7 +1,7 @@
 SIMULATOR = verilator
 TOP = minirv
-VFLAGS = ./vsrc
-CFLAGS = ./csrc
+VFLAGS = $(shell find ./vsrc -name "*.v")
+CFLAGS = $(shell find ./csrc -name "*.cpp")
 DUMP = wave.fst
 
 all: sim compile run
