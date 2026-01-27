@@ -129,7 +129,7 @@ void check_watchpoints() {
       printf("The new data: 0x%08X\n", new_result);
 
       q->last_result = new_result;
-      nemu_state.state = NEMU_STOP;
+      if (nemu_state.state != NEMU_END) nemu_state.state = NEMU_STOP;
     }
   }
 
