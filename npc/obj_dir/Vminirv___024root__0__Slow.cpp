@@ -358,7 +358,6 @@ VL_ATTR_COLD void Vminirv___024root____Vm_traceActivitySetAll(Vminirv___024root*
     vlSelfRef.__Vm_traceActivity[1U] = 1U;
     vlSelfRef.__Vm_traceActivity[2U] = 1U;
     vlSelfRef.__Vm_traceActivity[3U] = 1U;
-    vlSelfRef.__Vm_traceActivity[4U] = 1U;
 }
 
 VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) {
@@ -406,7 +405,7 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VnbaTriggered[__Vi0] = 0;
     }
-    for (int __Vi0 = 0; __Vi0 < 5; ++__Vi0) {
+    for (int __Vi0 = 0; __Vi0 < 4; ++__Vi0) {
         vlSelf->__Vm_traceActivity[__Vi0] = 0;
     }
 }

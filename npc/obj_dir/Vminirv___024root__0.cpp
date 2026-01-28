@@ -43,30 +43,11 @@ bool Vminirv___024root___trigger_anySet__act(const VlUnpacked<QData/*63:0*/, 1> 
     return (0U);
 }
 
-void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
-void Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ raddr, IData/*31:0*/ &pmem_read__Vfuncrtn);
-
-void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___nba_sequent__TOP__0\n"); );
-    Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    auto& vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    if ((0x00100037U == vlSelfRef.minirv__DOT__inst)) {
-        Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
-    }
-    vlSelfRef.minirv__DOT__pc = ((IData)(vlSelfRef.rst)
-                                  ? 0x80000000U : vlSelfRef.minirv__DOT__n_pc);
-    vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
-    Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(vlSelfRef.minirv__DOT__pc, vlSelfRef.__Vfunc_pmem_read__2__Vfuncout);
-    vlSelfRef.minirv__DOT__inst = vlSelfRef.__Vfunc_pmem_read__2__Vfuncout;
-    vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__inst;
-}
-
 void Vminirv___024unit____Vdpiimwrap_pmem_write_TOP____024unit(IData/*31:0*/ waddr, IData/*31:0*/ wdata, CData/*7:0*/ wmask);
 void Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(IData/*31:0*/ r);
 
-void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___nba_sequent__TOP__1\n"); );
+void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___nba_sequent__TOP__0\n"); );
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
@@ -121,11 +102,26 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
     }
 }
 
-void Vminirv___024root___nba_sequent__TOP__2(Vminirv___024root* vlSelf) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___nba_sequent__TOP__2\n"); );
+void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
+void Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ raddr, IData/*31:0*/ &pmem_read__Vfuncrtn);
+
+void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___nba_sequent__TOP__1\n"); );
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
+    if (VL_UNLIKELY(((0x00100073U == vlSelfRef.minirv__DOT__inst)))) {
+        Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
+        VL_WRITEF_NX("ebreak at PC = 0x%x Inst = 0x%x\n\n",0,
+                     32,vlSelfRef.minirv__DOT__pc,32,
+                     vlSelfRef.minirv__DOT__inst);
+    }
+    vlSelfRef.minirv__DOT__pc = ((IData)(vlSelfRef.rst)
+                                  ? 0x80000000U : vlSelfRef.minirv__DOT__n_pc);
+    vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
+    Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(vlSelfRef.minirv__DOT__pc, vlSelfRef.__Vfunc_pmem_read__2__Vfuncout);
+    vlSelfRef.minirv__DOT__inst = vlSelfRef.__Vfunc_pmem_read__2__Vfuncout;
+    vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__inst;
     vlSelfRef.minirv__DOT__my_IDU__DOT__opcode = (0x0000007fU 
                                                   & vlSelfRef.minirv__DOT__inst);
     vlSelfRef.minirv__DOT__my_IDU__DOT__funct3 = (7U 
@@ -334,21 +330,17 @@ void Vminirv___024root___eval_nba(Vminirv___024root* vlSelf) {
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((3ULL & vlSelfRef.__VnbaTriggered[0U])) {
+    if ((1ULL & vlSelfRef.__VnbaTriggered[0U])) {
         Vminirv___024root___nba_sequent__TOP__0(vlSelf);
         vlSelfRef.__Vm_traceActivity[1U] = 1U;
     }
-    if ((1ULL & vlSelfRef.__VnbaTriggered[0U])) {
+    if ((3ULL & vlSelfRef.__VnbaTriggered[0U])) {
         Vminirv___024root___nba_sequent__TOP__1(vlSelf);
         vlSelfRef.__Vm_traceActivity[2U] = 1U;
     }
     if ((3ULL & vlSelfRef.__VnbaTriggered[0U])) {
-        Vminirv___024root___nba_sequent__TOP__2(vlSelf);
-        vlSelfRef.__Vm_traceActivity[3U] = 1U;
-    }
-    if ((3ULL & vlSelfRef.__VnbaTriggered[0U])) {
         Vminirv___024root___nba_comb__TOP__0(vlSelf);
-        vlSelfRef.__Vm_traceActivity[4U] = 1U;
+        vlSelfRef.__Vm_traceActivity[3U] = 1U;
     }
 }
 

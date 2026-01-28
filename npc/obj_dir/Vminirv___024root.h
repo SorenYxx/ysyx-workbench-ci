@@ -50,7 +50,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
     VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
     VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
-    VlUnpacked<CData/*0:0*/, 5> __Vm_traceActivity;
+    VlUnpacked<CData/*0:0*/, 4> __Vm_traceActivity;
 
     // INTERNAL VARIABLES
     Vminirv__Syms* vlSymsp;

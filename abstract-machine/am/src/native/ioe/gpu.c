@@ -8,7 +8,7 @@
 #ifdef MODE_800x600
 const int disp_w = WINDOW_W, disp_h = WINDOW_H;
 #else
-const int disp_w = 300, disp_h = 400;
+const int disp_w = 400, disp_h = 300;
 #endif
 
 #define FPS   60

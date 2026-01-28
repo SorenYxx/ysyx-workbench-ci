@@ -5,14 +5,6 @@
 
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
-int printf(const char *fmt, ...) {
-  panic("no\n"); 
-}
-
-int vsprintf(char *out, const char *fmt, va_list ap) {
-  panic("no\n");
-}
-
 static char *i2a(int n, char *s, int base) {
   static char digits[] = "0123456789abcdef";
   char buf[32];
@@ -30,6 +22,49 @@ static char *i2a(int n, char *s, int base) {
       *s++ = buf[--i];
   }
   return s;
+}
+
+int printf(const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  
+  for (const char *f = fmt; *f != '\0'; f ++) {
+    if (*f != '%') putch(*f);
+
+    else {
+      f ++;
+      switch(*f) {
+
+        case 's': {
+	  char *s = va_arg(ap, char *);
+	  while(*s != '\0') putch(*s);
+	  break;
+	}
+	
+	case 'd': {
+	  int n = va_arg(ap, int);
+	  char *i = "\0";
+	  i = i2a(n, i, 10);
+	  for (; *i != '\0'; i++) putch(*i);
+	  break;
+	}
+
+        case '%': {
+ 	  putch('%');
+	  break;
+	}
+
+        default: putch('%'); putch(*f); 
+      }
+    }
+    
+  }
+  va_end(ap);
+  return 0;
+}
+
+int vsprintf(char *out, const char *fmt, va_list ap) {
+  panic("no\n");
 }
 
 int sprintf(char *out, const char *fmt, ...) {
