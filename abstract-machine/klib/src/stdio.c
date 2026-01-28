@@ -27,7 +27,8 @@ static char *i2a(int n, char *s, int base) {
 int printf(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
-  
+  uint32_t count = 0;
+ 
   for (const char *f = fmt; *f != '\0'; f ++) {
     if (*f != '%') putch(*f);
 
@@ -38,7 +39,10 @@ int printf(const char *fmt, ...) {
         case 's': {
 	  char *s = va_arg(ap, char *);
           if (s == NULL) s = "(null)";
-	  while(*s != '\0') putch(*s++);
+	  while(*s != '\0') {
+	    putch(*s++);
+	    count ++;
+	  }
 	  break;
 	}
 	
@@ -47,22 +51,27 @@ int printf(const char *fmt, ...) {
 	  char i[64];
 	  char *p = i2a(n, i, 10);
 	  *p = '\0';
-	  for (int k = 0; i[k] != '\0'; k++) putch(i[k]);
+	  for (int k = 0; i[k] != '\0'; k++) {
+	    putch(i[k]);
+	    count ++;
+	  }
 	  break;
 	}
 
         case '%': {
  	  putch('%');
+	  count ++;
 	  break;
 	}
 
-        default: putch('%'); putch(*f); 
+        default: putch('%'); putch(*f); count ++;
       }
     }
-    
+    count ++; 
   }
+
   va_end(ap);
-  return 0;
+  return count;
 }
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
