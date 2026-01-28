@@ -41,7 +41,10 @@ extern "C" void get_reg(int r) {
 
 extern "C" void ebreak() {
   if (R == 0) { printf("\n\033[1;32mHIT GOOD TRAP\033[0m\n"); pp = 1; }
-  else printf("\n\033[1;31mHIT BAD TRAP\033[0m\n");
+  else {
+    printf("\n\033[1;31mHIT BAD TRAP\033[0m\n\n");
+    exit(0);
+  }
 }
 
 static void load_bin(const char *filename) {
