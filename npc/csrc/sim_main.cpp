@@ -9,6 +9,7 @@
 
 #define MSB 128 * 1024 * 1024
 #define ADDR 0x80000000
+#define COUNT 100
 
 uint8_t pmem[MSB] = {};
 uint32_t R;
@@ -96,7 +97,7 @@ int main(int argc, char *argv[]) {
   top->eval();
   top->rst = 0;
 
-  while (main_time != 5900) {    
+  while (main_time != COUNT) {    
     printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
 
     if (pp) {

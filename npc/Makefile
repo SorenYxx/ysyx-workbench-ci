@@ -10,7 +10,7 @@ compile:
 	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
         $(VFLAGS) $(CFLAGS) --o V$(TOP)
 
-run: compile
+run: clean compile
 	@echo "NPC received IMG = $(IMG)"
 	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG)
 

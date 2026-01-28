@@ -51,7 +51,7 @@ void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
-    if ((0x00020067U == vlSelfRef.minirv__DOT__inst)) {
+    if ((0x00100037U == vlSelfRef.minirv__DOT__inst)) {
         Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
     }
     vlSelfRef.minirv__DOT__pc = ((IData)(vlSelfRef.rst)

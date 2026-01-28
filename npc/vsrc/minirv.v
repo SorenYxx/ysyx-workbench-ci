@@ -33,7 +33,7 @@ module minirv(
     if (rst) pc <= 32'h80000000;
     else pc <= n_pc;
     
-    if (inst == 32'h00020067) ebreak();
+    if (inst == 32'h00100037) ebreak();
     
   end
   
