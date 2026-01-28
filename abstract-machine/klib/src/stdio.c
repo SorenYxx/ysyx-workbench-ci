@@ -37,15 +37,15 @@ int printf(const char *fmt, ...) {
 
         case 's': {
 	  char *s = va_arg(ap, char *);
-	  while(*s != '\0') putch(*s);
+	  while(*s != '\0') putch(*s++);
 	  break;
 	}
 	
 	case 'd': {
 	  int n = va_arg(ap, int);
-	  char *i = "\0";
-	  i = i2a(n, i, 10);
-	  for (; *i != '\0'; i++) putch(*i);
+	  char i[16];
+	  i2a(n, i, 10);
+	  for (int k = 0; i[k] != '\0'; k++) putch(i[k]);
 	  break;
 	}
 
