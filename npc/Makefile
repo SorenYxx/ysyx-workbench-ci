@@ -10,8 +10,9 @@ compile:
 	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
         $(VFLAGS) $(CFLAGS) --o V$(TOP)
 
-run:
-	./obj_dir/V$(TOP) --fst-trace $(DUMP)
+run: compile
+	@echo "NPC received IMG = $(IMG)"
+	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG)
 
 wave:
 	gtkwave $(DUMP) &

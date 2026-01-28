@@ -43,22 +43,38 @@ extern "C" void ebreak() {
 }
 
 static void load_bin(const char *filename) {
-    if (filename == NULL) return;
-    FILE *fp = fopen(filename, "rb");
+  if (filename == NULL) return;
+  FILE *fp = fopen(filename, "rb");
 
-    fseek(fp, 0, SEEK_END);
-    long size = ftell(fp);
-    fseek(fp, 0, SEEK_SET);
-    uint32_t k = fread(guest_to_host(0x80000000), size, 1, fp);
-    printf("%d\n", k);
+  if (fp == NULL) {
+    perror("Error opening image file");
+    printf("Path attemped: %s\n", filename);
+  }
 
-    fclose(fp);
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
+  fseek(fp, 0, SEEK_SET);
+  uint32_t k = fread(guest_to_host(0x80000000), size, 1, fp);
+  printf("%d\n", k);
+
+  fclose(fp);
 }
 
 vluint64_t main_time = 0;
 
 int main(int argc, char *argv[]) {
-  load_bin("sum.bin");
+  char *img_file = NULL;
+
+  //
+  for (int i = 1; i < argc; i++) {
+    if (strcmp(argv[i], "--img") == 0 && i + 1 < argc) img_file = argv[i + 1];    
+  }
+
+  if (img_file != NULL) load_bin(img_file);
+  else {
+    printf("No image file\n");
+    exit(1);
+  }  
 
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
@@ -77,7 +93,10 @@ int main(int argc, char *argv[]) {
   top->rst = 0;
 
   while (main_time != 5900) {    
-    if (pp) printf("--%ld PC = 0x%08x, Inst = 0x%08x\n", main_time, top->cur_pc, top->cur_inst);
+    if (pp) {
+      printf("--%ld PC = 0x%08x, Inst = 0x%08x\n", main_time, top->cur_pc, top->cur_inst);
+      break;
+    }
 
     top->clk = 0;
     top->eval();
