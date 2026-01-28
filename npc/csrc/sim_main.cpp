@@ -97,6 +97,8 @@ int main(int argc, char *argv[]) {
   top->rst = 0;
 
   while (main_time != 5900) {    
+    printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
+
     if (pp) {
       printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
       break;
