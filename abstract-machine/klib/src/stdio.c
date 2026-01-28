@@ -25,6 +25,10 @@ static char *i2a(int n, char *s, int base) {
 }
 
 int printf(const char *fmt, ...) {
+  panic("no\n");
+}
+
+/*int printf(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
   uint32_t count = 0;
@@ -72,7 +76,7 @@ int printf(const char *fmt, ...) {
 
   va_end(ap);
   return count;
-}
+}*/
 
 int vsprintf(char *out, const char *fmt, va_list ap) {
   panic("no\n");
