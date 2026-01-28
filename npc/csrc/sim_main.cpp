@@ -4,6 +4,8 @@
 #include "Vminirv.h"
 #include "verilated.h"
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 
 #define MSB 128 * 1024 * 1024
 #define ADDR 0x80000000
@@ -38,8 +40,8 @@ extern "C" void get_reg(int r) {
 }
 
 extern "C" void ebreak() {
-  if (R == 0) { printf("HIT GOOD TRAP\n"); pp = 1; }
-  else printf("HIT BAD TRAP with R[0x0A]: 0x%08x\n", R);
+  if (R == 0) { printf("\n\033[1;32mHIT GOOD TRAP\033[0m\n"); pp = 1; }
+  else printf("\n\033[1;31mHIT BAD TRAP\033[0m\n");
 }
 
 static void load_bin(const char *filename) {
@@ -55,7 +57,6 @@ static void load_bin(const char *filename) {
   long size = ftell(fp);
   fseek(fp, 0, SEEK_SET);
   uint32_t k = fread(guest_to_host(0x80000000), size, 1, fp);
-  printf("%d\n", k);
 
   fclose(fp);
 }
@@ -94,7 +95,7 @@ int main(int argc, char *argv[]) {
 
   while (main_time != 5900) {    
     if (pp) {
-      printf("--%ld PC = 0x%08x, Inst = 0x%08x\n", main_time, top->cur_pc, top->cur_inst);
+      printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
       break;
     }
 
