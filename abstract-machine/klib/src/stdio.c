@@ -34,6 +34,19 @@ int printf(const char *fmt, ...) {
 
     else {
       f ++;
+      int w = 0;
+      char pad = ' ';
+
+      if (*f == '0') {
+	pad = '0';
+	f ++;
+      }
+
+      while (*f >= '0' && *f <= '9') {
+	w = w * 10 + (*f - '0');
+	f ++;
+      }
+
       switch(*f) {
 
         case 's': {
@@ -51,6 +64,13 @@ int printf(const char *fmt, ...) {
 	  char i[64];
 	  char *p = i2a(n, i, 10);
 	  *p = '\0';
+
+	  int len = p - i;
+	  while (len < w) {
+	    putch(pad);
+	    len ++;
+	  }
+
 	  for (int k = 0; i[k] != '\0'; k++) {
 	    putch(i[k]);
 	    count ++;
