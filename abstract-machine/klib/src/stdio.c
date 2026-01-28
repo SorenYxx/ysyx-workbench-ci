@@ -44,7 +44,7 @@ int printf(const char *fmt, ...) {
 	
 	case 'd': {
 	  int n = va_arg(ap, int);
-	  char i[16];
+	  char i[64];
 	  char *p = i2a(n, i, 10);
 	  *p = '\0';
 	  for (int k = 0; i[k] != '\0'; k++) putch(i[k]);
