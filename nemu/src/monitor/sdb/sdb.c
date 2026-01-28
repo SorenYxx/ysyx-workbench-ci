@@ -88,7 +88,7 @@ static int cmd_x(char *args) {
   bool success;
 
   if (args == NULL) {
-    printf("Now: 0x%08X\n", cpu.pc);
+    printf("Now: 0x%08X\n: %08x", cpu.pc, vaddr_read(cpu.pc, 4));
     return 0;
   }
 
