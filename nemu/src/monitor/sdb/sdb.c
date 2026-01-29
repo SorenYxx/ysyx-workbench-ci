@@ -83,7 +83,6 @@ static int cmd_x(char *args) {
   int n = 0;
   uint32_t s;
   char *a0;
-  //char *a1;
   char *arg = args;
   bool success;
 
