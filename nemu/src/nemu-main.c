@@ -29,26 +29,6 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-/*  FILE *fp = fopen("input", "r");
-
-  if (!fp) {
-    perror("打开文件失败\n");
-    return 1;
-  }
-
-  int result = 0;
-  char ep[100];
-  bool success;
-
-  for (uint32_t i = 0; i < 10000; i ++) {
-    assert(fscanf(fp, "%u %s", &result, ep) == 2);
-    if (result != expr(ep, &success) || !success) {
-      printf("Error\n");
-      assert(0);
-    }
-  printf("success!\n");
-  } */
-
   /* Start engine. */
   engine_start();
 
