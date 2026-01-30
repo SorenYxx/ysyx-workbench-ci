@@ -63,8 +63,7 @@ int free_wp(WP *wp) {
     head = head->next;
     printf("check: d wp at head\n");
     empty(wp);
-  }
-  else {
+  } else {
     for (WP* q = head; q; q = q->next) {
       if (wp->NO == q->next->NO) {
         q->next = wp->next;
@@ -122,6 +121,7 @@ void check_watchpoints() {
   for (WP* q = wp_head(); q; q = q->next) {
     bool success;
     uint32_t new_result = expr(q->str, &success);
+
     if (!success) printf("Error: evaluation of failure\n");
     if (new_result != q->last_result) {
       printf("watchpoint[%d] is triggered\n", q->NO);

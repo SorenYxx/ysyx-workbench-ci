@@ -152,13 +152,13 @@ static int cmd_ext(char *args) {
   word_t all = (args != NULL) ? atoi(args) : 1000;
   word_t pass = all;
   int result = 0;
-  char ep[100];
+  char ep[128];
   bool success;
 
   for (uint32_t i = 0; i < all; i ++) {
     int k = fscanf(fp, "%u %s", &result, ep);
     uint32_t data = expr(ep, &success);
-//    printf("k: %d\n", k);
+
     assert(k == 2);
     if (result != data || !success) {
       pass--;
