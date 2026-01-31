@@ -71,5 +71,5 @@ void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
   host_write(map->space + offset, len, data);
   invoke_callback(map->callback, offset, len, true);
   
-  printf("[dtrace] write %s at" FMT_PADDR " len %d, data = " FMT_WORD "\n", map->name, addr, len, data);
+  if (strcmp(map->name, "serial") != 0) printf("[dtrace] write %s at " FMT_PADDR " len %d, data = " FMT_WORD "\n", map->name, addr, len, data);
 }
