@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <am.h>
 #include <nemu.h>
 
@@ -8,4 +9,6 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
 
   kbd->keydown = (k & KEYDOWN_MASK ? true : false);
   kbd->keycode = k & ~KEYDOWN_MASK;
+
+  printf("is %02x status: %d\n", kbd->keycode, kbd->keydown);
 }
