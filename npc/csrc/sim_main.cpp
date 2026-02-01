@@ -6,13 +6,13 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <sys/time.h>
 
 #define MSB 128 * 1024 * 1024
-#define DEVICE_BASE 0xa0000000
 #define ADDR 0x80000000
 
 #define SERIAL_PORT     0x10000000
-#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
+#define RTC_ADDR        0x10000048
 
 uint8_t pmem[MSB] = {};
 uint32_t R;
@@ -20,17 +20,28 @@ int pp = 0;
 
 static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //get the uint8_t addr
 
+static uint64_t get_host_time() {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  
+  return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+}
+
 extern "C" int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
-  if (addr < ADDR || addr >= 0x88000000) return 0;
 
-  //if (addr == RTC_ADDR) printf();
+  if (addr == RTC_ADDR) {printf("0x%08x\n", (uint32_t)get_host_time());return (uint32_t)get_host_time();}
+  if (addr == RTC_ADDR + 4) return (uint32_t)(get_host_time() >> 32);
+
+  if (addr < ADDR || addr >= 0x88000000) return 0;
 
   return *(int *)(guest_to_host(addr)); //change to int* then get the uint32_t addr
 }
 
 extern "C" void pmem_write(int waddr, int wdata, char wmask) {
   uint32_t addr = (uint32_t)waddr & ~0x3u;
+
+  if (addr == SERIAL_PORT) putchar(wdata); //
   
   if (addr < ADDR || addr >= 0x88000000) return;
   uint8_t *pt = guest_to_host(addr);
@@ -38,8 +49,6 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
   for (int i = 0; i < 4; i++) {
     if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
   }
-
-  if (addr == SERIAL_PORT) putchar(wdata);
 }
 
 extern "C" void get_reg(int r) {
