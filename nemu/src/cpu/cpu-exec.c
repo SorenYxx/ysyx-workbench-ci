@@ -54,11 +54,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
   isa_exec_once(s);
 
   if (inde <= 10) buf[inde ++] = cpu.pc;
-    else {
-      for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
-      buf[10] = cpu.pc;
-    }
-  printf("%08x    buf[%d]: 0x%08x\n", cpu.pc, inde, buf[inde]);
+  else {
+    for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
+    buf[10] = cpu.pc;
+  }
+  printf("0x%08x    buf[%d]: 0x%08x\n", cpu.pc, inde, buf[inde-1]);
+
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
@@ -90,13 +91,6 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
-     
-    /*if (inde <= 10) buf[inde ++] = cpu.pc;
-    else { 
-      for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
-      buf[10] = cpu.pc;
-    }
-    printf("%08x    buf[%d]: 0x%08x\n", cpu.pc, inde, buf[inde]);*/
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
