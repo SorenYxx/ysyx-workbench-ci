@@ -8,7 +8,11 @@
 #include <cstdlib>
 
 #define MSB 128 * 1024 * 1024
+#define DEVICE_BASE 0xa0000000
 #define ADDR 0x80000000
+
+#define SERIAL_PORT     0x10000000
+#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 
 uint8_t pmem[MSB] = {};
 uint32_t R;
@@ -19,7 +23,9 @@ static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //
 extern "C" int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
   if (addr < ADDR || addr >= 0x88000000) return 0;
-  //printf("-----The data in addr(0x%08X): 0x%08x\n", addr, *(int *)(guest_to_host(addr)));
+
+  //if (addr == RTC_ADDR) printf();
+
   return *(int *)(guest_to_host(addr)); //change to int* then get the uint32_t addr
 }
 
@@ -31,8 +37,9 @@ extern "C" void pmem_write(int waddr, int wdata, char wmask) {
 
   for (int i = 0; i < 4; i++) {
     if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
-    //printf("---The wmask(imm) is: %d with data: 0x%02x\n", wmask, pt[i]);
   }
+
+  if (addr == SERIAL_PORT) putchar(wdata);
 }
 
 extern "C" void get_reg(int r) {
