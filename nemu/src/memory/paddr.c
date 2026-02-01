@@ -24,8 +24,9 @@ static uint8_t *pmem = NULL;
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
 #endif
 
+static int a = 0;
 #ifdef CONFIG_MTRACE
-static int a = 1;
+a = 1;
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
