@@ -58,7 +58,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
     for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
     buf[10] = cpu.pc;
   }
-  printf("0x%08x    buf[%d]: 0x%08x\n", cpu.pc, inde, buf[inde-1]);
 
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
