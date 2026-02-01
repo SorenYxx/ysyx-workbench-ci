@@ -67,7 +67,7 @@ word_t paddr_read(paddr_t addr, int len) {
 
 void paddr_write(paddr_t addr, int len, word_t data) {
   if (likely(in_pmem(addr))) { 
-    if (a) printf("write        0x%08x to 0x%08x\n", data, addr);
+    if (a) printf("write         0x%08x to 0x%08x\n", data, addr);
     pmem_write(addr, len, data); 
     return;
   }
