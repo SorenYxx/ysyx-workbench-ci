@@ -17,6 +17,7 @@
 #include <cpu/decode.h>
 #include <cpu/difftest.h>
 #include <locale.h>
+#include <memory/vaddr.h>
 
 /* The assembly code of instructions executed is only output to the screen
  * when the number of instructions executed is less than this value.
@@ -29,6 +30,9 @@ CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
+
+static uint32_t buf[10];
+static int inde = 0;
 
 void device_update();
 
@@ -79,6 +83,13 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
+    
+    if (inde <= 10) buf[inde ++] = cpu.pc;
+    else { 
+      for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
+      buf[10] = cpu.pc;
+    }
+
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -126,6 +137,11 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+      if (nemu_state.state == NEMU_ABORT) {
+        for (int i = 0; i < 9; i ++) printf("--%d-- pc: 0x%08x inst: %08x\n", i, buf[i], vaddr_read(buf[i], 4));
+        printf("--%d-- pc: 0x%08x inst: %08x\n <---", 10, buf[10], vaddr_read(buf[10], 4));
+	for (int k = 1; k < 3; k ++) printf("--%d-- pc: 0x%08x inst: %08x\n", 10 + k, buf[10] + k * 4, vaddr_read(buf[10] + k * 4, 4));
+      }
       // fall through
     case NEMU_QUIT: statistic();
   }

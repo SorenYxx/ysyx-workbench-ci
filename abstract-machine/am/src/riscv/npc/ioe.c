@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <am.h>
 #include <klib-macros.h>
 
@@ -31,11 +30,5 @@ bool ioe_init() {
   return true;
 }
 
-void ioe_read (int reg, void *buf) { 
-  if (reg < 0 || reg >= LENGTH(lut) || lut[reg] == fail) {
-    printf("Panic: reg = %d, AM_TIMER_UPTIME = %d\n", reg, AM_TIMER_UPTIME);
-    panic("access nonexist register");
-  }
-  ((handler_t)lut[reg])(buf); 
-}
+void ioe_read (int reg, void *buf) { ((handler_t)lut[reg])(buf); }
 void ioe_write(int reg, void *buf) { ((handler_t)lut[reg])(buf); }
