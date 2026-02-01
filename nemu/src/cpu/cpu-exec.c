@@ -89,7 +89,7 @@ static void execute(uint64_t n) {
       for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
       buf[10] = cpu.pc;
     }
-
+    printf("buf[%d]: 0x%08x", inde, buf[inde]);
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
@@ -137,11 +137,13 @@ void cpu_exec(uint64_t n) {
            (nemu_state.halt_ret == 0 ? ANSI_FMT("HIT GOOD TRAP", ANSI_FG_GREEN) :
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
+
       if (nemu_state.state == NEMU_ABORT) {
         for (int i = 0; i < 9; i ++) printf("--%d-- pc: 0x%08x inst: %08x\n", i, buf[i], vaddr_read(buf[i], 4));
         printf("--%d-- pc: 0x%08x inst: %08x\n <---", 10, buf[10], vaddr_read(buf[10], 4));
 	for (int k = 1; k < 3; k ++) printf("--%d-- pc: 0x%08x inst: %08x\n", 10 + k, buf[10] + k * 4, vaddr_read(buf[10] + k * 4, 4));
       }
+
       // fall through
     case NEMU_QUIT: statistic();
   }
