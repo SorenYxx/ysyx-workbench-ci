@@ -1,12 +1,14 @@
-#include <stdint.h>
-#include <stdio.h>
 #include "verilated_fst_c.h"
 #include "Vminirv.h"
 #include "verilated.h"
+#include <stdio.h>
+#include <stdint.h>
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
 #include <sys/time.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MSB 128 * 1024 * 1024
 #define ADDR 0x80000000
@@ -27,7 +29,7 @@ static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //
 static uint64_t get_host_time() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
-  
+ 
   return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
@@ -67,6 +69,24 @@ extern "C" void ebreak() {
   }
 }
 
+
+static char* rl_gets() {
+  static char *line_read = NULL;
+
+  if (line_read) {
+    free(line_read);
+    line_read = NULL;
+  }
+
+  line_read = readline("(npc) ");
+
+  if (line_read && *line_read) {
+    add_history(line_read);
+  }
+
+  return line_read;
+}
+
 static void load_bin(const char *filename) {
   if (filename == NULL) return;
   FILE *fp = fopen(filename, "rb");
@@ -103,38 +123,41 @@ static void sim_init(int argc, char *argv[]) {
   top->trace(tfp, 99);
   tfp->open("wave.fst");
 
-  top->rst = 1;
-  top->clk = 0;
-  top->eval();
-  top->clk = 1;
-  top->eval();
-  top->rst = 0;
+  top->rst = 1; top->clk = 0; 
+  top->eval(); top->clk = 1;
+  top->eval(); top->rst = 0;
 }
 
 static void step_and_eval() {
-  top->clk = 0;
-  top->eval();
-
-  top->clk = 1;
-  top->eval();
+  top->clk = 0; top->eval();
+  top->clk = 1; top->eval();
 
   tfp->dump(main_time);
   main_time ++;  
 }
 
-vluint64_t main_time = 0;
+static void cpu_exec(uint64_t n) {
+  for (uint64_t i = 0; i < n; i ++) {
+    step_and_eval();
+    if (is_end) {
+      //npc_state = NPC_END;
+      break;
+    }
+  }
+}
+
+static int sim_exit() {
+  tfp->close();
+  delete tfp;
+  delete top;
+  return 0;
+}
 
 int main(int argc, char *argv[]) {
   sim_init(argc, argv);
 
-  //if (is_batch_mode) cpu_exec(-1);
+  if (1) cpu_exec(-1);
   //else sdb_mainloop();
 
-  while (!is_end) step_and_eval();
-  if (is_end) {
-    tfp->close();
-    delete tfp;
-    delete top;
-    return 0;
-  } else return -1;
+  return sim_exit();
 }
