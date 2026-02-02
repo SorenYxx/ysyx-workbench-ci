@@ -25,7 +25,7 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
     }
   }
 
-  if (ref_r->pc != pc + 4) {
+  if (ref_r->pc != cpu.pc) {
     Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_r->pc, pc);
     return false;
   }
