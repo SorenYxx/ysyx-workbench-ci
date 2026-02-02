@@ -15,8 +15,12 @@
 #define RTC_ADDR        0x10000048
 
 uint8_t pmem[MSB] = {};
-uint32_t R;
-int pp = 0;
+uint32_t R = 0;
+int is_end = 0;
+
+static VerilatedFstC* tfp = new VerilatedFstC;
+static Vminirv* top = new Vminirv;
+vluint64_t main_time = 0;
 
 static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //get the uint8_t addr
 
@@ -56,7 +60,7 @@ extern "C" void get_reg(int r) {
 }
 
 extern "C" void ebreak() {
-  if (R == 0) { printf("\n\033[1;32mHIT GOOD TRAP\033[0m\n"); pp = 1; }
+  if (R == 0) { printf("\n\033[1;32mHIT GOOD TRAP\033[0m\n"); is_end = 1; }
   else {
     printf("\n\033[1;31mHIT BAD TRAP\033[0m\n\n");
     exit(0);
@@ -80,58 +84,57 @@ static void load_bin(const char *filename) {
   fclose(fp);
 }
 
-vluint64_t main_time = 0;
-
-int main(int argc, char *argv[]) {
+static void sim_init(int argc, char *argv[]) {
   char *img_file = NULL;
 
-  //
   for (int i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "--img") == 0 && i + 1 < argc) img_file = argv[i + 1];    
+    if (strcmp(argv[i], "--img") == 0 && i + 1 < argc) img_file = argv[i + 1];
   }
 
   if (img_file != NULL) load_bin(img_file);
   else {
     printf("No image file\n");
     exit(1);
-  }  
+  }
 
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
-
-  VerilatedFstC* tfp = new VerilatedFstC;
-  Vminirv* top = new Vminirv;
 
   top->trace(tfp, 99);
   tfp->open("wave.fst");
 
   top->rst = 1;
-  top->clk = 0; 
+  top->clk = 0;
   top->eval();
   top->clk = 1;
   top->eval();
   top->rst = 0;
+}
 
-  while (!pp) {    
-    //printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
+static void step_and_eval() {
+  top->clk = 0;
+  top->eval();
 
-    /*if (pp) {
-      printf("At %ld PC = 0x%08x Inst = 0x%08x\n\n", main_time, top->cur_pc, top->cur_inst);
-      break;
-    }*/
+  top->clk = 1;
+  top->eval();
 
-    top->clk = 0;
-    top->eval();
+  tfp->dump(main_time);
+  main_time ++;  
+}
 
-    top->clk = 1;
-    top->eval();
+vluint64_t main_time = 0;
 
-    tfp->dump(main_time);
-    main_time ++;
-  }
+int main(int argc, char *argv[]) {
+  sim_init(argc, argv);
 
-  tfp->close();
-  delete tfp;
-  delete top;
-  return 0;
+  //if (is_batch_mode) cpu_exec(-1);
+  //else sdb_mainloop();
+
+  while (!is_end) step_and_eval();
+  if (is_end) {
+    tfp->close();
+    delete tfp;
+    delete top;
+    return 0;
+  } else return -1;
 }
