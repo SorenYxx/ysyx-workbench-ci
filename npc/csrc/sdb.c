@@ -35,7 +35,7 @@ static int cmd_q(char *args) {
   return -1;
 }
 
-/*static int cmd_si(char *args) {
+static int cmd_si(char *args) {
   int n = 1;
   if (args != NULL) {
     char *a;
@@ -103,7 +103,7 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-static int cmd_p(char *args) {
+/*static int cmd_p(char *args) {
   bool success;
   uint32_t result = expr(args, &success);
   if (success) {
