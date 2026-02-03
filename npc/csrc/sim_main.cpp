@@ -128,7 +128,7 @@ static void step_and_eval() {
   main_time ++;  
 }
 
-static void cpu_exec(uint64_t n) {
+void cpu_exec(uint64_t n) {
   for (uint64_t i = 0; i < n; i ++) {
     step_and_eval();
     if (is_end) {
