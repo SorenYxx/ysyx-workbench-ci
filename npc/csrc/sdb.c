@@ -60,48 +60,48 @@ static int cmd_info(char *args) {
   return 0;
 }
 
-static int cmd_x(char *args) {
-  int n = 0;
-  uint32_t s;
-  char *a0;
-  char *arg = args;
-  bool success;
+// static int cmd_x(char *args) {
+//   int n = 0;
+//   uint32_t s;
+//   char *a0;
+//   char *arg = args;
+//   bool success;
 
-  if (args == NULL) {
-    printf("Now: 0x%08X: %08x\n", top->cur_pc, pmem_read(top->cur_pc));
-    return 0;
-  }
+//   if (args == NULL) {
+//     printf("Now: 0x%08X: %08x\n", top->cur_pc, pmem_read(top->cur_pc));
+//     return 0;
+//   }
 
-  char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
-  char *arg1 = strtok(NULL, " ");//arg1 is the second argv
+//   char *arg0 = strtok(NULL, " ");//arg0 is the frist argv
+//   char *arg1 = strtok(NULL, " ");//arg1 is the second argv
 
-  if (arg0 != NULL) {
-    n = strtol(arg0, &a0, 10);
-    s = (arg1 == NULL) ? top->cur_pc: expr(arg1, &success);
+//   if (arg0 != NULL) {
+//     n = strtol(arg0, &a0, 10);
+//     s = (arg1 == NULL) ? top->cur_pc: expr(arg1, &success);
 
-    if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
+//     if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
 
-    uint32_t start = 0x80000000;
-    for (uint32_t i = start; i < 0X88000000 ; i += 4) {
-      if (s == i) {
-        for (int c = 0; c < n; c ++) {
-          uint32_t current = i + c * 4;
-          if (current >= 0X88000000) break;
+//     uint32_t start = 0x80000000;
+//     for (uint32_t i = start; i < 0X88000000 ; i += 4) {
+//       if (s == i) {
+//         for (int c = 0; c < n; c ++) {
+//           uint32_t current = i + c * 4;
+//           if (current >= 0X88000000) break;
 
-          uint32_t value = pmem_read(current);
-          printf("0x%08X: %08X\n", current, value);
-        }
-        return 0;
-      }
-    }
-    for (int c = 0; c < n; c ++) {
-      uint32_t current = s + c * 4;
-      printf("0x%08X: NULL\n", current);
-    }
-  }
+//           uint32_t value = pmem_read(current);
+//           printf("0x%08X: %08X\n", current, value);
+//         }
+//         return 0;
+//       }
+//     }
+//     for (int c = 0; c < n; c ++) {
+//       uint32_t current = s + c * 4;
+//       printf("0x%08X: NULL\n", current);
+//     }
+//   }
 
-  return 0;
-}
+//   return 0;
+// }
 
 /*static int cmd_p(char *args) {
   bool success;
