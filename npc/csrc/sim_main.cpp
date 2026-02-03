@@ -23,6 +23,7 @@ int is_end = 0;
 static VerilatedFstC* tfp = new VerilatedFstC;
 static Vminirv* top = new Vminirv;
 vluint64_t main_time = 0;
+static uint64_t static_time = 0;
 
 static uint8_t* guest_to_host(uint32_t addr) { return pmem + (addr - ADDR); } //get the uint8_t addr
 
@@ -36,8 +37,8 @@ static uint64_t get_host_time() {
 extern "C" int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
-  if (addr == RTC_ADDR) return (uint32_t)get_host_time();
-  if (addr == RTC_ADDR + 4) return (uint32_t)(get_host_time() >> 32);
+  if (addr == RTC_ADDR) { static_time = get_host_time(); return (uint32_t)static_time; }
+  if (addr == RTC_ADDR + 4) return (uint32_t)(static_time >> 32);
 
   if (addr < ADDR || addr >= 0x88000000) return 0;
 
