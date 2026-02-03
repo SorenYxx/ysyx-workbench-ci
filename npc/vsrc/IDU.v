@@ -1,3 +1,5 @@
+import "DPI-C" function void is_illegal_inst();
+
 module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
   input [31:0] inst;
   
@@ -22,6 +24,9 @@ module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
     mem_r = 1'b0;
     
     casez({opcode, funct3})
+      {7'd0, 3'd0}: ;
+      {7'b1110011, 3'b000}: ;
+    
       //addi
       {7'b0010011, 3'b000}: begin
         imm = {{20{inst[31]}}, inst[31:20]};
@@ -64,7 +69,7 @@ module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
         op_type = 3'd7;
       end
       
-      default imm = 32'b0;
+      default is_illegal_inst();
     endcase
   end
   

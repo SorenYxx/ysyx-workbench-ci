@@ -13,22 +13,25 @@
 #define SERIAL_PORT     0x10000000
 #define RTC_ADDR        0x10000048
 
-enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT };
+enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT , NPC_QUIT};
+
+extern uint8_t pmem[MSB];
 
 typedef struct {
   int state;
   uint32_t halt_pc;
-  uint32_t halt_ret;
 } NPCState;
 
 extern NPCState npc_state;
 extern VerilatedFstC* tfp;
 extern Vminirv* top;
 
+void sim_init(int argc, char *argv[]);
 void sdb_mainloop();
 void cpu_exec(uint64_t n);
 
 void isa_reg_display();
-uint32_t pmem_read(uint32_t addr);
+
+void init_sdb();
 
 #endif

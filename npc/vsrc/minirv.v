@@ -35,7 +35,7 @@ module minirv(
     
     if (inst == 32'h00100073) begin
       ebreak();
-      $display("ebreak at PC = 0x%h Inst = 0x%h\n", pc, inst);
+      $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
     end
     
   end

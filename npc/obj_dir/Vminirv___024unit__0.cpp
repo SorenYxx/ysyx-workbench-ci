@@ -14,6 +14,14 @@ void Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(IData/*31:0*/ r) {
     get_reg(r__Vcvt);
 }
 
+extern "C" void is_illegal_inst();
+
+void Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit\n"); );
+    // Body
+    is_illegal_inst();
+}
+
 extern "C" void ebreak();
 
 void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit() {
