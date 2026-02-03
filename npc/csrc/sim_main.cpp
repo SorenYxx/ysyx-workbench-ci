@@ -1,14 +1,5 @@
-#include "verilated_fst_c.h"
-#include "Vminirv.h"
-#include "verilated.h"
-#include <stdio.h>
-#include <stdint.h>
-#include <iostream>
-#include <cstdio>
-#include <cstdlib>
-#include <sys/time.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+#include <npc.h>
+#include <common.h>
 
 #define MSB 128 * 1024 * 1024
 #define ADDR 0x80000000
@@ -20,8 +11,8 @@ uint8_t pmem[MSB] = {};
 uint32_t R = 0;
 int is_end = 0;
 
-static VerilatedFstC* tfp = new VerilatedFstC;
-static Vminirv* top = new Vminirv;
+VerilatedFstC* tfp = new VerilatedFstC;
+Vminirv* top = new Vminirv;
 vluint64_t main_time = 0;
 static uint64_t static_time = 0;
 
@@ -71,22 +62,22 @@ extern "C" void ebreak() {
 }
 
 
-static char* rl_gets() {
-  static char *line_read = NULL;
+// static char* rl_gets() {
+//   static char *line_read = NULL;
 
-  if (line_read) {
-    free(line_read);
-    line_read = NULL;
-  }
+//   if (line_read) {
+//     free(line_read);
+//     line_read = NULL;
+//   }
 
-  line_read = readline("(npc) ");
+//   line_read = readline("(npc) ");
 
-  if (line_read && *line_read) {
-    add_history(line_read);
-  }
+//   if (line_read && *line_read) {
+//     add_history(line_read);
+//   }
 
-  return line_read;
-}
+//   return line_read;
+// }
 
 static void load_bin(const char *filename) {
   if (filename == NULL) return;
