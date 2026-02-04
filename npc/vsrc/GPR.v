@@ -1,4 +1,4 @@
-import "DPI-C" function void get_reg(input int r);
+import "DPI-C" function void get_reg(input int waddr, input int r);
 
 module GPR #(parameter ADDR_WIDTH = 5,parameter DATA_WIDTH = 32) (
   input  clk,
@@ -14,15 +14,11 @@ module GPR #(parameter ADDR_WIDTH = 5,parameter DATA_WIDTH = 32) (
 );
 
   reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
-  reg [ADDR_WIDTH-1:0] i;
-  
-  initial begin
-    for (i = 0; i < 30; i++) get_reg(rf[i]);
-  end
   
   always @(posedge clk) begin
     if (wen && (waddr != 0)) begin
       rf[waddr] <= wdata;
+      get_reg({27'b0, waddr}, wdata);
     end
   end
 

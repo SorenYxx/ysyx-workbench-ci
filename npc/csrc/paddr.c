@@ -14,7 +14,7 @@ static uint64_t get_host_time() {
   return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
 }
 
-extern "C" int pmem_read(int raddr) {
+int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
   if (addr == RTC_ADDR) return (uint32_t)get_host_time();
@@ -25,7 +25,7 @@ extern "C" int pmem_read(int raddr) {
   return *(int *)(guest_to_host(addr)); //change to int* then get the uint32_t addr
 }
 
-extern "C" void pmem_write(int waddr, int wdata, char wmask) {
+void pmem_write(int waddr, int wdata, char wmask) {
   uint32_t addr = (uint32_t)waddr & ~0x3u;
 
   if (addr == SERIAL_PORT) putchar(wdata); //

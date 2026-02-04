@@ -13,34 +13,10 @@ VL_ATTR_COLD void Vminirv___024root___eval_static(Vminirv___024root* vlSelf) {
     vlSelfRef.__Vtrigprevexpr___TOP__rst__0 = vlSelfRef.rst;
 }
 
-VL_ATTR_COLD void Vminirv___024root___eval_initial__TOP(Vminirv___024root* vlSelf);
-VL_ATTR_COLD void Vminirv___024root____Vm_traceActivitySetAll(Vminirv___024root* vlSelf);
-
 VL_ATTR_COLD void Vminirv___024root___eval_initial(Vminirv___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___eval_initial\n"); );
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    Vminirv___024root___eval_initial__TOP(vlSelf);
-    Vminirv___024root____Vm_traceActivitySetAll(vlSelf);
-}
-
-void Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(IData/*31:0*/ r);
-
-VL_ATTR_COLD void Vminirv___024root___eval_initial__TOP(Vminirv___024root* vlSelf) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___eval_initial__TOP\n"); );
-    Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
-    auto& vlSelfRef = std::ref(*vlSelf).get();
-    // Body
-    vlSelfRef.minirv__DOT__R__DOT__i = 0U;
-    while ((0x1eU > (IData)(vlSelfRef.minirv__DOT__R__DOT__i))) {
-        Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(
-                                                               vlSelfRef.minirv__DOT__R__DOT__rf
-                                                               [vlSelfRef.minirv__DOT__R__DOT__i]);
-        vlSelfRef.minirv__DOT__R__DOT__i = (0x0000001fU 
-                                            & ((IData)(1U) 
-                                               + (IData)(vlSelfRef.minirv__DOT__R__DOT__i)));
-    }
 }
 
 VL_ATTR_COLD void Vminirv___024root___eval_final(Vminirv___024root* vlSelf) {
@@ -367,6 +343,8 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                  : 0U))));
 }
 
+VL_ATTR_COLD void Vminirv___024root____Vm_traceActivitySetAll(Vminirv___024root* vlSelf);
+
 VL_ATTR_COLD void Vminirv___024root___eval_stl(Vminirv___024root* vlSelf) {
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vminirv___024root___eval_stl\n"); );
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
@@ -448,7 +426,6 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->minirv__DOT__R__DOT__rf[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6283656838191798135ull);
     }
-    vlSelf->minirv__DOT__R__DOT__i = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 8593544048393960982ull);
     vlSelf->minirv__DOT__my_IDU__DOT__opcode = VL_SCOPED_RAND_RESET_I(7, __VscopeHash, 15744638667338740333ull);
     vlSelf->minirv__DOT__my_IDU__DOT__funct3 = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 12744822068766360466ull);
     vlSelf->minirv__DOT__my_EXU__DOT__result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1961965708107912446ull);

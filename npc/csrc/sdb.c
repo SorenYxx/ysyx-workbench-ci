@@ -103,7 +103,7 @@ static int cmd_x(char *args) {
   return 0;
 }
 
-/*static int cmd_p(char *args) {
+static int cmd_p(char *args) {
   bool success;
   uint32_t result = expr(args, &success);
   if (success) {
@@ -119,7 +119,7 @@ static int cmd_w(char *args) {
 
 static int cmd_d(char *args) {
   return c_d(args);
-}*/
+}
 
 static int cmd_help(char *args);
 
@@ -131,12 +131,12 @@ static struct {
   { "help", "Display information about all supported commands", cmd_help },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
-  // { "si", "Single-step implementation", cmd_si },
-  // { "info", "Print program status", cmd_info },
-  // { "x", "Scanning memory", cmd_x },
-  // { "p", "Expression evaluation", cmd_p},
-  // { "w", "Set up a monitoring point", cmd_w},
-  // { "d", "Delete the monitoring point", cmd_d}
+  { "si", "Single-step implementation", cmd_si },
+  { "info", "Print program status", cmd_info },
+  { "x", "Scanning memory", cmd_x },
+  { "p", "Expression evaluation", cmd_p},
+  { "w", "Set up a monitoring point", cmd_w},
+  { "d", "Delete the monitoring point", cmd_d}
 
 };
 
@@ -207,9 +207,9 @@ void sdb_mainloop() {
 }
 
 void init_sdb() {
-  // /* Compile the regular expressions. */
-  // init_regex();
+  /* Compile the regular expressions. */
+  init_regex();
 
-  // /* Initialize the watchpoint pool. */
-  // init_wp_pool();
+  /* Initialize the watchpoint pool. */
+  init_wp_pool();
 }

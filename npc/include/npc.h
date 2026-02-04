@@ -3,6 +3,9 @@
 
 #include <common.h>
 #include <arpa/inet.h> 
+#include <iostream>
+#include <cstdio>
+#include <cstdlib>
 #include "verilated.h"
 #include "Vminirv.h"
 #include "verilated_fst_c.h"
@@ -29,8 +32,10 @@ extern Vminirv* top;
 void sim_init(int argc, char *argv[]);
 void sdb_mainloop();
 void cpu_exec(uint64_t n);
+int is_exit_status_bad(); 
 
 void isa_reg_display();
+word_t isa_reg_str2val(const char *s, bool *success);
 
 void init_sdb();
 

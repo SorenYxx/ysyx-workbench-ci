@@ -9,6 +9,17 @@
 
 uint8_t* guest_to_host(paddr_t paddr);
 
-paddr_t host_to_guest(uint8_t *haddr);
+// paddr_t host_to_guest(uint8_t *haddr);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+// ----- DPI-C------
+int pmem_read(int raddr);
+void pmem_write(int waddr, int wdata, char wmask);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

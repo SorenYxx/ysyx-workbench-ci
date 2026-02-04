@@ -19,7 +19,7 @@ extern "C" {
     // DPI import at vsrc/minirv.v:1:30
     extern void ebreak();
     // DPI import at vsrc/GPR.v:1:30
-    extern void get_reg(int r);
+    extern void get_reg(int waddr, int r);
     // DPI import at vsrc/IDU.v:1:30
     extern void is_illegal_inst();
     // DPI import at vsrc/IFU.v:1:29

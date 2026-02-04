@@ -4,14 +4,16 @@
 
 #include "Vminirv__pch.h"
 
-extern "C" void get_reg(int r);
+extern "C" void get_reg(int waddr, int r);
 
-void Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(IData/*31:0*/ r) {
+void Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(IData/*31:0*/ waddr, IData/*31:0*/ r) {
     VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit\n"); );
     // Body
+    int waddr__Vcvt;
+    waddr__Vcvt = waddr;
     int r__Vcvt;
     r__Vcvt = r;
-    get_reg(r__Vcvt);
+    get_reg(waddr__Vcvt, r__Vcvt);
 }
 
 extern "C" void is_illegal_inst();

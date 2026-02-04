@@ -24,7 +24,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     CData/*0:0*/ minirv__DOT__reg_w;
     CData/*0:0*/ minirv__DOT__mem_w;
     CData/*0:0*/ minirv__DOT__mem_r;
-    CData/*4:0*/ minirv__DOT__R__DOT__i;
     CData/*6:0*/ minirv__DOT__my_IDU__DOT__opcode;
     CData/*2:0*/ minirv__DOT__my_IDU__DOT__funct3;
     CData/*0:0*/ __VstlFirstIteration;

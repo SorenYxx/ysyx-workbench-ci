@@ -3,9 +3,11 @@
 
 #include <macro.h>
 #include <stdint.h>
+#include <string.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
+#include <paddr.h>
 
 // ---------------- log ---------------
 
