@@ -4,6 +4,7 @@ VFLAGS = $(shell find ./vsrc -name "*.v")
 CSRC = $(shell find ./csrc -name "*.cpp" -o -name "*.c")
 INC_PATH = $(shell pwd)/include
 DUMP = wave.fst
+LIBS += -lreadline
 
 all: sim compile run
 
@@ -11,7 +12,7 @@ compile:
 	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
         $(VFLAGS) $(CSRC)\
 		-CFLAGS "-I$(INC_PATH)" \
-		-LDFLAGS "-lreadline" \
+		-LDFLAGS "$(LIBS)" \
 		--o V$(TOP)
 
 run: clean compile
