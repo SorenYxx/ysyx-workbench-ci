@@ -5,7 +5,6 @@ CSRC = $(shell find ./csrc -name "*.cpp" -o -name "*.c")
 INC_PATH = $(shell pwd)/include
 DUMP = wave.fst
 LIBS += -lcapstone -lreadline
-IMG ?= $(NPC_HOME)/../am-kernels/tests/cpu-test/build/dummy-riscv32e-npc.bin
 
 all: sim compile run
 
