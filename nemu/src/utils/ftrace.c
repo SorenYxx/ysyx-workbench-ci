@@ -66,18 +66,18 @@ const char *get_func(uint32_t addr) {
   return NULL;
 }
 
-int depth = 0;
+// int depth = 0;
 
-void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
-  const char *funt_name = get_func(target);
-  if (funt_name == NULL) return;
+// void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
+//   const char *funt_name = get_func(target);
+//   if (funt_name == NULL) return;
 
-  if (is_call) {
-    printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
-    depth ++;
-  } else {
-    depth --;
-    if (depth < 0) depth = 0;
-    printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
-  }
-}
+//   if (is_call) {
+//     printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
+//     depth ++;
+//   } else {
+//     depth --;
+//     if (depth < 0) depth = 0;
+//     printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
+//   }
+// }
