@@ -1,5 +1,5 @@
 NAME = screensaver
 
-SRCS = mnrv.c
+SRCS = screensaver.c
 
 include $(AM_HOME)/Makefile

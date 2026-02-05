@@ -1,6 +1,6 @@
 #include <npc.h>
 #include <common.h>
-// #include <capstone/capstone.h>
+#include <capstone/capstone.h>
 
 void itrace_record(int pc, int inst) {
   // csh handle;

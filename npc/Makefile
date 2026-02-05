@@ -4,7 +4,8 @@ VFLAGS = $(shell find ./vsrc -name "*.v")
 CSRC = $(shell find ./csrc -name "*.cpp" -o -name "*.c")
 INC_PATH = $(shell pwd)/include
 DUMP = wave.fst
-LIBS += -lreadline
+LIBS += -lcapstone -lreadline
+IMG ?= $(NPC_HOME)/../am-kernels/tests/cpu-test/build/dummy-riscv32e-npc.bin
 
 all: sim compile run
 
@@ -15,7 +16,7 @@ compile:
 		-LDFLAGS "$(LIBS)" \
 		--o V$(TOP)
 
-run: clean compile
+run: compile
 	@echo "NPC received IMG = $(IMG)"
 	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG)
 
