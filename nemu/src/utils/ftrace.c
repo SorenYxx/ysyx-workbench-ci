@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <stdbool.h>
 
 typedef struct {
   char name[64];
@@ -54,30 +53,4 @@ void init_ftrace(const char *elf_file) {
       symbol_cnt ++;
     }
   }
-  free(symtab);
 }
-
-const char *get_func(uint32_t addr) {
-  for (int i = 0; i < symbol_cnt; i ++) {
-    if (addr >= symbol_table[i].start && addr < symbol_table[i].start + symbol_table[i].size) {
-      return symbol_table[i].name;
-    }
-  }
-  return NULL;
-}
-
-// int depth = 0;
-
-// void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
-//   const char *funt_name = get_func(target);
-//   if (funt_name == NULL) return;
-
-//   if (is_call) {
-//     printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
-//     depth ++;
-//   } else {
-//     depth --;
-//     if (depth < 0) depth = 0;
-//     printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
-//   }
-// }

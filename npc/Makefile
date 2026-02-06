@@ -4,7 +4,6 @@ VFLAGS = $(shell find ./vsrc -name "*.v")
 CSRC = $(shell find ./csrc -name "*.cpp" -o -name "*.c")
 INC_PATH = $(shell pwd)/include
 DUMP = wave.fst
-LIBS += -lcapstone -lreadline
 
 all: sim compile run
 
@@ -12,10 +11,10 @@ compile:
 	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
         $(VFLAGS) $(CSRC)\
 		-CFLAGS "-I$(INC_PATH)" \
-		-LDFLAGS "$(LIBS)" \
+		-LDFLAGS "-lreadline" \
 		--o V$(TOP)
 
-run: compile
+run: clean compile
 	@echo "NPC received IMG = $(IMG)"
 	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG)
 

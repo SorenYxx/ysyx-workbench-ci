@@ -8,100 +8,68 @@ module IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
   output reg [2:0] op_type;
   output reg reg_w, mem_w, mem_r;
   
-  reg [6:0] opcode = inst[6:0];
-  reg [2:0] funct3 = inst[14:12];
-  reg [6:0] funct7 = isnt[32:25];
-  
-  //type of inst
-  wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111);
-  wire inst_U = (opcode == 7'b0110111) || (opcode == 7'b0010111);
-  wire inst_B = (opcode == 7'b1100011);
-  wire inst_S = (opcode == 7'b0100011);
-  wire inst_J = (opcode == 7'b0100011);
-  wire inst_R = (opcode == 7'b1110011);
-  wire inst_N = (opcode == 7'b1110011);
-  
-  //more
-  wire I_a = (opcode == 7'b0010011); //addi..
-  wire I_b = (opcode == 7'b0000011); //l..
-  
-  //all of inst
-  wire addi = I_a && (funct3 == 3'b000);
-  wire slti = I_a && (funct3 == 3'b010);
-  wire slli = I_a && (funct3 == 3'b000);
-  wire srli = I_a && (funct3 == 3'b010);
-  wire srai = I_a && (funct3 == 3'b000);
-  wire sltiu = I_a && (funct3 == 3'b010);
-  wire xori = I_a && (funct3 == 3'b000);
-  wire  ori = I_a && (funct3 == 3'b010);
-  wire andi = I_a && (funct3 == 3'b000);
-  wire  lbu = I_b && (funct3 == 3'b100);
-  wire  lhu = I_b && (funct3 == 3'b101);
-  wire   lw = I_b && (funct3 == 3'b010);
-  wire   lh = I_b && (funct3 == 3'b001);
-  wire   lb = I_b && (funct3 == 3'b000);
-  wire jalr = (opcode == 7'b1100111);
-  
-  wire add = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0000000);
-  wire sub = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0100000);
-  wire sll = inst_R && (funct3 == 3'b001);
-  wire slt = inst_R && (funct3 == 3'b010);
-  wire sltu = inst_R && (funct3 == 3'b011);
-  wire srl = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0000000);
-  wire sra = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0100000);
-  wire r_xor = inst_R && (funct3 == 3'b100);
-  wire r_or = inst_R && (funct3 == 3'b110);
-  wire r_and = inst_R && (funct3 == 3'b111);
-  
-  wire sw = inst_S && (funct3 == 3'b010);
-  wire sb = inst_S && (funct3 == 3'b000);
-  wire sh = inst_S && (funct3 == 3'b001);
-  
-  wire lui = (opcode == 7'b0110111);
-  wire auipc = (opcode == 7'b0010111);
-  
-  wire bne = inst_B && (funct3 == 3'b001);
-  wire beq = inst_B && (funct3 == 3'b000);
-  wire blt = inst_B && (funct3 == 3'b100);
-  wire bge = inst_B && (funct3 == 3'b101);
-  wire bltu = inst_B && (funct3 == 3'b110);
-  wire bgeu = inst_B && (funct3 == 3'b111);
-  
-  wire jal = inst_J;
-  
-  
-  wire [1:0] rf_res;
-  wire [3:0] alu_op;
-  wire alu_arc1;
-  wire alu_arc2;
-  wire j_type, b_type;
-  
-  
-  assign rf_res = ;
-  assign alu_op = (add || addi || lbu || lw || lhu || lh || lb);
-  assign alu_arc1 = ;
-  assign alu_arc2 = ;
-  assign j_type = ;
-  assign b_type = ;
-  
+  reg [6:0] opcode;
+  reg [2:0] funct3;
   
   always @(*) begin
+    opcode = inst[6:0];
+    funct3 = inst[14:12];
     rs1 = inst[19:15];
     rs2 = inst[24:20];
     rd = inst[11:7];
     imm = 32'b0;
     op_type = 3'b0;
-    reg_w = inst_I || inst_R || inst_J || inst_U;
-    mem_w = inst_S;
-    mem_r = I_b;
+    reg_w = 1'b0;
+    mem_w = 1'b0;
+    mem_r = 1'b0;
     
-    case(1'b1)
-      inst_I: imm = {{20{inst[31]}}, inst[31:20]};
-      inst_S: imm = {{20{inst[31]}}, inst[31:25], inst[11:7]}; 
-      inst_B: imm = {{19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}; 
-      inst_U: imm = {inst[31:12], 12'b0};
-      inst_J: imm = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
-      default: imm = 32'b0;
+    casez({opcode, funct3})
+      {7'd0, 3'd0}: ;
+      {7'b1110011, 3'b000}: ;
+    
+      //addi
+      {7'b0010011, 3'b000}: begin
+        imm = {{20{inst[31]}}, inst[31:20]};
+        reg_w = 1'b1;
+        op_type = 3'd0;
+      end
+      
+      //add
+      {7'b0110011, 3'b000}: begin
+        reg_w = 1'b1;
+        op_type = 3'd1;
+      end
+      
+      //lui
+      {7'b0110111, 3'b???}: begin
+        imm = {inst[31:12], 12'b0};
+        reg_w = 1'b1;
+        op_type = 3'd2;
+      end
+      
+      //sw, sb
+      {7'b0100011, 3'b???}: begin
+        imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
+        mem_w = 1'b1;
+        op_type = (funct3 == 3'b010)? 3'd3: 3'd4;
+      end
+      
+      //lbu, lw
+      {7'b0000011, 3'b???}: begin
+        imm = {{20{inst[31]}}, inst[31:20]};
+        reg_w = 1'b1;
+        mem_r = 1'b1;
+        op_type = (funct3 == 3'b100)? 3'd5: 3'd6;
+      end
+      
+      //jalr
+      {7'b1100111, 3'b000}: begin
+        imm = {{20{inst[31]}}, inst[31:20]};
+        reg_w = 1'b1;
+        op_type = 3'd7;
+      end
+      
+      default is_illegal_inst();
     endcase
   end
   
