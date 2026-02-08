@@ -37,6 +37,7 @@ static int cmd_q(char *args) {
 
 static int cmd_si(char *args) {
   int n = 1;
+
   if (args != NULL) {
     char *a;
     n = strtol(args, &a, 10);
@@ -45,7 +46,7 @@ static int cmd_si(char *args) {
         return 0;
     }
   }
-  printf("Executing %d instructions...\n", n);
+  if (npc_state.state != NPC_END) printf("Executing %d instructions...\n", n);
   cpu_exec(n);
   return 0;
 }
