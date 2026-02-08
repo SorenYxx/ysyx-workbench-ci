@@ -88,7 +88,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   		  3'd6;
 
   assign rf_res = ld_type ? 2'b01 : //mem
-  		  (jal || jalr) : 2'b10 : 2'b00; //pc + 4; ALU
+  		  (jal || jalr) ? 2'b10 : 2'b00; //pc + 4; ALU
   assign alu_op = (add || addi || ld_type || j_type) ? 4'd0 : 
   		  (sub || inst_B) ? 4'd1:
   		  (lui) ? 4'd2 :
