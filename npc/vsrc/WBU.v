@@ -1,4 +1,4 @@
-module WBU(pc, rd, rf_res, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
+module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
   input [31:0] pc;
   input [4:0] rd;
   input [1:0] rf_res;

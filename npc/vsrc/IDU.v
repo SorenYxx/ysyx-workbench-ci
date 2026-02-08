@@ -17,7 +17,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   
   reg [6:0] opcode = inst[6:0];
   reg [2:0] funct3 = inst[14:12];
-  reg [6:0] funct7 = isnt[32:25];
+  reg [6:0] funct7 = inst[32:25];
   
   //type of inst
   wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111);
@@ -123,7 +123,6 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
     rs2 = inst[24:20];
     rd = inst[11:7];
     imm = 32'b0;
-    op_type = 3'b0;
     reg_w = inst_I || inst_R || inst_J || inst_U;
     mem_w = inst_S;
     mem_r = I_b;
