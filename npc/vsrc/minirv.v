@@ -21,6 +21,7 @@ module minirv(
   wire j_type;
   wire [2:0] b_type;
   wire [31:0] wdata;
+  wire ebreak_type;
 
   reg [31:0] pc, n_pc;
   
@@ -28,7 +29,7 @@ module minirv(
   
   IFU my_IFU(pc, inst);
   
-  IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type);
+  IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type, ebreak);
   
   EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, alu_result);
   
@@ -40,7 +41,7 @@ module minirv(
     if (rst) pc <= 32'h80000000;
     else pc <= n_pc;
     
-    if (inst == 32'h00100073) begin
+    if (ebreak_type) begin
       ebreak();
       $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
     end

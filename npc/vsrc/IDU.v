@@ -1,6 +1,6 @@
 import "DPI-C" function void is_illegal_inst();
 
-module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type);
+module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
   input [31:0] inst;
   
   output reg [31:0] imm;
@@ -14,10 +14,11 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   output alu_arc2;
   output j_type;
   output [2:0] b_type;
+  output ebreak_type;
   
   reg [6:0] opcode = inst[6:0];
   reg [2:0] funct3 = inst[14:12];
-  reg [6:0] funct7 = inst[32:25];
+  reg [6:0] funct7 = inst[31:25];
   
   //type of inst
   wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111);
@@ -26,7 +27,6 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   wire inst_S = (opcode == 7'b0100011);
   wire inst_J = (opcode == 7'b0100011);
   wire inst_R = (opcode == 7'b1110011);
-  wire inst_N = (opcode == 7'b1110011);
   
   //more
   wire I_a = (opcode == 7'b0010011); //addi..
@@ -77,6 +77,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   
   wire jal = inst_J;
 
+  // wire illegal = ;
+
 
   assign j_type = jal || jalr;
   assign b_type = bne ? 3'd0 :
@@ -115,7 +117,10 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
          (lh) ? 3'd2 :
          (lbu) ? 3'd3 :
          (lhu) ? 3'd4 :
-         3'd5 ;
+         3'd5;
+
+  assign ebreak_type = (opcode == 7'b1110011);
+
 
   
   always @(*) begin
@@ -124,8 +129,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
     rd = inst[11:7];
     imm = 32'b0;
     reg_w = inst_I || inst_R || inst_J || inst_U;
-    mem_w = inst_S;
-    mem_r = I_b;
+    mem_w = 2'b11;
+    mem_r = 3'd5;
     
     case(1'b1)
       inst_I: imm = {{20{inst[31]}}, inst[31:20]};

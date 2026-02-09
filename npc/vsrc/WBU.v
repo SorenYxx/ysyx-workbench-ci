@@ -10,12 +10,17 @@ module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, 
   output reg [31:0] wdata;
   output reg [31:0] n_pc;
   
-  always @(*)
-    case(rf_res)
-      2'b00: wdata = alu_result;
-      2'b01: wdata = mem_result;
-      2'b10: wdata = pc + 4;
-    endcase
+  always @(*) begin
+    if (reg_w) begin
+      case(rf_res)
+        2'b00: wdata = alu_result;
+        2'b01: wdata = mem_result;
+        2'b10: wdata = pc + 4;
+        default: ;
+      endcase
+    end
+    else wdata = 0; rd = 0;
+  end
 
   assign n_pc = j_type ? alu_result : pc + 4;
 endmodule
