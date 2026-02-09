@@ -6,12 +6,13 @@ module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, 
   input [31:0] alu_result, mem_result;
   input reg_w;
   
-  output reg [4:0] waddr = rd;
+  output reg [4:0] waddr;
   output reg [31:0] wdata;
   output reg [31:0] n_pc;
   
   always @(*) begin
     if (reg_w) begin
+    waddr = rd;
       case(rf_res)
         2'b00: wdata = alu_result;
         2'b01: wdata = mem_result;

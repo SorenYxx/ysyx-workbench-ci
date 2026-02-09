@@ -8,8 +8,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   output reg reg_w;
   output [1:0] rf_res;
   output [3:0] alu_op;
-  output [1:0] mem_w;
-  output [2:0] mem_r;  
+  output reg [1:0] mem_w;
+  output reg [2:0] mem_r;  
   output alu_arc1;
   output alu_arc2;
   output j_type;
