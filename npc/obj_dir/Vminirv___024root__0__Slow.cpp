@@ -478,6 +478,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                              & vlSelfRef.minirv__DOT__inst))))))
                                                 ? vlSelfRef.minirv__DOT__my_IDU__DOT__imm
                                                 : vlSelfRef.minirv__DOT__R__DOT__rdata2);
+    vlSelfRef.minirv__DOT__alu_result = 0U;
     if ((8U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))) {
         vlSelfRef.minirv__DOT__alu_result = ((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))
                                               ? 0U : 
