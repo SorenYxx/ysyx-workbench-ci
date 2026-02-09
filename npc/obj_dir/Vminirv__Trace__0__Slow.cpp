@@ -279,8 +279,21 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
     bufp->fullCData(oldp+39,(vlSelfRef.minirv__DOT__waddr),5);
     bufp->fullCData(oldp+40,(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res),2);
     bufp->fullCData(oldp+41,(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op),4);
-    bufp->fullCData(oldp+42,(vlSelfRef.minirv__DOT__mem_w),2);
-    bufp->fullCData(oldp+43,(vlSelfRef.minirv__DOT__mem_r),3);
+    bufp->fullCData(oldp+42,(((IData)((0x00002023U 
+                                       == (0x0000707fU 
+                                           & vlSelfRef.minirv__DOT__inst)))
+                               ? 0U : ((IData)((0x00000023U 
+                                                == 
+                                                (0x0000707fU 
+                                                 & vlSelfRef.minirv__DOT__inst)))
+                                        ? 1U : ((IData)(
+                                                        (0x00001023U 
+                                                         == 
+                                                         (0x0000707fU 
+                                                          & vlSelfRef.minirv__DOT__inst)))
+                                                 ? 2U
+                                                 : 3U)))),2);
+    bufp->fullCData(oldp+43,(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r),3);
     bufp->fullBit(oldp+44,(vlSelfRef.minirv__DOT__R__DOT__wen));
     bufp->fullBit(oldp+45,((0x23U == (0x0000007fU & vlSelfRef.minirv__DOT__inst))));
     bufp->fullBit(oldp+46,(((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I) 
@@ -378,14 +391,14 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
                                 ? 0U : vlSelfRef.minirv__DOT__R__DOT__rf
                                [(0x0000001fU & (vlSelfRef.minirv__DOT__inst 
                                                 >> 0x0000000fU))])),32);
-    bufp->fullIData(oldp+103,(((4U & (IData)(vlSelfRef.minirv__DOT__mem_r))
-                                ? ((2U & (IData)(vlSelfRef.minirv__DOT__mem_r))
-                                    ? 0U : ((1U & (IData)(vlSelfRef.minirv__DOT__mem_r))
+    bufp->fullIData(oldp+103,(((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
+                                ? ((2U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
+                                    ? 0U : ((1U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                              ? 0U : 
                                             (0x0000ffffU 
                                              & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))
-                                : ((2U & (IData)(vlSelfRef.minirv__DOT__mem_r))
-                                    ? ((1U & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                : ((2U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
+                                    ? ((1U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                         ? (0x000000ffU 
                                            & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)
                                         : (((- (IData)(
@@ -395,7 +408,7 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
                                             << 0x00000010U) 
                                            | (0x0000ffffU 
                                               & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))
-                                    : ((1U & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                    : ((1U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                         ? (((- (IData)(
                                                        (1U 
                                                         & (vlSelfRef.minirv__DOT__my_LSU__DOT__data_s 
@@ -407,7 +420,24 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
     bufp->fullIData(oldp+104,(((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)
                                 ? vlSelfRef.minirv__DOT__alu_result
                                 : ((IData)(4U) + vlSelfRef.minirv__DOT__pc))),32);
-    bufp->fullIData(oldp+105,(((0U == (IData)(vlSelfRef.minirv__DOT__mem_w))
+    bufp->fullIData(oldp+105,(((0U == ((IData)((0x00002023U 
+                                                == 
+                                                (0x0000707fU 
+                                                 & vlSelfRef.minirv__DOT__inst)))
+                                        ? 0U : ((IData)(
+                                                        (0x00000023U 
+                                                         == 
+                                                         (0x0000707fU 
+                                                          & vlSelfRef.minirv__DOT__inst)))
+                                                 ? 1U
+                                                 : 
+                                                ((IData)(
+                                                         (0x00001023U 
+                                                          == 
+                                                          (0x0000707fU 
+                                                           & vlSelfRef.minirv__DOT__inst)))
+                                                  ? 2U
+                                                  : 3U))))
                                 ? VL_SHIFTL_III(32,32,32, vlSelfRef.minirv__DOT__R__DOT__rdata2, 
                                                 VL_SHIFTL_III(32,32,32, 
                                                               (3U 

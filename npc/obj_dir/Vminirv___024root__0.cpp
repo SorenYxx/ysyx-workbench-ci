@@ -58,20 +58,79 @@ void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
     CData/*0:0*/ __VdlySet__minirv__DOT__R__DOT__rf__v0;
     __VdlySet__minirv__DOT__R__DOT__rf__v0 = 0;
     // Body
-    if ((0U == (IData)(vlSelfRef.minirv__DOT__mem_w))) {
+    __VdlySet__minirv__DOT__R__DOT__rf__v0 = 0U;
+    if ((0U == ((IData)((0x00002023U == (0x0000707fU 
+                                         & vlSelfRef.minirv__DOT__inst)))
+                 ? 0U : ((IData)((0x00000023U == (0x0000707fU 
+                                                  & vlSelfRef.minirv__DOT__inst)))
+                          ? 1U : ((IData)((0x00001023U 
+                                           == (0x0000707fU 
+                                               & vlSelfRef.minirv__DOT__inst)))
+                                   ? 2U : 3U))))) {
         Vminirv___024unit____Vdpiimwrap_pmem_write_TOP____024unit(vlSelfRef.minirv__DOT__alu_result, 
                                                                   ((0U 
-                                                                    == (IData)(vlSelfRef.minirv__DOT__mem_w))
+                                                                    == 
+                                                                    ((IData)(
+                                                                             (0x00002023U 
+                                                                              == 
+                                                                              (0x0000707fU 
+                                                                               & vlSelfRef.minirv__DOT__inst)))
+                                                                      ? 0U
+                                                                      : 
+                                                                     ((IData)(
+                                                                              (0x00000023U 
+                                                                               == 
+                                                                               (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                       ? 1U
+                                                                       : 
+                                                                      ((IData)(
+                                                                               (0x00001023U 
+                                                                                == 
+                                                                                (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                        ? 2U
+                                                                        : 3U))))
                                                                     ? 
                                                                    VL_SHIFTL_III(32,32,32, vlSelfRef.minirv__DOT__R__DOT__rdata2, 
                                                                                 VL_SHIFTL_III(32,32,32, 
                                                                                 (3U 
                                                                                 & vlSelfRef.minirv__DOT__alu_result), 3U))
                                                                     : vlSelfRef.minirv__DOT__R__DOT__rdata2), 0x0fU);
-    } else if ((1U == (IData)(vlSelfRef.minirv__DOT__mem_w))) {
+    } else if ((1U == ((IData)((0x00002023U == (0x0000707fU 
+                                                & vlSelfRef.minirv__DOT__inst)))
+                        ? 0U : ((IData)((0x00000023U 
+                                         == (0x0000707fU 
+                                             & vlSelfRef.minirv__DOT__inst)))
+                                 ? 1U : ((IData)((0x00001023U 
+                                                  == 
+                                                  (0x0000707fU 
+                                                   & vlSelfRef.minirv__DOT__inst)))
+                                          ? 2U : 3U))))) {
         Vminirv___024unit____Vdpiimwrap_pmem_write_TOP____024unit(vlSelfRef.minirv__DOT__alu_result, 
                                                                   ((0U 
-                                                                    == (IData)(vlSelfRef.minirv__DOT__mem_w))
+                                                                    == 
+                                                                    ((IData)(
+                                                                             (0x00002023U 
+                                                                              == 
+                                                                              (0x0000707fU 
+                                                                               & vlSelfRef.minirv__DOT__inst)))
+                                                                      ? 0U
+                                                                      : 
+                                                                     ((IData)(
+                                                                              (0x00000023U 
+                                                                               == 
+                                                                               (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                       ? 1U
+                                                                       : 
+                                                                      ((IData)(
+                                                                               (0x00001023U 
+                                                                                == 
+                                                                                (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                        ? 2U
+                                                                        : 3U))))
                                                                     ? 
                                                                    VL_SHIFTL_III(32,32,32, vlSelfRef.minirv__DOT__R__DOT__rdata2, 
                                                                                 VL_SHIFTL_III(32,32,32, 
@@ -83,10 +142,40 @@ void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
                                                                       << 
                                                                       (3U 
                                                                        & vlSelfRef.minirv__DOT__alu_result))));
-    } else if ((2U == (IData)(vlSelfRef.minirv__DOT__mem_w))) {
+    } else if ((2U == ((IData)((0x00002023U == (0x0000707fU 
+                                                & vlSelfRef.minirv__DOT__inst)))
+                        ? 0U : ((IData)((0x00000023U 
+                                         == (0x0000707fU 
+                                             & vlSelfRef.minirv__DOT__inst)))
+                                 ? 1U : ((IData)((0x00001023U 
+                                                  == 
+                                                  (0x0000707fU 
+                                                   & vlSelfRef.minirv__DOT__inst)))
+                                          ? 2U : 3U))))) {
         Vminirv___024unit____Vdpiimwrap_pmem_write_TOP____024unit(vlSelfRef.minirv__DOT__alu_result, 
                                                                   ((0U 
-                                                                    == (IData)(vlSelfRef.minirv__DOT__mem_w))
+                                                                    == 
+                                                                    ((IData)(
+                                                                             (0x00002023U 
+                                                                              == 
+                                                                              (0x0000707fU 
+                                                                               & vlSelfRef.minirv__DOT__inst)))
+                                                                      ? 0U
+                                                                      : 
+                                                                     ((IData)(
+                                                                              (0x00000023U 
+                                                                               == 
+                                                                               (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                       ? 1U
+                                                                       : 
+                                                                      ((IData)(
+                                                                               (0x00001023U 
+                                                                                == 
+                                                                                (0x0000707fU 
+                                                                                & vlSelfRef.minirv__DOT__inst)))
+                                                                        ? 2U
+                                                                        : 3U))))
                                                                     ? 
                                                                    VL_SHIFTL_III(32,32,32, vlSelfRef.minirv__DOT__R__DOT__rdata2, 
                                                                                 VL_SHIFTL_III(32,32,32, 
@@ -99,7 +188,6 @@ void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
                                                                       (3U 
                                                                        & vlSelfRef.minirv__DOT__alu_result))));
     }
-    __VdlySet__minirv__DOT__R__DOT__rf__v0 = 0U;
     if (((IData)(vlSelfRef.minirv__DOT__R__DOT__wen) 
          & (0U != (IData)(vlSelfRef.minirv__DOT__waddr)))) {
         Vminirv___024unit____Vdpiimwrap_get_reg_TOP____024unit(vlSelfRef.minirv__DOT__waddr, vlSelfRef.minirv__DOT__wdata);
@@ -133,22 +221,6 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
     Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(vlSelfRef.minirv__DOT__pc, vlSelfRef.__Vfunc_pmem_read__2__Vfuncout);
     vlSelfRef.minirv__DOT__inst = vlSelfRef.__Vfunc_pmem_read__2__Vfuncout;
-    vlSelfRef.minirv__DOT__mem_w = ((IData)((0x00002023U 
-                                             == (0x0000707fU 
-                                                 & vlSelfRef.minirv__DOT__inst)))
-                                     ? 0U : ((IData)(
-                                                     (0x00000023U 
-                                                      == 
-                                                      (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__inst)))
-                                              ? 1U : 
-                                             ((IData)(
-                                                      (0x00001023U 
-                                                       == 
-                                                       (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__inst)))
-                                               ? 2U
-                                               : 3U)));
     vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__inst;
     vlSelfRef.__Vtableidx1 = ((((IData)((0x00007063U 
                                          == (0x0000707fU 
@@ -248,17 +320,21 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                         == 
                                                         (0x0000007fU 
                                                          & vlSelfRef.minirv__DOT__inst))));
-    vlSelfRef.minirv__DOT__mem_r = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw)
-                                     ? 0U : ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lb)
-                                              ? 1U : 
-                                             ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lh)
-                                               ? 2U
-                                               : ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lbu)
-                                                   ? 3U
+    vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw)
+                                                  ? 0U
+                                                  : 
+                                                 ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lb)
+                                                   ? 1U
                                                    : 
-                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lhu)
-                                                    ? 4U
-                                                    : 5U)))));
+                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lh)
+                                                    ? 2U
+                                                    : 
+                                                   ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lbu)
+                                                     ? 3U
+                                                     : 
+                                                    ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lhu)
+                                                      ? 4U
+                                                      : 5U)))));
     vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lbu) 
                                                    | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lhu) 
                                                       | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw) 
@@ -631,22 +707,22 @@ void Vminirv___024root___nba_comb__TOP__0(Vminirv___024root* vlSelf) {
         if ((0U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))) {
             vlSelfRef.minirv__DOT__wdata = vlSelfRef.minirv__DOT__alu_result;
         } else if ((1U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))) {
-            vlSelfRef.minirv__DOT__wdata = ((4U & (IData)(vlSelfRef.minirv__DOT__mem_r))
+            vlSelfRef.minirv__DOT__wdata = ((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                              ? ((2U 
-                                                 & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                                 & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                                  ? 0U
                                                  : 
                                                 ((1U 
-                                                  & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                                  & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                                   ? 0U
                                                   : 
                                                  (0x0000ffffU 
                                                   & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))
                                              : ((2U 
-                                                 & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                                 & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                                  ? 
                                                 ((1U 
-                                                  & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                                  & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                                   ? 
                                                  (0x000000ffU 
                                                   & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)
@@ -660,7 +736,7 @@ void Vminirv___024root___nba_comb__TOP__0(Vminirv___024root* vlSelf) {
                                                      & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))
                                                  : 
                                                 ((1U 
-                                                  & (IData)(vlSelfRef.minirv__DOT__mem_r))
+                                                  & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                                   ? 
                                                  (((- (IData)(
                                                               (1U 

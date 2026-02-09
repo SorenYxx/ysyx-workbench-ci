@@ -16,6 +16,7 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, res);
   always @(*) begin
     rs1 = alu_arc1 ? pc : src1;
     rs2 = alu_arc2 ? imm : src2;
+    res = 0;
     
     case(alu_op)
 	    4'd0: res = rs1 + rs2;
@@ -41,7 +42,6 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, res);
       4'd9: res = rs1 ^ rs2;
       4'd10: res = rs1 & rs2;
       4'd11: res = rs1 | rs2;
-
       default: res = 0;
     endcase
   end
