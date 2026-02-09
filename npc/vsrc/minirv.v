@@ -21,6 +21,7 @@ module minirv(
   wire j_type;
   wire [2:0] b_type;
   wire [31:0] wdata;
+  wire [31:0] n_pc;
 
   reg [31:0] pc, n_pc;
   
