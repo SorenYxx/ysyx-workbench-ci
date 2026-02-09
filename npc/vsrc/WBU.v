@@ -19,7 +19,7 @@ module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, 
         default: ;
       endcase
     end
-    else rd = 0;
+    else wdata = 0; waddr = 0;
   end
 
   assign n_pc = j_type ? alu_result : pc + 4;
