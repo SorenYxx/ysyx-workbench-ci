@@ -129,8 +129,6 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
     rd = inst[11:7];
     imm = 32'b0;
     reg_w = inst_I || inst_R || inst_J || inst_U;
-    mem_w = 2'b11;
-    mem_r = 3'd5;
     
     case(1'b1)
       inst_I: imm = {{20{inst[31]}}, inst[31:20]};
