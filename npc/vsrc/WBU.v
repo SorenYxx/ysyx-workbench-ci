@@ -1,8 +1,9 @@
-module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
+module WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
   input [31:0] pc;
   input [4:0] rd;
   input [1:0] rf_res;
   input j_type;
+  input [2:0] b_type;
   input [31:0] alu_result, mem_result;
   input reg_w;
   
@@ -19,9 +20,10 @@ module WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, 
         2'b10: wdata = pc + 4;
         default: ;
       endcase
+      $display("rf_res is %d", rf_res);
     end
-    else wdata = 0; waddr = 0;
+    else waddr = 0;
   end
 
-  assign n_pc = j_type ? alu_result : pc + 4;
+  assign n_pc = (j_type || (b_type != 3'd6)) ? alu_result : pc + 4;
 endmodule

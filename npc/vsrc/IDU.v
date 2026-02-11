@@ -25,7 +25,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   wire inst_U = (opcode == 7'b0110111) || (opcode == 7'b0010111);
   wire inst_B = (opcode == 7'b1100011);
   wire inst_S = (opcode == 7'b0100011);
-  wire inst_J = (opcode == 7'b0100011);
+  wire inst_J = (opcode == 7'b1101111);
   wire inst_R = (opcode == 7'b1110011);
   
   //more
@@ -108,6 +108,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   assign alu_arc1 = (jal);//0: src1; 1: pc
   assign alu_arc2 = (inst_I || inst_S || inst_B || auipc || inst_J); //0: src2; 1: imm
 
+  assign reg_w = inst_I || inst_R || inst_J || inst_U;
   assign mem_w = (sw) ? 2'b00 :
          (sb) ? 2'b01 :
          (sh) ? 2'b10 :
@@ -128,7 +129,6 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
     rs2 = inst[24:20];
     rd = inst[11:7];
     imm = 32'b0;
-    reg_w = inst_I || inst_R || inst_J || inst_U;
     
     case(1'b1)
       inst_I: imm = {{20{inst[31]}}, inst[31:20]};

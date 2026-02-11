@@ -35,7 +35,7 @@ module minirv(
   
   LSU my_LSU(clk, mem_w, mem_r, alu_result, rdata2, mem_result);
   
-  WBU my_WBU(pc, rd, rf_res, j_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
+  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
   
   always @(posedge clk ,posedge rst) begin
     if (rst) pc <= 32'h80000000;

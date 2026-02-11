@@ -46,6 +46,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     VL_OUT(cur_inst,31,0);
     IData/*31:0*/ minirv__DOT__inst;
     IData/*31:0*/ minirv__DOT__alu_result;
+    IData/*31:0*/ minirv__DOT__mem_result;
     IData/*31:0*/ minirv__DOT__wdata;
     IData/*31:0*/ minirv__DOT__pc;
     IData/*31:0*/ minirv__DOT__n_pc;
