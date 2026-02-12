@@ -49,6 +49,11 @@
 
 extern uint32_t R[31];
 
+typedef struct {
+  uint32_t R[31];
+  uint32_t pc;
+} CPU_state;
+
 typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
 typedef word_t vaddr_t;
 typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;

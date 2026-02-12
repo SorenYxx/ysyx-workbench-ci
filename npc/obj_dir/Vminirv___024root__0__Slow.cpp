@@ -624,25 +624,25 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                   | (0x000000ffU 
                                                      & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s))
                                                   : vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)));
-    if (VL_UNLIKELY((((0U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r)) 
-                      | (1U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r)))))) {
-        VL_WRITEF_NX("-----lw,lbu:Addr: %x data: %x\n",0,
-                     32,((IData)(0x80000000U) + vlSelfRef.minirv__DOT__alu_result),
+    if (VL_UNLIKELY(((3U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))))) {
+        VL_WRITEF_NX("-----lbu:Addr: %x data: %x\n",0,
+                     32,vlSelfRef.minirv__DOT__alu_result,
                      32,vlSelfRef.minirv__DOT__mem_result);
     }
-    if (VL_UNLIKELY((vlSelfRef.minirv__DOT__R__DOT__wen))) {
+    if (vlSelfRef.minirv__DOT__R__DOT__wen) {
         vlSelfRef.minirv__DOT__waddr = (0x0000001fU 
                                         & (vlSelfRef.minirv__DOT__inst 
                                            >> 7U));
         if ((0U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))) {
             vlSelfRef.minirv__DOT__wdata = vlSelfRef.minirv__DOT__alu_result;
-        } else if ((1U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))) {
+        } else if (VL_UNLIKELY(((1U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))))) {
             vlSelfRef.minirv__DOT__wdata = vlSelfRef.minirv__DOT__mem_result;
+            VL_WRITEF_NX("mem_result in WBU: 0x%x\n",0,
+                         32,vlSelfRef.minirv__DOT__mem_result);
         } else if ((2U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))) {
             vlSelfRef.minirv__DOT__wdata = ((IData)(4U) 
                                             + vlSelfRef.minirv__DOT__pc);
         }
-        VL_WRITEF_NX("rf_res is %1#\n",0,2,vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res);
     } else {
         vlSelfRef.minirv__DOT__waddr = 0U;
     }

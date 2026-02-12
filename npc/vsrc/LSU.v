@@ -24,18 +24,19 @@ module LSU(clk, mem_w, mem_r, addr, wdata, out_data);
       3'd4: out_data = {16'b0,            data_s[15:0]}; //lhu
       default: out_data = 0;
     endcase
-    if (mem_r == 3'd0 || mem_r == 3'd1) $display("-----lw,lbu:Addr: %h data: %h", (addr + 32'h80000000), out_data);
+    if (mem_r == 3'd3) $display("-----lbu:Addr: %h data: %h", (addr), out_data);
   end
       
   always @(posedge clk) begin
-    case(mem_w)
-      2'b00: pmem_write(full_addr, awdata, 8'h0F); //sw
-      2'b01: pmem_write(full_addr, awdata, (8'h01 << addr[1:0])); //sb
-      2'b10: pmem_write(full_addr, awdata, (8'h11 << addr[1:0])); //sh
-      default: ;
-    endcase
-    if (mem_w == 2'b00 || mem_w == 2'b01) $display("-----sw,sb:Addr: %h data: %h", (addr + 32'h80000000), wdata);
+    if (mem_w != 2'b11) begin
+      case(mem_w)
+        2'b00: pmem_write(full_addr, awdata, 8'h0F); //sw
+        2'b01: pmem_write(full_addr, awdata, (8'h01 << addr[1:0])); //sb
+        2'b10: pmem_write(full_addr, awdata, (8'h03 << addr[1:0])); //sh
+        default: ;
+      endcase
+    end
+    if (mem_w == 2'b01) $display("-----sb:Addr: %h data: %h", (addr), wdata);
   end
       
-  
 endmodule

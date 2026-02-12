@@ -16,11 +16,14 @@ module WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr,
     waddr = rd;
       case(rf_res)
         2'b00: wdata = alu_result;
-        2'b01: wdata = mem_result;
+        2'b01: begin
+          wdata = mem_result;
+          $display("mem_result in WBU: 0x%h", mem_result);
+        end
         2'b10: wdata = pc + 4;
         default: ;
       endcase
-      $display("rf_res is %d", rf_res);
+
     end
     else waddr = 0;
   end
