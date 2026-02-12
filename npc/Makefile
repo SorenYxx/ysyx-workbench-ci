@@ -4,7 +4,7 @@ VFLAGS = $(shell find ./vsrc -name "*.v")
 CSRC = $(shell find ./csrc -name "*.cpp" -o -name "*.c")
 INC_PATH = $(shell pwd)/include
 DUMP = wave.fst
-LIBS += -lcapstone -lreadline
+LIBS += -lcapstone -lreadline -ldl
 
 all: sim compile run
 

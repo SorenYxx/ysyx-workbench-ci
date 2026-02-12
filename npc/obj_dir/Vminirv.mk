@@ -49,6 +49,7 @@ VM_USER_CLASSES = \
   disasm \
   expr \
   paddr \
+  ref \
   reg \
   run \
   sdb \
@@ -75,6 +76,8 @@ disasm.o: ./csrc/disasm.c
 expr.o: ./csrc/expr.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 paddr.o: ./csrc/paddr.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+ref.o: ./csrc/ref.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 reg.o: ./csrc/reg.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<

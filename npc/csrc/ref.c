@@ -1,4 +1,4 @@
-#include <dlfcn.h>
+#include <dlfcn.h >
 #include <npc.h>
 #include <common.h>
 #include <paddr.h>
@@ -17,11 +17,11 @@ void init_difftest(char *ref_so_file, long img_size) {
 
     ref_difftest_memcpy(0x80000000, guest_to_host(0x80000000), img_size, DIFFTEST_TO_REF);
     
-    ref_difftest_regcpy(&cpu_state, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
 }
 
 void check_difftest() {
-  NPCState ref_regs;
+  CPU_state ref_regs;
   ref_difftest_exec(1);
 
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
