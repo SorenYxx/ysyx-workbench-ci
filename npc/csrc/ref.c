@@ -22,13 +22,13 @@ void init_difftest(char *ref_so_file, long img_size) {
       
     ref_difftest_memcpy(0x80000000, guest_to_host(0x80000000), img_size, DIFFTEST_TO_REF);
     
-    // ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
+    ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
 }
 
 static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
-  for (int i = 0; i < 32; i ++) {
+  for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
-      Log("Register [%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x", reg_name(i), ref_r->gpr[i], R[i]);
+      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], cpu_n.pc);
       return false;
     }
   }

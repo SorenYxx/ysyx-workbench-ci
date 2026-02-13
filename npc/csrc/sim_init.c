@@ -15,8 +15,12 @@ bool g_enable_itrace = false;
 bool g_enable_mtrace = false;
 bool g_enable_ftrace = false;
 
+//batch
+void sdb_set_batch_mode();
+
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
+    {"batch" , no_argument      , NULL, 'b'},
     {"itrace", no_argument      , NULL, 'i'},
     {"mtrace", no_argument      , NULL, 'm'},
     {"ftrace", no_argument      , NULL, 'f'},
@@ -25,8 +29,9 @@ static int parse_args(int argc, char *argv[]) {
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-dimf", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-dbimfe", table, NULL)) != -1) {
     switch (o) {
+      case 'b': sdb_set_batch_mode(); break;
       case 'i': g_enable_itrace = true; break;
       case 'm': g_enable_mtrace = true; break;
       case 'f': g_enable_ftrace = true; break;

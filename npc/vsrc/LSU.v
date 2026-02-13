@@ -9,7 +9,7 @@ module LSU(clk, mem_w, mem_r, addr, wdata, out_data);
   
   output reg [31:0] out_data; //read from memory
 
-  wire [31:0] awdata = (mem_w == 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
+  wire [31:0] awdata = (mem_w != 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
   wire [31:0] full_addr = (addr);
 
   wire [31:0] rdata = pmem_read(full_addr);

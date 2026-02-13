@@ -26,7 +26,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   wire inst_B = (opcode == 7'b1100011);
   wire inst_S = (opcode == 7'b0100011);
   wire inst_J = (opcode == 7'b1101111);
-  wire inst_R = (opcode == 7'b1110011);
+  wire inst_R = (opcode == 7'b0110011);
   
   //more
   wire I_a = (opcode == 7'b0010011); //addi..
@@ -35,13 +35,13 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   //all of inst
   wire addi = I_a && (funct3 == 3'b000);
   wire slti = I_a && (funct3 == 3'b010);
-  wire slli = I_a && (funct3 == 3'b000);
-  wire srli = I_a && (funct3 == 3'b010);
-  wire srai = I_a && (funct3 == 3'b000);
-  wire sltiu = I_a && (funct3 == 3'b010);
-  wire xori = I_a && (funct3 == 3'b000);
-  wire  ori = I_a && (funct3 == 3'b010);
-  wire andi = I_a && (funct3 == 3'b000);
+  wire slli = I_a && (funct3 == 3'b001);
+  wire srli = I_a && (funct3 == 3'b101) && (funct7 == 7'b0000000);
+  wire srai = I_a && (funct3 == 3'b101) && (funct7 == 7'b0100000);
+  wire sltiu = I_a && (funct3 == 3'b011);
+  wire xori = I_a && (funct3 == 3'b100);
+  wire  ori = I_a && (funct3 == 3'b110);
+  wire andi = I_a && (funct3 == 3'b111);
   wire  lbu = I_b && (funct3 == 3'b100);
   wire  lhu = I_b && (funct3 == 3'b101);
   wire   lw = I_b && (funct3 == 3'b010);
@@ -92,7 +92,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   assign rf_res = ld_type ? 2'b01 : //mem
   		  (jal || jalr) ? 2'b10 : 2'b00; //pc + 4; ALU
   assign alu_op = (add || addi || ld_type || j_type) ? 4'd0 : 
-  		  (sub || inst_B) ? 4'd1:
+  		  (sub || inst_B) ? 4'd1 :
   		  (lui) ? 4'd2 :
   		  (sll || slli) ? 4'd3 :
   		  (srl || srli) ? 4'd4 :
@@ -105,8 +105,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
         (r_or || ori) ? 4'd11 :
         4'd0;
 
-  assign alu_arc1 = (jal);//0: src1; 1: pc
-  assign alu_arc2 = (inst_I || inst_S || inst_B || auipc || inst_J); //0: src2; 1: imm
+  assign alu_arc1 = (jal || auipc);//0: src1; 1: pc
+  assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); //0: src2; 1: imm
 
   assign reg_w = inst_I || inst_R || inst_J || inst_U;
   assign mem_w = (sw) ? 2'b00 :
@@ -133,7 +133,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
     case(1'b1)
       inst_I: imm = {{20{inst[31]}}, inst[31:20]};
       inst_S: imm = {{20{inst[31]}}, inst[31:25], inst[11:7]}; 
-      inst_B: imm = {{19{inst[31]}}, inst[31], inst[7], inst[30:25], inst[11:8], 1'b0}; 
+      inst_B: imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
       inst_U: imm = {inst[31:12], 12'b0};
       inst_J: imm = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
       default: imm = 32'b0;

@@ -5,6 +5,7 @@ uint32_t R[31] = {};
 
 extern "C" void get_reg(int waddr, int r) {
   R[waddr] = r;
+  cpu_n.gpr[waddr] = r;
 }
 
 const char *regs[] = {

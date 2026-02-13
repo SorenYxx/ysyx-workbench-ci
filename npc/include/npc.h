@@ -30,11 +30,12 @@ typedef struct {
 } NPCState;
 
 typedef struct {
-  uint32_t gpr[31];
+  uint32_t gpr[32];
   uint32_t pc;
 } CPU_state;
 
 extern NPCState npc_state;
+extern CPU_state cpu_n;
 
 int is_exit_status_bad();
 
