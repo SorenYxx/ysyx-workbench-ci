@@ -24,7 +24,7 @@ module LSU(clk, mem_w, mem_r, addr, wdata, out_data);
       3'd4: out_data = {16'b0,            data_s[15:0]}; //lhu
       default: out_data = 0;
     endcase
-    if (mem_r == 3'd3) $display("-----lbu:Addr: %h data: %h", (addr), out_data);
+    //if (mem_r == 3'd3) $display("-----lbu:Addr: %h data: %h", (addr), out_data);
   end
       
   always @(posedge clk) begin
@@ -36,7 +36,7 @@ module LSU(clk, mem_w, mem_r, addr, wdata, out_data);
         default: ;
       endcase
     end
-    if (mem_w == 2'b01) $display("-----sb:Addr: %h data: %h", (addr), wdata);
+    //if (mem_w == 2'b01) $display("-----sb:Addr: %h data: %h", (addr), wdata);
   end
       
 endmodule

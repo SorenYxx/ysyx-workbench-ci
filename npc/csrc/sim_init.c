@@ -25,12 +25,12 @@ static int parse_args(int argc, char *argv[]) {
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-imf", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-dimf", table, NULL)) != -1) {
     switch (o) {
       case 'i': g_enable_itrace = true; break;
       case 'm': g_enable_mtrace = true; break;
       case 'f': g_enable_ftrace = true; break;
-      case 'd': diff_so_file = optarg; diff = true; break;
+      case 'd': diff_so_file = optarg; if (diff_so_file) diff = true; break;
       case 'e': elf_file = optarg; break;
       default: break;
     }

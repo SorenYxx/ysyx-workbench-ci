@@ -19,8 +19,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     // DESIGN SPECIFIC STATE
     VL_IN8(clk,0,0);
     VL_IN8(rst,0,0);
-    CData/*4:0*/ minirv__DOT__waddr;
     CData/*2:0*/ minirv__DOT__b_type;
+    CData/*4:0*/ minirv__DOT__R__DOT__waddr;
     CData/*0:0*/ minirv__DOT__R__DOT__wen;
     CData/*2:0*/ minirv__DOT__my_IDU__DOT__mem_r;
     CData/*1:0*/ minirv__DOT__my_IDU__DOT__rf_res;
@@ -46,7 +46,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
     VL_OUT(cur_inst,31,0);
     IData/*31:0*/ minirv__DOT__inst;
     IData/*31:0*/ minirv__DOT__alu_result;
-    IData/*31:0*/ minirv__DOT__mem_result;
     IData/*31:0*/ minirv__DOT__wdata;
     IData/*31:0*/ minirv__DOT__pc;
     IData/*31:0*/ minirv__DOT__n_pc;

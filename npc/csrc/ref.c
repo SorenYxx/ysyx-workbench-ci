@@ -19,7 +19,7 @@ void init_difftest(char *ref_so_file, long img_size) {
     Log("The result of every instruction will be compared with %s. "
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
-
+      
     ref_difftest_memcpy(0x80000000, guest_to_host(0x80000000), img_size, DIFFTEST_TO_REF);
     
     // ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
