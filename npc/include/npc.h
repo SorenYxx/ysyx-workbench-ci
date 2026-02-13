@@ -43,8 +43,6 @@ extern VerilatedFstC* tfp;
 extern Vminirv* top;
 
 //com_para
-int parse_args(int argc, char *argv[]);
-
 void itrace_record(int pc, int inst);
 extern bool g_enable_itrace;
 extern bool g_enable_mtrace;

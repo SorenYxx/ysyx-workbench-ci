@@ -15,7 +15,7 @@ bool g_enable_itrace = false;
 bool g_enable_mtrace = false;
 bool g_enable_ftrace = false;
 
-int parse_args(int argc, char *argv[]) {
+static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
     {"itrace", no_argument      , NULL, 'i'},
     {"mtrace", no_argument      , NULL, 'm'},
