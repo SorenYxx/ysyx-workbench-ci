@@ -49,11 +49,6 @@
 
 extern uint32_t R[31];
 
-typedef struct {
-  uint32_t R[31];
-  uint32_t pc;
-} CPU_state;
-
 #define DIFFTEST_TO_REF 1
 #define DIFFTEST_FROM_REF 0
 

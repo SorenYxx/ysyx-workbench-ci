@@ -1,15 +1,9 @@
 #include <npc.h>
 #include <common.h>
 #include <sdb.h>
-#include <getopt.h>
 
 //ebreak
 int is_end = 0;
-
-//trace
-bool g_enable_itrace = false;
-bool g_enable_mtrace = false;
-bool g_enable_ftrace = false;
 
 //verilator
 VerilatedFstC* tfp = new VerilatedFstC;
@@ -57,6 +51,7 @@ void step_and_eval() {
   tfp->dump(main_time); 
   main_time ++;
 
+  if (diff) check_difftest();
   check_watchpoints();
 }
 
@@ -84,23 +79,4 @@ void sim_exit() {
   tfp->close();
   delete tfp;
   delete top;
-}
-
-int parse_args(int argc, char *argv[]) {
-  const struct option table[] = {
-    {"itrace", no_argument, NULL, 'i'},
-    {"mtrace", no_argument, NULL, 'm'},
-    {"ftrace", no_argument, NULL, 'f'},
-    {0       , 0          , NULL,  0 },
-  };
-  int o;
-  while ((o = getopt_long(argc, argv, "-imf", table, NULL)) != -1) {
-    switch (o) {
-      case 'i': g_enable_itrace = true; break;
-      case 'm': g_enable_mtrace = true; break;
-      case 'f': g_enable_ftrace = true; break;
-      default: break;
-    }
-  }
-  return 0;  
 }

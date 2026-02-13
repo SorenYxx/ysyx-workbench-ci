@@ -29,6 +29,11 @@ typedef struct {
   uint32_t halt_pc;
 } NPCState;
 
+typedef struct {
+  uint32_t gpr[31];
+  uint32_t pc;
+} CPU_state;
+
 extern NPCState npc_state;
 
 int is_exit_status_bad();
@@ -44,6 +49,7 @@ void itrace_record(int pc, int inst);
 extern bool g_enable_itrace;
 extern bool g_enable_mtrace;
 extern bool g_enable_ftrace;
+extern bool diff;
 
 //exec
 void sim_init(int argc, char *argv[]);
@@ -57,5 +63,14 @@ void cpu_exec(uint64_t n);
 //reg
 void isa_reg_display();
 word_t isa_reg_str2val(const char *s, bool *success);
+
+static inline const char* reg_name(int idx) {
+  extern const char* regs[];
+  return regs[idx];
+}
+
+//difftest
+void init_difftest(char *ref_so_file, long img_size);
+void check_difftest();
 
 #endif
