@@ -7,6 +7,7 @@ NEMU_HOME = $(abspath ../nemu)
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 DUMP      = wave.fst
 LIBS      += -lcapstone -lreadline -ldl
+# NPCFLAGS  += --batch
 
 all: sim compile run
 
@@ -20,7 +21,7 @@ compile:
 run: compile
 	@echo "--- NPC Running with IMG: $(IMG) ---"
 	@echo "--- Ref Shared Object: $(REF_SO) ---"
-	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG) --diff $(REF_SO)
+	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG) --diff $(REF_SO) $(NPCFLAGS)
 
 wave:
 	gtkwave $(DUMP) &

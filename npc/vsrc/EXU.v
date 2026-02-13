@@ -26,7 +26,7 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, res);
           3'd1: res = (result == 0) ? pc + imm : dnpc ;
           3'd2: res = ($signed(rs1) < $signed(rs2)) ? pc + imm : dnpc ;
           3'd3: res = ($signed(rs1) >= $signed(rs2)) ? pc + imm : dnpc ;
-          3'd4: res = ($signed(result) < 0) ? pc + imm : dnpc ;
+          3'd4: res = (rs1 < rs2) ? pc + imm : dnpc ;
           3'd5: res = ($signed(result) >= 0) ? pc + imm : dnpc ;
           default: res = result;
         endcase
