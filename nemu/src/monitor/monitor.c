@@ -128,7 +128,7 @@ void init_monitor(int argc, char *argv[]) {
 
   /* Initialize ftrace */
 #ifdef CONFIG_FTRACE
-  if (elf_file != NULL) printf("Good\n");
+  if (elf_file != NULL) Log(" ELF_FILE Good!");
   init_ftrace(elf_file);
 #endif
 
