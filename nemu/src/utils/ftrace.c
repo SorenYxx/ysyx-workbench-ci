@@ -25,7 +25,7 @@ void init_ftrace(const char *elf_file) {
   Elf32_Shdr shdr[ehdr.e_shnum]; //节区头表
   fseek(fp, ehdr.e_shoff, SEEK_SET);
   ret = fread(shdr, sizeof(Elf32_Shdr), ehdr.e_shnum, fp);
-  printf("Ehdr.e_shnum: %d != ret: %d", ehdr.e_shnum, ret);
+  printf("Ehdr.e_shnum: %d != ret: %d\n", ehdr.e_shnum, ret);
   assert(ret == ehdr.e_shnum);
 
   Elf32_Sym *symtab = NULL;
