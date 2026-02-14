@@ -72,6 +72,7 @@ void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
   const char *funt_name = get_func(target);
   if (funt_name == NULL) return;
 #ifdef CONFIG_FTRACE
+  printf("GOOD\n");
   if (is_call) {
     printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
     depth ++;
