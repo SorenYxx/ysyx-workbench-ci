@@ -29,7 +29,7 @@ static int parse_args(int argc, char *argv[]) {
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-dbimfe", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-bimfd:e:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'i': g_enable_itrace = true; break;
