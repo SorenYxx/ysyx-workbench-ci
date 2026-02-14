@@ -17,6 +17,8 @@ int symbol_cnt = 0;
 void init_ftrace(const char *elf_file) {
   int ret = 0;
   FILE *fp = fopen(elf_file, "rb");
+
+  assert(fp == NULL);
   
   Elf32_Ehdr ehdr; //elf头
   ret = fread(&ehdr, sizeof(Elf32_Ehdr), 1, fp);
