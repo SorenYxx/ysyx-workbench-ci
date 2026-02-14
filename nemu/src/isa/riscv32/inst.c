@@ -75,7 +75,7 @@ static bool find_call(int rd, int rs1) {
   if (rd == 1) return true;
   else if (rd == 0 && rs1 == 1) return false;
   
-  else printf("Eigther call or ret\n");
+  printf("Eigther call or ret\n");
   return false;
 }
 

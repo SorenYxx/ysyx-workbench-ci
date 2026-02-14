@@ -49,7 +49,7 @@ void init_ftrace(const char *elf_file) {
   for (int i = 0; i < sym_cnt; i ++) {
     if (ELF32_ST_TYPE(symtab[i].st_info) == STT_FUNC && symtab[i].st_size > 0) {
       strncpy(symbol_table[symbol_cnt].name, &strtab[symtab[i].st_name], 63);
-      printf("symbol[%d]: %s\n", symbol_cnt, symbol_table[symbol_cnt].name);
+      // printf("symbol[%d]: %s\n", symbol_cnt, symbol_table[symbol_cnt].name);
       symbol_table[symbol_cnt].start = symtab[i].st_value;
       symbol_table[symbol_cnt].size = symtab[i].st_size;
       symbol_cnt ++;
@@ -60,7 +60,6 @@ void init_ftrace(const char *elf_file) {
 
 static const char *get_func(uint32_t addr) {
   for (int i = 0; i < symbol_cnt; i ++) {
-    printf("symbol[%d]: %s\n", i, symbol_table[i].name);
     if (addr >= symbol_table[i].start && addr < symbol_table[i].start + symbol_table[i].size) return symbol_table[i].name;
   }
   return NULL;
