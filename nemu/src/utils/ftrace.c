@@ -60,6 +60,7 @@ void init_ftrace(const char *elf_file) {
 
 static const char *get_func(uint32_t addr) {
   for (int i = 0; i < symbol_cnt; i ++) {
+    printf("symbol[%d]: %s\n", i, symbol_table[i].name);
     if (addr >= symbol_table[i].start && addr < symbol_table[i].start + symbol_table[i].size) return symbol_table[i].name;
   }
   return NULL;
