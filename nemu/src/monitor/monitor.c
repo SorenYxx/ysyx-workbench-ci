@@ -123,6 +123,7 @@ void init_monitor(int argc, char *argv[]) {
   /* Perform ISA dependent initialization. */
   init_isa();
 
+  /* Initialize ftrace */
 #ifdef CONFIG_FTRACE
   init_ftrace(elf_file);
 #endif
