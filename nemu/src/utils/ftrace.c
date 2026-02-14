@@ -12,7 +12,7 @@ typedef struct {
 } Symbol;
 
 Symbol symbol_table[1024];
-int symbol_cnt = 0;
+static int symbol_cnt = 0;
 
 void init_ftrace(const char *elf_file) {
   int ret = 0;
@@ -58,6 +58,7 @@ void init_ftrace(const char *elf_file) {
 }
 
 static const char *get_func(uint32_t addr) {
+  printf("cnt: %d\n", symbol_cnt);
   for (int i = 0; i < symbol_cnt; i ++) {
     if (addr >= symbol_table[i].start && addr < symbol_table[i].start + symbol_table[i].size) {
       return symbol_table[i].name;
@@ -69,7 +70,7 @@ static const char *get_func(uint32_t addr) {
 int depth = 0;
 
 void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
-  printf("The target is 0x%08x\n", target);
+  // printf("The target is 0x%08x\n", target);
   const char *funt_name = get_func(target);
   if (funt_name == NULL) return;
 #ifdef CONFIG_FTRACE
