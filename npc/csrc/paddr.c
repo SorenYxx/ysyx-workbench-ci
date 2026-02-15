@@ -37,7 +37,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
 
   if (addr == SERIAL_PORT) {
     putchar(wdata);
-    if (g_enable_mtrace) printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
+    printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
   }
 
   if (addr < ADDR || addr >= 0x88000000) return;

@@ -31,7 +31,6 @@ VM_CLASSES_FAST += \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization
 VM_CLASSES_SLOW += \
-  Vminirv__ConstPool__0__Slow \
   Vminirv___024root__Slow \
   Vminirv___024root__0__Slow \
   Vminirv___024unit__Slow \

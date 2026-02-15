@@ -42,14 +42,13 @@ VM_USER_CFLAGS = \
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
   -lz \
-  -lcapstone -lreadline -ldl \
+  -lcapstone -lreadline \
 
 # User .cpp files (from .cpp's on Verilator command line)
 VM_USER_CLASSES = \
   disasm \
   expr \
   paddr \
-  ref \
   reg \
   run \
   sdb \
@@ -76,8 +75,6 @@ disasm.o: ./csrc/disasm.c
 expr.o: ./csrc/expr.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 paddr.o: ./csrc/paddr.c 
-	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
-ref.o: ./csrc/ref.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 reg.o: ./csrc/reg.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<

@@ -18,7 +18,6 @@ module GPR #(parameter ADDR_WIDTH = 5,parameter DATA_WIDTH = 32) (
   always @(posedge clk) begin
     if (wen && (waddr != 0)) begin
       rf[waddr] <= wdata;
-      //$display("wdata: 0x%h in waddr: 0x%h", wdata, waddr);
       get_reg({27'b0, waddr}, wdata);
     end
   end
