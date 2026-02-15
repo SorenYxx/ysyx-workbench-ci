@@ -1,9 +1,5 @@
+#include <common.h>
 #include <elf.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
-#include <stdbool.h>
 
 typedef struct {
   char name[64];
@@ -71,7 +67,7 @@ void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
   // printf("The target is 0x%08x\n", target);
   const char *funt_name = get_func(target);
   if (funt_name == NULL) return;
-// #ifdef CONFIG_FTRACE
+#ifdef CONFIG_FTRACE
   if (is_call) {
     printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
     depth ++;
@@ -80,5 +76,5 @@ void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
     if (depth < 0) depth = 0;
     printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
   }
-// #endif
+#endif
 }
