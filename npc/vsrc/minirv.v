@@ -1,4 +1,5 @@
 import "DPI-C" function void ebreak();
+import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
 
 module minirv(
   input clk,
@@ -8,36 +9,49 @@ module minirv(
 );
   
   wire [31:0] inst;
-  reg [31:0] pc, n_pc;
   wire [31:0] imm;
   wire [31:0] rdata1, rdata2;
-  wire [31:0] r_result, m_result;
+  wire [31:0] alu_result, mem_result;
   wire [4:0] rs1, rs2, rd, waddr;
-  reg [2:0] op_type;
-  wire reg_w, mem_w, mem_r;
+  wire [1:0] rf_res;
+  wire [3:0] alu_op;
+  wire [1:0] mem_w;
+  wire [2:0] mem_r;
+  wire reg_w;
+  wire alu_arc1, alu_arc2;
+  wire [1:0] j_type;
+  wire [2:0] b_type;
   wire [31:0] wdata;
+  wire ebreak_type;
+
+  reg [31:0] pc, n_pc;
   
   GPR R(clk, waddr, wdata, reg_w, rs1, rs2, rdata1, rdata2);
   
   IFU my_IFU(pc, inst);
   
-  IDU my_IDU(inst, imm, rs1, rs2, rd, op_type, reg_w, mem_w, mem_r);
+  IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
   
-  EXU my_EXU(op_type, rdata1, rdata2, imm, r_result);
+  EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, alu_result);
   
-  LSU my_LSU(clk, mem_w, mem_r, op_type, r_result, rdata2, m_result);
+  LSU my_LSU(clk, mem_w, mem_r, alu_result, rdata2, mem_result);
   
-  WBU my_WBU(pc, rd, op_type, r_result, m_result, reg_w, waddr, wdata, n_pc);
+  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
   
   always @(posedge clk ,posedge rst) begin
     if (rst) pc <= 32'h80000000;
     else pc <= n_pc;
     
-    if (inst == 32'h00100073) begin
+    case (j_type)
+      2'b01: ftrace_print(pc, n_pc, {27'b0, rd}, 32'h1);// jal
+      2'b10: ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});// ja;r
+      default: ;
+    endcase
+
+    if (ebreak_type) begin
       ebreak();
       $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
     end
-    
   end
   
   assign cur_pc = pc;

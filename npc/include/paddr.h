@@ -22,6 +22,8 @@ void is_illegal_inst();
 
 void ebreak();
 
+void ftrace_print(uint32_t pc, uint32_t target, int rd, int rs1);
+
 #ifdef __cplusplus
 }
 #endif

@@ -32,6 +32,22 @@ void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit() {
     ebreak();
 }
 
+extern "C" void ftrace_print(int pc, int target, int rd, int rs1);
+
+void Vminirv___024unit____Vdpiimwrap_ftrace_print_TOP____024unit(IData/*31:0*/ pc, IData/*31:0*/ target, IData/*31:0*/ rd, IData/*31:0*/ rs1) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_ftrace_print_TOP____024unit\n"); );
+    // Body
+    int pc__Vcvt;
+    pc__Vcvt = pc;
+    int target__Vcvt;
+    target__Vcvt = target;
+    int rd__Vcvt;
+    rd__Vcvt = rd;
+    int rs1__Vcvt;
+    rs1__Vcvt = rs1;
+    ftrace_print(pc__Vcvt, target__Vcvt, rd__Vcvt, rs1__Vcvt);
+}
+
 extern "C" int pmem_read(int raddr);
 
 void Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ raddr, IData/*31:0*/ &pmem_read__Vfuncrtn) {

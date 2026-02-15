@@ -12,6 +12,7 @@ CFLAGS    += -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
 LDFLAGS   += --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
+NPCFLAGS  += -b
 
 DUMP = $(shell find ./npc -name "wave.fst")
 
@@ -29,7 +30,7 @@ image: image-dep
 
 run: insert-arg
 	@echo "Passing IMG = $(abspath $(IMAGE).bin) to NPC"
-	$(MAKE)	-C $(NPC_HOME) run IMG=$(abspath $(IMAGE).bin)
+	$(MAKE)	-C $(NPC_HOME) run ARGS="$(NPCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
 
 wave:
 	gtkwave $(DUMP) &

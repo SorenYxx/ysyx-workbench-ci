@@ -49,6 +49,9 @@
 
 extern uint32_t R[31];
 
+#define DIFFTEST_TO_REF 1
+#define DIFFTEST_FROM_REF 0
+
 typedef MUXDEF(CONFIG_ISA64, uint64_t, uint32_t) word_t;
 typedef word_t vaddr_t;
 typedef MUXDEF(PMEM64, uint64_t, uint32_t) paddr_t;

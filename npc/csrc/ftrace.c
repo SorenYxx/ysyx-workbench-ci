@@ -1,3 +1,4 @@
+#include <npc.h>
 #include <common.h>
 #include <elf.h>
 
@@ -29,13 +30,13 @@ void init_ftrace(const char *elf_file) {
 
   for (int i = 0; i < ehdr.e_shnum; i ++) {
     if (shdr[i].sh_type == SHT_SYMTAB) {
-      symtab = malloc(shdr[i].sh_size); //符号表
+      symtab = (Elf32_Sym *)malloc(shdr[i].sh_size); //符号表
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       ret = fread(symtab, shdr[i].sh_size, 1, fp);
       assert (ret == 1);
       sym_cnt = shdr[i].sh_size / sizeof(Elf32_Sym);
   } else if (shdr[i].sh_type == SHT_STRTAB && i != ehdr.e_shstrndx) {
-      strtab = malloc(shdr[i].sh_size); //字符串表
+      strtab = (char *)malloc(shdr[i].sh_size); //字符串表
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       ret = fread(strtab, shdr[i].sh_size, 1, fp);
       assert(ret == 1);
@@ -56,6 +57,7 @@ void init_ftrace(const char *elf_file) {
 
 static const char *get_func(uint32_t addr) {
   for (int i = 0; i < symbol_cnt; i ++) {
+    // printf("addr: 0x%08x symbol[%d]: %s start: 0x%08x end: 0x%08x\n", addr, i, symbol_table[i].name, symbol_table[i].start, symbol_table[i].start + symbol_table[i].size);
     if (addr >= symbol_table[i].start && addr < symbol_table[i].start + symbol_table[i].size) return symbol_table[i].name;
   }
   return NULL;
@@ -63,18 +65,24 @@ static const char *get_func(uint32_t addr) {
 
 int depth = 0;
 
-void ftrace_print(uint32_t pc, uint32_t target, bool is_call) {
-  // printf("The target is 0x%08x\n", target);
+void ftrace_print(uint32_t pc, uint32_t target, int rd, int rs1) {
+  // printf("pc: 0x%08x rd: %d rs1: %d\n", pc, rd, rs1);
+  bool is_call = false;
+
+  if (rd == 1) is_call = true;
+  else if (rd == 0 && rs1 == 1) is_call = false;
+  
   const char *funt_name = get_func(target);
   if (funt_name == NULL) return;
-#ifdef CONFIG_FTRACE
-  if (is_call) {
-    printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
-    depth ++;
-  } else {
-    depth --;
-    if (depth < 0) depth = 0;
-    printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
+  
+  if (g_enable_ftrace) {
+    if (is_call) {
+      printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
+      depth ++;
+    } else {
+      depth --;
+      if (depth < 0) depth = 0;
+      printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
+    }
   }
-#endif
 }

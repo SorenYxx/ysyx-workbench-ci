@@ -5,6 +5,7 @@ uint32_t R[31] = {};
 
 extern "C" void get_reg(int waddr, int r) {
   R[waddr] = r;
+  cpu_n.gpr[waddr] = r;
 }
 
 const char *regs[] = {
@@ -15,9 +16,11 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  printf("pc:0x%08X\n", top->cur_pc);
-  for (int i = 0; i < 31; i ++) {
-    printf("%s: 0x%08X\n", regs[i], R[i]);
+  printf("pc: 0x%08X\n", top->cur_pc);
+  for (int i = 0; i <= 31; i += 8) {
+    printf("%s: 0x%08X  ", regs[i], R[i]);
+    if (i == 31) { printf("\n"); break; }
+    if (i > 23)  { i -= 31; printf("\n"); }
   }
 }
 

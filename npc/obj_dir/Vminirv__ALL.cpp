@@ -5,6 +5,7 @@
 #include "Vminirv___024unit__0.cpp"
 #include "Vminirv__Dpi.cpp"
 #include "Vminirv__Trace__0.cpp"
+#include "Vminirv__ConstPool__0__Slow.cpp"
 #include "Vminirv___024root__Slow.cpp"
 #include "Vminirv___024root__0__Slow.cpp"
 #include "Vminirv___024unit__Slow.cpp"

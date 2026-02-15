@@ -1,23 +1,26 @@
 #include <npc.h>
 #include <common.h>
 #include <sdb.h>
-#include <getopt.h>
 
-//ebreak
+// ebreak
 int is_end = 0;
 
-//trace
-bool g_enable_itrace = false;
-bool g_enable_mtrace = false;
-bool g_enable_ftrace = false;
+void ebreak() {
+  if (R[10] == 0) { is_end = 1; npc_state.halt_pc = top->cur_pc; Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
+  else {
+    Log("\033[1;31mHIT BAD TRAP\033[0m");
+    exit(0);
+  }
+}
 
-//verilator
+// verilator
 VerilatedFstC* tfp = new VerilatedFstC;
 Vminirv* top = new Vminirv;
 vluint64_t main_time = 0;
 
-//state
+// state
 NPCState npc_state = { .state = NPC_STOP };
+CPU_state cpu_n = { .pc = 0x80000000 };
 
 void is_illegal_inst() {
   npc_state.state = NPC_ABORT; 
@@ -30,33 +33,17 @@ int is_exit_status_bad() {
   return !good;
 }
 
-void ebreak() {
-  if (R[10] == 0) { is_end = 1; npc_state.halt_pc = top->cur_pc; Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
-  else {
-    Log("\033[1;31mHIT BAD TRAP\033[0m");
-    exit(0);
-  }
-}
-
-
-
-/*static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
-#ifdef CONFIG_ITRACE_COND
-  if (ITRACE_COND) { log_write("%s\n", _this->logbuf); }
-#endif
-  if (g_print_step) { IFDEF(CONFIG_ITRACE, puts(_this->logbuf)); }
-  IFDEF(CONFIG_DIFFTEST, difftest_step(_this->pc, dnpc));
-
-  check_watchpoints();
-}*/
-
+// eval
 void step_and_eval() {
+  cpu_n.pc = top->cur_pc;
+
   top->clk = 0; top->eval();
   top->clk = 1; top->eval();
 
   tfp->dump(main_time); 
   main_time ++;
 
+  if (diff) check_difftest();
   check_watchpoints();
 }
 
@@ -84,23 +71,4 @@ void sim_exit() {
   tfp->close();
   delete tfp;
   delete top;
-}
-
-int parse_args(int argc, char *argv[]) {
-  const struct option table[] = {
-    {"itrace", no_argument, NULL, 'i'},
-    {"mtrace", no_argument, NULL, 'm'},
-    {"ftrace", no_argument, NULL, 'f'},
-    {0       , 0          , NULL,  0 },
-  };
-  int o;
-  while ((o = getopt_long(argc, argv, "-imf", table, NULL)) != -1) {
-    switch (o) {
-      case 'i': g_enable_itrace = true; break;
-      case 'm': g_enable_mtrace = true; break;
-      case 'f': g_enable_ftrace = true; break;
-      default: break;
-    }
-  }
-  return 0;  
 }

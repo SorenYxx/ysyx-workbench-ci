@@ -46,11 +46,16 @@ enum {
                 (BITS(i, 11, 8)  << 1), 13); \
 } while(0)
 
+static int rs1_j = 0;
+
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst;
   int rs1 = BITS(i, 19, 15);
   int rs2 = BITS(i, 24, 20);
   *rd     = BITS(i, 11, 7);
+
+  rs1_j = rs1;
+
   switch (type) {
     case TYPE_I: src1R();          immI(); break;
     case TYPE_U:                   immU(); break;
@@ -61,6 +66,17 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
     case TYPE_B: src1R(); src2R(); immB(); break;
     default: panic("unsupported type = %d", type);
   }
+}
+
+// ftrace
+void ftrace_print(uint32_t pc, uint32_t target, bool is_call);
+
+static bool find_call(int rd, int rs1) {
+  if (rd == 1) return true;
+  else if (rd == 0 && rs1 == 1) return false;
+  
+  printf("Eigther call or ret\n");
+  return false;
 }
 
 static int decode_exec(Decode *s) {
@@ -97,8 +113,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("0000001 ????? ????? 110 ????? 01100 11", rem    , R, R(rd) = (src2 == 0) ? (int32_t)src1 : (int32_t)src1 % (int32_t)src2);
   INSTPAT("0000001 ????? ????? 111 ????? 01100 11", remu   , R, R(rd) = (src2 == 0) ? src1 : src1 % src2);
 
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4; s->dnpc = imm + s->pc);
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4; s->dnpc = (imm + src1) & ~1);
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4; s->dnpc = imm + s->pc; ftrace_print(s->pc, s->dnpc, find_call(rd, 1)));
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4; s->dnpc = (imm + src1) & ~1; ftrace_print(s->pc, s->dnpc, find_call(rd, rs1_j)));
   INSTPAT("??????? ????? ????? ??? ????? 00101 11", auipc  , U, R(rd) = s->pc + imm);
   INSTPAT("??????? ????? ????? 100 ????? 00000 11", lbu    , I, R(rd) = Mr(src1 + imm, 1));
   INSTPAT("??????? ????? ????? 010 ????? 00000 11", lw     , I, R(rd) = Mr(src1 + imm, 4));

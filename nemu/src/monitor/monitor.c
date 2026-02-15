@@ -76,7 +76,7 @@ static int parse_args(int argc, char *argv[]) {
     {"log"      , required_argument, NULL, 'l'},
     {"diff"     , required_argument, NULL, 'd'},
     {"port"     , required_argument, NULL, 'p'},
-    {"elf"      , required_argument, NULL, 'e' },
+    {"elf"      , required_argument, NULL, 'e'},
     {"help"     , no_argument      , NULL, 'h'},
     {0          , 0                , NULL,  0 },
   };
@@ -123,12 +123,14 @@ void init_monitor(int argc, char *argv[]) {
   /* Perform ISA dependent initialization. */
   init_isa();
 
-#ifdef CONFIG_FTRACE
-  init_ftrace(elf_file);
-#endif
-
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
+
+  /* Initialize ftrace */
+#ifdef CONFIG_FTRACE
+  if (elf_file != NULL) Log(" ELF_FILE Good!");
+  init_ftrace(elf_file);
+#endif
 
   /* Initialize differential testing. */
   init_difftest(diff_so_file, img_size, difftest_port);
