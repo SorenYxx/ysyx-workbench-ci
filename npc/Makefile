@@ -21,7 +21,7 @@ compile:
 run: compile
 	@echo "--- NPC Running with IMG: $(IMG) ELF: $(ELF)---"
 	@echo "--- Ref Shared Object: $(REF_SO) ---"
-	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG) #--diff $(REF_SO) $(NPCFLAGS) -e $(ELF)
+	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG) --diff $(REF_SO) $(NPCFLAGS) -e $(ELF)
 
 wave:
 	gtkwave $(DUMP) &
