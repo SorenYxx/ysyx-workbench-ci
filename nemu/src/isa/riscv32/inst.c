@@ -72,10 +72,12 @@ static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_
 void ftrace_print(uint32_t pc, uint32_t target, bool is_call);
 
 static bool find_call(int rd, int rs1) {
+#ifdef CONFIG_FTRACE
   if (rd == 1) return true;
   else if (rd == 0 && rs1 == 1) return false;
   
   printf("Eigther call or ret\n");
+#endif
   return false;
 }
 
