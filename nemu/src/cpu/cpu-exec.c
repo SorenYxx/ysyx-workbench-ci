@@ -140,7 +140,7 @@ void cpu_exec(uint64_t n) {
 
       if (nemu_state.state == NEMU_ABORT) {
 	      int i = 0;
-        for (; i < 10 && buf[i]; i ++) printf("--%d-- pc: 0x%08x inst: %08x\n", i, buf[i], vaddr_read(buf[i], 4));
+        for (; i < 10 && buf[i]; i ++) printf("--%d--  pc: 0x%08x inst: %08x\n", i, buf[i], vaddr_read(buf[i], 4));
         printf("--%d-- pc: 0x%08x inst: %08x <---\n", i, buf[i], vaddr_read(buf[i], 4));
 	      for (int k = 1; k < 5; k ++) printf("--%d-- pc: 0x%08x inst: %08x\n", 10 + k, buf[10] + k * 4, vaddr_read(buf[10] + k * 4, 4));
       }
