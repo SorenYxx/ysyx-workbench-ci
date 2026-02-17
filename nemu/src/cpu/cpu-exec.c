@@ -57,7 +57,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   else {
     for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
     buf[10] = cpu.pc;
-    for (int q = 0; q < 9; q ++) printf("%d: 0x%08x\n", q, buf[q]);
+    for (int q = 0; q < 11; q ++) printf("%d: 0x%08x\n", q, buf[q]);
   }
 
   cpu.pc = s->dnpc;
