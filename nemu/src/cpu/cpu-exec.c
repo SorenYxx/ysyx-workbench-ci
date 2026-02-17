@@ -53,7 +53,7 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   isa_exec_once(s);
 
-  if (idx < 10) buf[idx++] = cpu.pc;
+  if (idx < 10) { buf[idx++] = cpu.pc; printf("%d: 0x%08x\n", idx, buf[idx - 1]); }
   else {
     for (int i = 0; i < 9; i ++) { buf[i] = buf[i + 1]; }
     buf[10] = cpu.pc;
