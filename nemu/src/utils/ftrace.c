@@ -29,13 +29,13 @@ void init_ftrace(const char *elf_file) {
 
   for (int i = 0; i < ehdr.e_shnum; i ++) {
     if (shdr[i].sh_type == SHT_SYMTAB) {
-      symtab = malloc(shdr[i].sh_size); //符号表
+      symtab = (Elf32_Sym *)malloc(shdr[i].sh_size); //符号表
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       ret = fread(symtab, shdr[i].sh_size, 1, fp);
       assert (ret == 1);
       sym_cnt = shdr[i].sh_size / sizeof(Elf32_Sym);
   } else if (shdr[i].sh_type == SHT_STRTAB && i != ehdr.e_shstrndx) {
-      strtab = malloc(shdr[i].sh_size); //字符串表
+      strtab = (char *)malloc(shdr[i].sh_size); //字符串表
       fseek(fp, shdr[i].sh_offset, SEEK_SET);
       ret = fread(strtab, shdr[i].sh_size, 1, fp);
       assert(ret == 1);
@@ -52,6 +52,8 @@ void init_ftrace(const char *elf_file) {
     }
   }
   free(symtab);
+  free(strtab);
+  fclose(fp);
 }
 
 static const char *get_func(uint32_t addr) {
