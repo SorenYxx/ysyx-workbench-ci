@@ -22,7 +22,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   cpu.mepc = epc;
   cpu.mcause = NO;
 
-  cpu.mtvec = 0x800013f0;
+  cpu.mtvec = 0x80001418;
   return cpu.mtvec & ~0x3;
 }
 
