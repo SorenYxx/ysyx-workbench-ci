@@ -88,7 +88,7 @@ word_t csr_read(word_t addr) {
     case 0x305: return cpu.mtvec;
     case 0x341: return cpu.mepc;
     case 0x342: return cpu.mcause;
-    default: panic("unsupported csr addr = 0x%03x", addr);
+    default: panic("read unsupported csr addr = 0x%03x", addr);
   }
 }
 
@@ -98,7 +98,7 @@ void csr_write(word_t addr, word_t data) {
     case 0x305: cpu.mtvec = data; return;
     case 0x341: cpu.mepc = data; return;
     case 0x342: cpu.mcause = data; return;
-    default: panic("unsupported csr addr = 0x%03x", addr);
+    default: panic("write unsupported csr addr = 0x%03x", addr);
   }
 }
 
