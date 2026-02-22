@@ -81,6 +81,28 @@ static bool find_call(int rd, int rs1) {
   return false;
 }
 
+//csr
+word_t csr_read(word_t addr) {
+  switch (addr) {
+    case 0x300: return cpu.mstatus;
+    case 0x305: return cpu.mtvec;
+    case 0x341: return cpu.mepc;
+    case 0x342: return cpu.mcause;
+    default: panic("unsupported csr addr = 0x%03x", addr);
+  }
+}
+
+void csr_write(word_t addr, word_t data) {
+  switch (addr) {
+    case 0x300: cpu.mstatus = data; return;
+    case 0x305: cpu.mtvec = data; return;
+    case 0x341: cpu.mepc = data; return;
+    case 0x342: cpu.mcause = data; return;
+    default: panic("unsupported csr addr = 0x%03x", addr);
+  }
+}
+
+
 static int decode_exec(Decode *s) {
   s->dnpc = s->snpc;
 
@@ -150,7 +172,14 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 110 ????? 11000 11", bltu   , B, if (src1 < src2) s->dnpc = s->pc + imm);
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu   , B, if (src1 >= src2) s->dnpc = s->pc + imm);
 
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw  , I, R(rd) = csr_read(src1); csr_write(src1, src2));
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs  , I, R(rd) = csr_read(src1); csr_write(src1, src1 | src2));
+  INSTPAT("??????? ????? ????? 011 ????? 11100 11", csrrc  , I, R(rd) = csr_read(src1); csr_write(src1, src1 & ~src2));
+  INSTPAT("??????? ????? ????? 100 ????? 11100 11", csrrwi , I, R(rd) = csr_read(src1); csr_write(src1, imm));
+  INSTPAT("??????? ????? ????? 101 ????? 11100 11", csrrsi , I, R(rd) = csr_read(src1); csr_write(src1, src1 | imm));
+  INSTPAT("??????? ????? ????? 110 ????? 11100 11", csrrci , I, R(rd) = csr_read(src1); csr_write(src1, src1 & ~imm));
+
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , N, s->dnpc = isa_raise_intr(11, s->pc));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    , N, INV(s->pc));
 
