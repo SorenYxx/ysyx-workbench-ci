@@ -179,7 +179,7 @@ static int decode_exec(Decode *s) {
   // INSTPAT("??????? ????? ????? 101 ????? 11100 11", csrrsi , I, R(rd) = csr_read(src1); csr_write(src1, src1 | imm));
   // INSTPAT("??????? ????? ????? 110 ????? 11100 11", csrrci , I, R(rd) = csr_read(src1); csr_write(src1, src1 & ~imm));
   
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, printf("ecall at pc = 0x%08x\n", s->pc); s->dnpc = isa_raise_intr(11, s->pc));
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  , I, s->dnpc = isa_raise_intr(11, s->pc));
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   , I, s->dnpc = csr_read(0x341));
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , I, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
 
