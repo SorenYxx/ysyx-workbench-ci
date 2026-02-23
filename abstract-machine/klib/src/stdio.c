@@ -78,7 +78,26 @@ int printf(const char *fmt, ...) {
 	  break;
 	}
 
-        case '%': {
+  case 'x': {
+    unsigned int n = va_arg(ap, unsigned int);
+    char i[64];
+    char *p = i2a(n, i, 16);
+    *p = '\0';
+
+    int len = p - i;
+    while (len < w) {
+      putch(pad);
+      len ++;
+    }
+
+    for (int k = 0; i[k] != '\0'; k++) {
+      putch(i[k]);
+      count ++;
+    }
+    break;
+  }
+
+  case '%': {
  	  putch('%');
 	  count ++;
 	  break;
