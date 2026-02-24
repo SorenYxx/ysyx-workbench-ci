@@ -34,7 +34,7 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   Context *ctx = (Context *)(kstack.end - sizeof(Context));
-  // ctx->gpr[10] = (uintptr_t)arg; // a0
+  ctx->gpr[10] = (uintptr_t)arg; // a0
 
   ctx->pdir = NULL;
   ctx->mstatus = 0x1800 | 0x80; // MPP = 11 (machine mode)
