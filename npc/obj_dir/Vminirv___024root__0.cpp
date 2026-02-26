@@ -217,7 +217,7 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                      == 
                                                      (0x0000007fU 
                                                       & vlSelfRef.minirv__DOT__inst)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15 
+    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14 
         = ((0x6fU == (0x0000007fU & vlSelfRef.minirv__DOT__inst)) 
            | (0x67U == (0x0000007fU & vlSelfRef.minirv__DOT__inst)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__bne = (IData)(
@@ -366,13 +366,13 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                       == 
                                                       (0x0000707fU 
                                                        & vlSelfRef.minirv__DOT__inst)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_5 
+    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4 
         = (IData)((0x00005013U == (0x0000707fU & vlSelfRef.minirv__DOT__inst)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12 
+    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11 
         = (IData)((0x00000033U == (0x0000707fU & vlSelfRef.minirv__DOT__inst)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13 
+    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12 
         = (IData)((0x00005033U == (0x0000707fU & vlSelfRef.minirv__DOT__inst)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14 
+    vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13 
         = (IData)((0x00000073U == (0x0000707fU & vlSelfRef.minirv__DOT__inst)));
     vlSelfRef.__Vtableidx1 = ((((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu) 
                                 << 5U) | (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bltu) 
@@ -487,40 +487,40 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                       | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw) 
                                                          | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lh) 
                                                             | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lb)))));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__srli = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_5) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__srli = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
                                                     >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__srai = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_5) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__srai = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0x20U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
                                                     >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__add = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__add = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
                                                    >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__sub = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__sub = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
                                                    >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__srl = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__srl = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
                                                    >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__sra = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__sra = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
                                                    >> 0x19U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__ebreak_type 
-        = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14) 
+        = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13) 
            & (0U == (vlSelfRef.minirv__DOT__inst >> 0x19U)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__mret = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14) 
+    vlSelfRef.minirv__DOT__my_IDU__DOT__mret = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13) 
                                                 & (0x18U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
@@ -533,7 +533,7 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
     vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type)
                                                    ? 1U
                                                    : 
-                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15)
+                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14)
                                                     ? 2U
                                                     : 0U));
     if (((~ ((((((((((((((((((((((((((((((((((((((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__addi) 
@@ -581,7 +581,7 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
          & (0U != vlSelfRef.minirv__DOT__inst))) {
         Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit();
     }
-    vlSelfRef.minirv__DOT__my_IDU__DOT__j_type = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15)
+    vlSelfRef.minirv__DOT__my_IDU__DOT__j_type = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14)
                                                    ? 1U
                                                    : 
                                                   ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ebreak_type)

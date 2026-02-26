@@ -31,6 +31,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   // more
   wire I_a = (opcode == 7'b0010011); // addi..
   wire I_b = (opcode == 7'b0000011); // l..
+  wire I_c = (opcode == 7'b1110011); // csr..
 
   // I-type
   wire addi  = I_a && (funct3 == 3'b000);
@@ -89,12 +90,11 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   wire jal = inst_J;
 
   // CSRs
-  wire csrrw = (opcode == 7'b1110011) && (funct3 == 3'b001);
-  wire csrrs = (opcode == 7'b1110011) && (funct3 == 3'b010);
-  wire csrrc = (opcode == 7'b1110011) && (funct3 == 3'b011);
-  wire ecall = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000);
-  wire mret  = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0011000);
-
+  wire csrrw = I_c && (funct3 == 3'b001);
+  wire csrrs = I_c && (funct3 == 3'b010);
+  wire csrrc = I_c && (funct3 == 3'b011);
+  wire ecall = I_c && (funct3 == 3'b000) && (funct7 == 7'b0000000);
+  wire mret  = I_c && (funct3 == 3'b000) && (funct7 == 7'b0011000);
   wire csr_inst = csrrw || csrrs || csrrc || ecall || mret;
 
   // illegal inst

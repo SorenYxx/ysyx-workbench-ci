@@ -68,11 +68,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         CData/*0:0*/ minirv__DOT__my_IDU__DOT__csrrw;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT__csrrs;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT__mret;
-        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_5;
+        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4;
+        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14;
-        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15;
         CData/*5:0*/ __Vtableidx1;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
