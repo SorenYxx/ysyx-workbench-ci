@@ -13,25 +13,28 @@ void ebreak() {
   }
 }
 
+
 // verilator
 VerilatedFstC* tfp = new VerilatedFstC;
 Vminirv* top = new Vminirv;
 vluint64_t main_time = 0;
+
 
 // state
 NPCState npc_state = { .state = NPC_STOP };
 CPU_state cpu_n = { .pc = 0x80000000 };
 
 void is_illegal_inst() {
+  Log("\033[1;31mAbort at PC = 0x%08x with illegal_inst = 0x%08x\033[0m", top->cur_pc, top->cur_inst);
   npc_state.state = NPC_ABORT; 
   npc_state.halt_pc = top->cur_pc;
-  Log("\033[1;31mAbort at PC = 0x%08x Inst = 0x%08x\033[0m", top->cur_pc, top->cur_inst);
 }
 
 int is_exit_status_bad() {
   int good = (npc_state.state == NPC_END && R[0] == 0) || (npc_state.state == NPC_QUIT);
   return !good;
 }
+
 
 // eval
 void step_and_eval() {
@@ -71,4 +74,19 @@ void sim_exit() {
   tfp->close();
   delete tfp;
   delete top;
+}
+
+
+// intr
+int isa_raise_intr(int NO, int epc) {
+  if (g_enable_etrace) printf("[etrace] intr NO = %d, epc = 0x%08x\n", NO, epc);
+
+  cpu_n.mepc = epc;
+  cpu_n.mcause = NO;
+
+  return cpu_n.mtvec & ~0x3;
+}
+
+int isa_query_intr() {
+  return ((word_t)-1);
 }

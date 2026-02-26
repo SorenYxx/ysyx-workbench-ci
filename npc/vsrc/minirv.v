@@ -39,15 +39,16 @@ module minirv(
   WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
   
   always @(posedge clk ,posedge rst) begin
+    // rst
     if (rst) pc <= 32'h80000000;
     else pc <= n_pc;
     
-    case (j_type)
-      2'b01: ftrace_print(pc, n_pc, {27'b0, rd}, 32'h1);// jal
-      2'b10: ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});// ja;r
-      default: ;
-    endcase
+    // ftrace
+    if (j_type == 2'b01) begin
+      ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
+    end
 
+    // ebreak
     if (ebreak_type) begin
       ebreak();
       $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);

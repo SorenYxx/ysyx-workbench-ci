@@ -20,68 +20,90 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   reg [2:0] funct3 = inst[14:12];
   reg [6:0] funct7 = inst[31:25];
   
-  //type of inst
-  wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111);
+  // type of inst
+  wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) || (opcode == 7'b1100111) || (opcode == 7'b1110011);
   wire inst_U = (opcode == 7'b0110111) || (opcode == 7'b0010111);
   wire inst_B = (opcode == 7'b1100011);
   wire inst_S = (opcode == 7'b0100011);
   wire inst_J = (opcode == 7'b1101111);
   wire inst_R = (opcode == 7'b0110011);
   
-  //more
-  wire I_a = (opcode == 7'b0010011); //addi..
-  wire I_b = (opcode == 7'b0000011); //l..
-  
-  //all of inst
-  wire addi = I_a && (funct3 == 3'b000);
-  wire slti = I_a && (funct3 == 3'b010);
-  wire slli = I_a && (funct3 == 3'b001);
-  wire srli = I_a && (funct3 == 3'b101) && (funct7 == 7'b0000000);
-  wire srai = I_a && (funct3 == 3'b101) && (funct7 == 7'b0100000);
+  // more
+  wire I_a = (opcode == 7'b0010011); // addi..
+  wire I_b = (opcode == 7'b0000011); // l..
+
+  // I-type
+  wire addi  = I_a && (funct3 == 3'b000);
+  wire slti  = I_a && (funct3 == 3'b010);
+  wire slli  = I_a && (funct3 == 3'b001);
+  wire srli  = I_a && (funct3 == 3'b101) && (funct7 == 7'b0000000);
+  wire srai  = I_a && (funct3 == 3'b101) && (funct7 == 7'b0100000);
   wire sltiu = I_a && (funct3 == 3'b011);
-  wire xori = I_a && (funct3 == 3'b100);
-  wire  ori = I_a && (funct3 == 3'b110);
-  wire andi = I_a && (funct3 == 3'b111);
-  wire  lbu = I_b && (funct3 == 3'b100);
-  wire  lhu = I_b && (funct3 == 3'b101);
-  wire   lw = I_b && (funct3 == 3'b010);
-  wire   lh = I_b && (funct3 == 3'b001);
-  wire   lb = I_b && (funct3 == 3'b000);
-  wire jalr = (opcode == 7'b1100111);
+  wire xori  = I_a && (funct3 == 3'b100);
+  wire ori   = I_a && (funct3 == 3'b110);
+  wire andi  = I_a && (funct3 == 3'b111);
+  wire lbu   = I_b && (funct3 == 3'b100);
+  wire lhu   = I_b && (funct3 == 3'b101);
+  wire lw    = I_b && (funct3 == 3'b010);
+  wire lh    = I_b && (funct3 == 3'b001);
+  wire lb    = I_b && (funct3 == 3'b000);
+  wire jalr  = (opcode == 7'b1100111);
+
+  wire i_inst = addi || slti || slli || srli || srai || sltiu || xori || ori || andi || lbu || lhu || lw || lh || lb || jalr;
   wire ld_type = lbu || lhu || lw || lh || lb;
   
-  wire add = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0000000);
-  wire sub = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0100000);
-  wire sll = inst_R && (funct3 == 3'b001);
-  wire slt = inst_R && (funct3 == 3'b010);
-  wire sltu = inst_R && (funct3 == 3'b011);
-  wire srl = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0000000);
-  wire sra = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0100000);
+  // R-type
+  wire add   = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0000000);
+  wire sub   = inst_R && (funct3 == 3'b000) && (funct7 == 7'b0100000);
+  wire sll   = inst_R && (funct3 == 3'b001);
+  wire slt   = inst_R && (funct3 == 3'b010);
+  wire sltu  = inst_R && (funct3 == 3'b011);
+  wire srl   = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0000000);
+  wire sra   = inst_R && (funct3 == 3'b101) && (funct7 == 7'b0100000);
   wire r_xor = inst_R && (funct3 == 3'b100);
-  wire r_or = inst_R && (funct3 == 3'b110);
+  wire r_or  = inst_R && (funct3 == 3'b110);
   wire r_and = inst_R && (funct3 == 3'b111);
+
+  wire r_inst = add || sub || sll || slt || sltu || srl || sra || r_xor || r_or || r_and;
   
+  // S-type
   wire sw = inst_S && (funct3 == 3'b010);
   wire sb = inst_S && (funct3 == 3'b000);
   wire sh = inst_S && (funct3 == 3'b001);
+
+  wire s_inst = sw || sb || sh;
   
-  wire lui = (opcode == 7'b0110111);
-  wire auipc = (opcode == 7'b0010111);
-  
-  wire bne = inst_B && (funct3 == 3'b001);
-  wire beq = inst_B && (funct3 == 3'b000);
-  wire blt = inst_B && (funct3 == 3'b100);
-  wire bge = inst_B && (funct3 == 3'b101);
+  // B-type
+  wire bne  = inst_B && (funct3 == 3'b001);
+  wire beq  = inst_B && (funct3 == 3'b000);
+  wire blt  = inst_B && (funct3 == 3'b100);
+  wire bge  = inst_B && (funct3 == 3'b101);
   wire bltu = inst_B && (funct3 == 3'b110);
   wire bgeu = inst_B && (funct3 == 3'b111);
+
+  wire b_inst = bne || beq || blt || bge || bltu || bgeu;
+    
+  wire lui   = (opcode == 7'b0110111);
+  wire auipc = (opcode == 7'b0010111);
   
   wire jal = inst_J;
 
-  // wire illegal = ;
+  // CSRs
+  wire csrrw = (opcode == 7'b1110011) && (funct3 == 3'b001);
+  wire csrrs = (opcode == 7'b1110011) && (funct3 == 3'b010);
+  wire csrrc = (opcode == 7'b1110011) && (funct3 == 3'b011);
+  wire ecall = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000);
+  wire mret  = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0011000);
+
+  wire csr_inst = csrrw || csrrs || csrrc || ecall || mret;
+
+  // illegal inst
+  wire illegal = !(i_inst || r_inst || s_inst || b_inst || lui || auipc || jal || csr_inst || ebreak_type);
 
 
-  assign j_type = jal ? 2'b01 :
-        jalr ? 2'b10 :
+  assign j_type = (jal || jalr ) ? 2'b01 :
+        ecall ? 2'b10 :
+        mret ? 2'b11 :
         2'b00;
   assign b_type = bne ? 3'd0 :
   		  beq ? 3'd1 :
@@ -91,8 +113,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   		  bgeu ? 3'd5 :
   		  3'd6;
 
-  assign rf_res = ld_type ? 2'b01 : //mem
-  		  (jal || jalr) ? 2'b10 : 2'b00; //pc + 4; ALU
+  assign rf_res = ld_type ? 2'b01 : // mem
+  		  (jal || jalr) ? 2'b10 : 2'b00; // pc + 4; ALU
   assign alu_op = (add || addi || ld_type || (j_type != 2'b00)) ? 4'd0 : 
   		  (sub || inst_B) ? 4'd1 :
   		  (lui) ? 4'd2 :
@@ -105,10 +127,14 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
         (r_xor || xori) ? 4'd9 :
         (r_and || andi) ? 4'd10 :
         (r_or || ori) ? 4'd11 :
+        (csrrw) ? 4'd12 :
+        (csrrs) ? 4'd13 :
+        (ecall) ? 4'd14 :
+        (mret) ? 4'd15 :
         4'd0;
 
-  assign alu_arc1 = (jal || auipc);//0: src1; 1: pc
-  assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); //0: src2; 1: imm
+  assign alu_arc1 = (jal || auipc);// 0: src1; 1: pc
+  assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2; 1: imm
 
   assign reg_w = inst_I || inst_R || inst_J || inst_U;
   assign mem_w = (sw) ? 2'b00 :
@@ -122,8 +148,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
          (lhu) ? 3'd4 :
          3'd5;
 
-  assign ebreak_type = (opcode == 7'b1110011);
-
+  assign ebreak_type = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000);
 
   
   always @(*) begin
@@ -140,6 +165,11 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
       inst_J: imm = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
       default: imm = 32'b0;
     endcase
+
+    if (illegal && (inst != 32'b0)) begin
+      is_illegal_inst();
+    end
+    
   end
   
 endmodule

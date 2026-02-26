@@ -32,6 +32,12 @@ typedef struct {
 typedef struct {
   uint32_t gpr[32];
   uint32_t pc;
+
+  //CSRs
+  uint32_t mstatus;
+  uint32_t mtvec;
+  uint32_t mepc;
+  uint32_t mcause;
 } CPU_state;
 
 extern NPCState npc_state;
@@ -48,6 +54,7 @@ void itrace_record(int pc, int inst);
 extern bool g_enable_itrace;
 extern bool g_enable_mtrace;
 extern bool g_enable_ftrace;
+extern bool g_enable_etrace;
 extern bool diff;
 
 //exec
@@ -71,5 +78,9 @@ static inline const char* reg_name(int idx) {
 //difftest
 void init_difftest(char *ref_so_file, long img_size);
 void check_difftest();
+
+//intr
+int isa_raise_intr(int NO, int epc);
+int isa_query_intr();
 
 #endif

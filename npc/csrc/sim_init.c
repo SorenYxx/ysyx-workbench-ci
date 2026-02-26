@@ -3,21 +3,22 @@
 #include <paddr.h>
 #include <getopt.h>
 
-//ftrace
+// ftrace
 static char *elf_file = NULL;
 
-//difftest
+// difftest
 static char *diff_so_file = NULL;
 bool diff = false;
 
-//trace
+// trace
 bool g_enable_itrace = false;
 bool g_enable_mtrace = false;
 bool g_enable_ftrace = false;
+bool g_enable_etrace = false;
 
 void init_ftrace(const char *elf_sile);
 
-//batch
+// batch
 void sdb_set_batch_mode();
 
 static int parse_args(int argc, char *argv[]) {
@@ -26,17 +27,19 @@ static int parse_args(int argc, char *argv[]) {
     {"itrace", no_argument      , NULL, 'i'},
     {"mtrace", no_argument      , NULL, 'm'},
     {"ftrace", no_argument      , NULL, 'f'},
+    {"etrace", no_argument      , NULL, 'x'},
     {"diff"  , required_argument, NULL, 'd'},
     {"elf"   , required_argument, NULL, 'e'},
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-bimfd:e:", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-bimfxd:e:", table, NULL)) != -1) {
     switch (o) {
       case 'b': sdb_set_batch_mode(); break;
       case 'i': g_enable_itrace = true; break;
       case 'm': g_enable_mtrace = true; break;
       case 'f': g_enable_ftrace = true; break;
+      case 'x': g_enable_etrace = true; break;
       case 'd': diff_so_file = optarg; if (diff_so_file) diff = true; break;
       case 'e': elf_file = optarg; break;
       default: break;
@@ -45,6 +48,7 @@ static int parse_args(int argc, char *argv[]) {
   return 0;  
 }
 
+// img
 long img_size = 0;
 
 static long load_img(const char *filename) {
@@ -83,6 +87,7 @@ static void init_img(int argc, char *argv[]) {
   }
 }
 
+// verilator and difftest
 static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
@@ -98,7 +103,7 @@ static void init_verilator(int argc, char *argv[]) {
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Build time: %s, %s", __TIME__, __DATE__);
-  printf("Welcome to %s-NPC!\n", ANSI_FMT(str(minirv), ANSI_FG_YELLOW ANSI_BG_RED));
+  printf("Welcome to %s-NPC!\n", ANSI_FMT(str(riscv), ANSI_FG_YELLOW ANSI_BG_RED));
   printf("For help, type \"help\"\n");
 }
 
