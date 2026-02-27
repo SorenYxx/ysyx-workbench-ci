@@ -1,13 +1,10 @@
-import "DPI-C" function int csr_read(input int addr);
-import "DPI-C" function void csr_write(input int addr, input int data);
-import "DPI-C" function int isa_raise_intr(input int NO, input int epc);
-
-module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, res);
+module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, res);
   input [31:0] pc;
   input [3:0] alu_op;
   input [2:0] b_type;
   input alu_arc1, alu_arc2;
   input [31:0] src1, src2, imm;
+  input [31:0] csr_result;
 
   output reg [31:0] res;
   
@@ -45,16 +42,9 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, res);
       4'd9: res  = rs1 ^ rs2;
       4'd10: res = rs1 & rs2;
       4'd11: res = rs1 | rs2;
-      4'd12: begin // csrrw
-        res = csr_read(rs2); 
-        if (rs1 != 0) csr_write(rs2, rs1);
-      end
-      4'd13: begin // csrrs
-        res = csr_read(rs2);
-        if (rs1 != 0) csr_write(rs2, res | rs1);
-      end
-      4'd14: res = isa_raise_intr(11, pc); // ecall
-      4'd15: res = csr_read({20'b0, 12'h341}); // mret
+      4'd12: res = rs1; // csrrw
+      4'd13: res = rs1 | csr_result; // csrrs
+      4'd14: res = csr_result; // ecall || mret
       default: res = 0;
     endcase
   end

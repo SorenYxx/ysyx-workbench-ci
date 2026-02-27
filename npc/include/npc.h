@@ -40,6 +40,9 @@ typedef struct {
   uint32_t mcause;
 } CPU_state;
 
+extern uint32_t mvendorid;
+extern uint32_t marchid;
+
 extern NPCState npc_state;
 extern CPU_state cpu_n;
 
@@ -78,9 +81,5 @@ static inline const char* reg_name(int idx) {
 //difftest
 void init_difftest(char *ref_so_file, long img_size);
 void check_difftest();
-
-//intr
-int isa_raise_intr(int NO, int epc);
-int isa_query_intr();
 
 #endif

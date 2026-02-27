@@ -11,12 +11,13 @@ module minirv(
   wire [31:0] inst;
   wire [31:0] imm;
   wire [31:0] rdata1, rdata2;
-  wire [31:0] alu_result, mem_result;
+  wire [31:0] alu_result, mem_result, csr_result;
   wire [4:0] rs1, rs2, rd, waddr;
   wire [1:0] rf_res;
   wire [3:0] alu_op;
   wire [1:0] mem_w;
   wire [2:0] mem_r;
+  wire csr_we;
   wire reg_w;
   wire alu_arc1, alu_arc2;
   wire [1:0] j_type;
@@ -30,14 +31,16 @@ module minirv(
   
   IFU my_IFU(pc, inst);
   
-  IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
+  IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
   
-  EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, alu_result);
+  EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, csr_result, alu_result);
   
   LSU my_LSU(clk, mem_w, mem_r, alu_result, rdata2, mem_result);
   
-  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, reg_w, waddr, wdata, n_pc);
+  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, reg_w, waddr, wdata, n_pc);
   
+  CSR my_CSR(clk, rst, j_type, imm[11:0], alu_result, csr_result, pc, csr_we);
+
   always @(posedge clk ,posedge rst) begin
     // rst
     if (rst) pc <= 32'h80000000;

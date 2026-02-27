@@ -16,10 +16,6 @@ extern "C" {
 
 
     // DPI IMPORTS
-    // DPI import at vsrc/EXU.v:1:29
-    extern int csr_read(int addr);
-    // DPI import at vsrc/EXU.v:2:30
-    extern void csr_write(int addr, int data);
     // DPI import at vsrc/minirv.v:1:30
     extern void ebreak();
     // DPI import at vsrc/minirv.v:2:30
@@ -28,8 +24,6 @@ extern "C" {
     extern void get_reg(int waddr, int r);
     // DPI import at vsrc/IDU.v:1:30
     extern void is_illegal_inst();
-    // DPI import at vsrc/EXU.v:3:29
-    extern int isa_raise_intr(int NO, int epc);
     // DPI import at vsrc/IFU.v:1:29
     extern int pmem_read(int raddr);
     // DPI import at vsrc/LSU.v:1:30

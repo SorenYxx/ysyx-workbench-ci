@@ -9,7 +9,7 @@ void ebreak() {
   if (R[10] == 0) { is_end = 1; npc_state.halt_pc = top->cur_pc; Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
   else {
     Log("\033[1;31mHIT BAD TRAP\033[0m");
-    exit(0);
+    // exit(0);
   }
 }
 
@@ -74,19 +74,4 @@ void sim_exit() {
   tfp->close();
   delete tfp;
   delete top;
-}
-
-
-// intr
-int isa_raise_intr(int NO, int epc) {
-  if (g_enable_etrace) printf("[etrace] intr NO = %d, epc = 0x%08x\n", NO, epc);
-
-  cpu_n.mepc = epc;
-  cpu_n.mcause = NO;
-
-  return cpu_n.mtvec & ~0x3;
-}
-
-int isa_query_intr() {
-  return ((word_t)-1);
 }

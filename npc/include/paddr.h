@@ -18,10 +18,10 @@ extern "C" {
 int pmem_read(int raddr);
 void pmem_write(int waddr, int wdata, char wmask);
 
-int csr_read(int addr);
-void csr_write(int addr, int data);
+// int csr_read(int addr);
+// void csr_write(int addr, int data);
 
-int isa_raise_intr(int NO, int epc);
+// int isa_raise_intr(int NO, int epc);
 
 void is_illegal_inst();
 

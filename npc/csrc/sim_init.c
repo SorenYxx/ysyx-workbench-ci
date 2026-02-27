@@ -3,6 +3,10 @@
 #include <paddr.h>
 #include <getopt.h>
 
+// NO.
+uint32_t mvendorid = 0x79737978; // "ysyx"
+uint32_t marchid   = 0x26010027; // "26010027"
+
 // ftrace
 static char *elf_file = NULL;
 

@@ -1,5 +1,6 @@
 #include <am.h>
 #include <klib-macros.h>
+#include <stdio.h>
 
 extern char _heap_start;
 int main(const char *args);
@@ -22,6 +23,18 @@ void halt(int code) {
 }
 
 void _trm_init() {
+  /* int vendor_id, arch_id;
+  char num[4];
+
+  asm volatile("csrr %0, mvendorid" : "=r"(vendor_id));
+  asm volatile("csrr %0, marchid"   : "=r"(arch_id));
+
+  for (int i = 0; i < 4; i ++) num[i] = (vendor_id >> (8 * i)) & 0xFF;
+  for (int i = 3; i >= 0; i --) printf("%c", num[i]);
+  printf("\n");
+  printf("---- NPC ID: %08x ----\n", arch_id);
+  */
+
   int ret = main(mainargs);
   halt(ret);
 }

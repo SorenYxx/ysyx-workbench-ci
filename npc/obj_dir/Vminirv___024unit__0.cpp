@@ -24,44 +24,6 @@ void Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit() {
     is_illegal_inst();
 }
 
-extern "C" int csr_read(int addr);
-
-void Vminirv___024unit____Vdpiimwrap_csr_read_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ &csr_read__Vfuncrtn) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_csr_read_TOP____024unit\n"); );
-    // Body
-    int addr__Vcvt;
-    addr__Vcvt = addr;
-    int csr_read__Vfuncrtn__Vcvt;
-    csr_read__Vfuncrtn__Vcvt = csr_read(addr__Vcvt);
-    csr_read__Vfuncrtn = (csr_read__Vfuncrtn__Vcvt);
-}
-
-extern "C" void csr_write(int addr, int data);
-
-void Vminirv___024unit____Vdpiimwrap_csr_write_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ data) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_csr_write_TOP____024unit\n"); );
-    // Body
-    int addr__Vcvt;
-    addr__Vcvt = addr;
-    int data__Vcvt;
-    data__Vcvt = data;
-    csr_write(addr__Vcvt, data__Vcvt);
-}
-
-extern "C" int isa_raise_intr(int NO, int epc);
-
-void Vminirv___024unit____Vdpiimwrap_isa_raise_intr_TOP____024unit(IData/*31:0*/ NO, IData/*31:0*/ epc, IData/*31:0*/ &isa_raise_intr__Vfuncrtn) {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_isa_raise_intr_TOP____024unit\n"); );
-    // Body
-    int NO__Vcvt;
-    NO__Vcvt = NO;
-    int epc__Vcvt;
-    epc__Vcvt = epc;
-    int isa_raise_intr__Vfuncrtn__Vcvt;
-    isa_raise_intr__Vfuncrtn__Vcvt = isa_raise_intr(NO__Vcvt, epc__Vcvt);
-    isa_raise_intr__Vfuncrtn = (isa_raise_intr__Vfuncrtn__Vcvt);
-}
-
 extern "C" void ebreak();
 
 void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit() {

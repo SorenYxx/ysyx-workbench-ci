@@ -48,24 +48,3 @@ void pmem_write(int waddr, int wdata, char wmask) {
   }
   if (g_enable_mtrace) printf("write         0x%08x to   0x%08x\n", wdata, addr);
 }
-
-// csr
-int csr_read(int addr) {
-  switch (addr) {
-    case 0x300: return cpu_n.mstatus;
-    case 0x305: return cpu_n.mtvec;
-    case 0x341: return cpu_n.mepc;
-    case 0x342: return cpu_n.mcause;
-    default: Log("Read unsupported csr addr = 0x%03x", addr); assert(0);
-  }
-}
-
-void csr_write(int addr, int data) {
-  switch (addr) {
-    case 0x300: cpu_n.mstatus = data; return;
-    case 0x305: cpu_n.mtvec = data; return;
-    case 0x341: cpu_n.mepc = data; return;
-    case 0x342: cpu_n.mcause = data; return;
-    default: Log("Write unsupported csr addr = 0x%03x", addr); assert(0);
-  }
-}

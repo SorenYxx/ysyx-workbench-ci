@@ -1,6 +1,6 @@
 import "DPI-C" function void is_illegal_inst();
 
-module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
+module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
   input [31:0] inst;
   
   output reg [31:0] imm;
@@ -8,6 +8,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   output reg reg_w;
   output [1:0] rf_res;
   output [3:0] alu_op;
+  output csr_we;
   output reg [1:0] mem_w;
   output reg [2:0] mem_r;  
   output alu_arc1;
@@ -114,7 +115,9 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
   		  3'd6;
 
   assign rf_res = ld_type ? 2'b01 : // mem
-  		  (jal || jalr) ? 2'b10 : 2'b00; // pc + 4; ALU
+        (csrrw || csrrs || csrrc) ? 2'b10 : // csr
+  		  (jal || jalr) ? 2'b11 : // pc + 4
+        2'b00; // ALU
   assign alu_op = (add || addi || ld_type || (j_type != 2'b00)) ? 4'd0 : 
   		  (sub || inst_B) ? 4'd1 :
   		  (lui) ? 4'd2 :
@@ -129,14 +132,14 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, alu_arc
         (r_or || ori) ? 4'd11 :
         (csrrw) ? 4'd12 :
         (csrrs) ? 4'd13 :
-        (ecall) ? 4'd14 :
-        (mret) ? 4'd15 :
+        (ecall || mret) ? 4'd14 :
         4'd0;
 
   assign alu_arc1 = (jal || auipc);// 0: src1; 1: pc
   assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2; 1: imm
 
-  assign reg_w = inst_I || inst_R || inst_J || inst_U;
+  assign reg_w = inst_I || inst_R || inst_J || inst_U || csr_we;
+  assign csr_we = csrrw || csrrs || csrrc;
   assign mem_w = (sw) ? 2'b00 :
          (sb) ? 2'b01 :
          (sh) ? 2'b10 :

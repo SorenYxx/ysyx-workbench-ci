@@ -27,6 +27,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         CData/*2:0*/ minirv__DOT__my_IDU__DOT__mem_r;
         CData/*1:0*/ minirv__DOT__my_IDU__DOT__rf_res;
         CData/*3:0*/ minirv__DOT__my_IDU__DOT__alu_op;
+        CData/*0:0*/ minirv__DOT__my_IDU__DOT__csr_we;
         CData/*1:0*/ minirv__DOT__my_IDU__DOT__j_type;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT__ebreak_type;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT__inst_I;
@@ -73,6 +74,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14;
+        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15;
         CData/*5:0*/ __Vtableidx1;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
@@ -81,11 +83,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         VL_OUT(cur_inst,31,0);
         IData/*31:0*/ minirv__DOT__inst;
         IData/*31:0*/ minirv__DOT__alu_result;
-        IData/*31:0*/ minirv__DOT__wdata;
-        IData/*31:0*/ minirv__DOT__pc;
     };
     struct {
+        IData/*31:0*/ minirv__DOT__csr_result;
+        IData/*31:0*/ minirv__DOT__pc;
         IData/*31:0*/ minirv__DOT__n_pc;
+        IData/*31:0*/ minirv__DOT__R__DOT__wdata;
         IData/*31:0*/ minirv__DOT__R__DOT__rdata2;
         IData/*31:0*/ minirv__DOT__my_IDU__DOT__imm;
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__rs1;
@@ -93,12 +96,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__result;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__rdata;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__data_s;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mcycle;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mcycleh;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mstatus;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mtvec;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mepc;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mcause;
         IData/*31:0*/ __Vfunc_pmem_read__3__Vfuncout;
-        IData/*31:0*/ __Vfunc_csr_read__5__Vfuncout;
-        IData/*31:0*/ __Vfunc_isa_raise_intr__6__Vfuncout;
-        IData/*31:0*/ __Vfunc_csr_read__7__Vfuncout;
-        IData/*31:0*/ __Vfunc_csr_read__9__Vfuncout;
-        IData/*31:0*/ __Vfunc_pmem_read__11__Vfuncout;
+        IData/*31:0*/ __Vfunc_pmem_read__5__Vfuncout;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<IData/*31:0*/, 32> minirv__DOT__R__DOT__rf;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
