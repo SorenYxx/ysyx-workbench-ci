@@ -94,15 +94,15 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we,
   wire csrrw = I_c && (funct3 == 3'b001);
   wire csrrs = I_c && (funct3 == 3'b010);
   wire csrrc = I_c && (funct3 == 3'b011);
-  wire ecall = I_c && (funct3 == 3'b000) && (funct7 == 7'b0000000);
-  wire mret  = I_c && (funct3 == 3'b000) && (funct7 == 7'b0011000);
+  wire ecall = (inst == 32'h00000073);
+  wire mret  = (inst == 32'h30200073);
   wire csr_inst = csrrw || csrrs || csrrc || ecall || mret;
 
   // illegal inst
   wire illegal = !(i_inst || r_inst || s_inst || b_inst || lui || auipc || jal || csr_inst || ebreak_type);
 
 
-  assign j_type = (jal || jalr ) ? 2'b01 :
+  assign j_type = (jal || jalr) ? 2'b01 :
         ecall ? 2'b10 :
         mret ? 2'b11 :
         2'b00;
@@ -151,7 +151,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we,
          (lhu) ? 3'd4 :
          3'd5;
 
-  assign ebreak_type = (opcode == 7'b1110011) && (funct3 == 3'b000) && (funct7 == 7'b0000000);
+  assign ebreak_type = (inst == 32'h00100073);
 
   
   always @(*) begin

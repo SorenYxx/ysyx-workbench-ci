@@ -55,23 +55,25 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
 
   // read
   always @(*) begin
-    case(csr_addr)
-      12'hf11: csr_rdata = mvendorid;
-      12'hf12: csr_rdata = marchid;
-      12'hB00: csr_rdata = mcycle;
-      12'hB80: csr_rdata = mcycleh;
-      12'h300: csr_rdata = mstatus;
-      12'h305: csr_rdata = mtvec;
-      12'h341: csr_rdata = mepc;
-      12'h342: csr_rdata = mcause;
-      default: csr_rdata = 0;
-    endcase
-
-    case(j_type)
-      2'b10: csr_rdata = mtvec; // ecall
-      2'b11: csr_rdata = mepc; // mret
-      default: ;
-    endcase
+    if (j_type == 2'b10) begin // ecall
+      csr_rdata = mtvec;
+      $display("--------ecall: mtvec = 0x%h", mtvec);
+    end else if (j_type == 2'b11) begin // mret
+      csr_rdata = mepc;
+      $display("--------mret: mepc = 0x%h", mepc);
+    end else begin
+      case(csr_addr)
+        12'hf11: csr_rdata = mvendorid;
+        12'hf12: csr_rdata = marchid;
+        12'hB00: csr_rdata = mcycle;
+        12'hB80: csr_rdata = mcycleh;
+        12'h300: csr_rdata = mstatus;
+        12'h305: csr_rdata = mtvec;
+        12'h341: csr_rdata = mepc;
+        12'h342: csr_rdata = mcause;
+        default: csr_rdata = 0;
+      endcase
+    end
 
   end
 endmodule

@@ -90,7 +90,7 @@ void Vminirv___024root__trace_chg_0_sub_0(Vminirv___024root* vlSelf, VerilatedFs
                                                   & vlSelfRef.minirv__DOT__inst)))))));
         bufp->chgCData(oldp+47,(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type),2);
         bufp->chgCData(oldp+48,(vlSelfRef.minirv__DOT__b_type),3);
-        bufp->chgBit(oldp+49,(vlSelfRef.minirv__DOT__my_IDU__DOT__ebreak_type));
+        bufp->chgBit(oldp+49,((0x00100073U == vlSelfRef.minirv__DOT__inst)));
         bufp->chgIData(oldp+50,(vlSelfRef.minirv__DOT__pc),32);
         bufp->chgSData(oldp+51,((0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm)),12);
         bufp->chgIData(oldp+52,(vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle),32);
@@ -202,10 +202,11 @@ void Vminirv___024root__trace_chg_0_sub_0(Vminirv___024root* vlSelf, VerilatedFs
         bufp->chgBit(oldp+114,((IData)((0x00003073U 
                                         == (0x0000707fU 
                                             & vlSelfRef.minirv__DOT__inst)))));
-        bufp->chgBit(oldp+115,(vlSelfRef.minirv__DOT__my_IDU__DOT__mret));
-        bufp->chgBit(oldp+116,(((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) 
-                                | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15))));
-        bufp->chgBit(oldp+117,((1U & (~ (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__addi) 
+        bufp->chgBit(oldp+115,((0x00000073U == vlSelfRef.minirv__DOT__inst)));
+        bufp->chgBit(oldp+116,((0x30200073U == vlSelfRef.minirv__DOT__inst)));
+        bufp->chgBit(oldp+117,(((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) 
+                                | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14))));
+        bufp->chgBit(oldp+118,((1U & (~ (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__addi) 
                                           | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__slti) 
                                              | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__slli) 
                                                 | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__srli) 
@@ -255,30 +256,31 @@ void Vminirv___024root__trace_chg_0_sub_0(Vminirv___024root* vlSelf, VerilatedFs
                                                             (0x0000007fU 
                                                              & vlSelfRef.minirv__DOT__inst))) 
                                                         | (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) 
-                                                            | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_15)) 
-                                                           | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ebreak_type))))))))))));
+                                                            | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14)) 
+                                                           | (0x00100073U 
+                                                              == vlSelfRef.minirv__DOT__inst))))))))))));
     }
     if (VL_UNLIKELY((vlSelfRef.__Vm_traceActivity[3U]))) {
-        bufp->chgIData(oldp+118,(vlSelfRef.minirv__DOT__R__DOT__rdata2),32);
-        bufp->chgIData(oldp+119,(vlSelfRef.minirv__DOT__alu_result),32);
-        bufp->chgIData(oldp+120,(vlSelfRef.minirv__DOT__R__DOT__wdata),32);
-        bufp->chgIData(oldp+121,(vlSelfRef.minirv__DOT__my_EXU__DOT__rs1),32);
-        bufp->chgIData(oldp+122,(vlSelfRef.minirv__DOT__my_EXU__DOT__rs2),32);
-        bufp->chgIData(oldp+123,(vlSelfRef.minirv__DOT__my_EXU__DOT__result),32);
-        bufp->chgIData(oldp+124,(vlSelfRef.minirv__DOT__my_LSU__DOT__rdata),32);
-        bufp->chgIData(oldp+125,(vlSelfRef.minirv__DOT__my_LSU__DOT__data_s),32);
+        bufp->chgIData(oldp+119,(vlSelfRef.minirv__DOT__R__DOT__rdata2),32);
+        bufp->chgIData(oldp+120,(vlSelfRef.minirv__DOT__alu_result),32);
+        bufp->chgIData(oldp+121,(vlSelfRef.minirv__DOT__R__DOT__wdata),32);
+        bufp->chgIData(oldp+122,(vlSelfRef.minirv__DOT__my_EXU__DOT__rs1),32);
+        bufp->chgIData(oldp+123,(vlSelfRef.minirv__DOT__my_EXU__DOT__rs2),32);
+        bufp->chgIData(oldp+124,(vlSelfRef.minirv__DOT__my_EXU__DOT__result),32);
+        bufp->chgIData(oldp+125,(vlSelfRef.minirv__DOT__my_LSU__DOT__rdata),32);
+        bufp->chgIData(oldp+126,(vlSelfRef.minirv__DOT__my_LSU__DOT__data_s),32);
     }
-    bufp->chgBit(oldp+126,(vlSelfRef.clk));
-    bufp->chgBit(oldp+127,(vlSelfRef.rst));
-    bufp->chgIData(oldp+128,(vlSelfRef.cur_pc),32);
-    bufp->chgIData(oldp+129,(vlSelfRef.cur_inst),32);
-    bufp->chgIData(oldp+130,(((0U == (0x0000001fU & 
+    bufp->chgBit(oldp+127,(vlSelfRef.clk));
+    bufp->chgBit(oldp+128,(vlSelfRef.rst));
+    bufp->chgIData(oldp+129,(vlSelfRef.cur_pc),32);
+    bufp->chgIData(oldp+130,(vlSelfRef.cur_inst),32);
+    bufp->chgIData(oldp+131,(((0U == (0x0000001fU & 
                                       (vlSelfRef.minirv__DOT__inst 
                                        >> 0x0000000fU)))
                                ? 0U : vlSelfRef.minirv__DOT__R__DOT__rf
                               [(0x0000001fU & (vlSelfRef.minirv__DOT__inst 
                                                >> 0x0000000fU))])),32);
-    bufp->chgIData(oldp+131,(((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
+    bufp->chgIData(oldp+132,(((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                ? ((2U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                    ? 0U : ((1U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))
                                             ? 0U : 
@@ -304,11 +306,11 @@ void Vminirv___024root__trace_chg_0_sub_0(Vminirv___024root* vlSelf, VerilatedFs
                                           (0x000000ffU 
                                            & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s))
                                        : vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))),32);
-    bufp->chgIData(oldp+132,((((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
+    bufp->chgIData(oldp+133,((((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
                                | (6U != (IData)(vlSelfRef.minirv__DOT__b_type)))
                                ? vlSelfRef.minirv__DOT__alu_result
                                : ((IData)(4U) + vlSelfRef.minirv__DOT__pc))),32);
-    bufp->chgIData(oldp+133,(((0U == ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sw)
+    bufp->chgIData(oldp+134,(((0U == ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sw)
                                        ? 0U : ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sb)
                                                 ? 1U
                                                 : ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sh)
