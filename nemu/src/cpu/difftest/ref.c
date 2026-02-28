@@ -30,6 +30,9 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
+    printf("[NEMU-REF] PC Offset: %ld, mstatus Offset: %ld\n", 
+           (uint8_t*)&cpu.pc - (uint8_t*)&cpu,
+           (uint8_t*)&cpu.mstatus - (uint8_t*)&cpu);
     memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
   } else {
     memcpy(dut, &cpu, DIFFTEST_REG_SIZE);
