@@ -34,7 +34,6 @@ void init_difftest(char *ref_so_file, long img_size) {
 }
 
 static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
-  Log("mstatus: [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, pc);
   // regs
   for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
