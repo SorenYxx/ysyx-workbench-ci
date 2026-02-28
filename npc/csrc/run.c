@@ -38,13 +38,13 @@ int is_exit_status_bad() {
 
 // eval
 void step_and_eval() {
-  cpu_n.pc = top->cur_pc;
-
   top->clk = 0; top->eval();
   top->clk = 1; top->eval();
 
   tfp->dump(main_time); 
   main_time ++;
+
+  cpu_n.pc = top->cur_pc;
 
   if (diff) check_difftest();
   check_watchpoints();

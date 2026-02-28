@@ -36,13 +36,13 @@ void init_difftest(char *ref_so_file, long img_size) {
 static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
   for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
-      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], cpu_n.pc);
+      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], pc);
       return false;
     }
   }
 
-  if (ref_r->pc != top->cur_pc) {
-    Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_r->pc, top->cur_pc);
+  if (ref_r->pc != pc) {
+    Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_r->pc, pc);
     return false;
   }
   return true;
@@ -67,7 +67,7 @@ void check_difftest() {
 
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
-  printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, top->cur_pc);
+  // printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, top->cur_pc);
 
   checkregs(&ref_regs, top->cur_pc);
 }

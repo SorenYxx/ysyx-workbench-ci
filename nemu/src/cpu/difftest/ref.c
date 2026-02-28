@@ -31,14 +31,12 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
     memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
-    printf("PC in difftest_regcpy: 0x%08x\n", cpu.pc);
   } else {
     memcpy(dut, &cpu, DIFFTEST_REG_SIZE);
   }
 }
 
 __EXPORT void difftest_exec(uint64_t n) {
-  printf("PC in difftest_exec: 0x%08x\n", cpu.pc);
   cpu_exec(n);
 }
 
