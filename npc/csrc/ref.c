@@ -86,8 +86,13 @@ void check_difftest() {
     return;
   }
 
-  ref_difftest_exec(1);
+  ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
+  printf("mstatus:%08x\n", ref_regs.mstatus);
+  ref_difftest_exec(1);
+  ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
+  ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
+  printf("mstatus:%08x\n", ref_regs.mstatus);
   // printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, top->cur_pc);
 
   checkregs(&ref_regs, top->cur_pc);

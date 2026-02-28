@@ -134,7 +134,7 @@ void sim_init(int argc, char *argv[]) {
   init_csr();
   
   /* Initialize differential testing. */
-  // if (diff) init_difftest(diff_so_file, img_size);
+  if (diff) init_difftest(diff_so_file, img_size);
 
   /* Initialize the verilator */
   init_verilator(argc, argv);
@@ -144,6 +144,4 @@ void sim_init(int argc, char *argv[]) {
 
   /* Display welcome message. */
   welcome();
-
-  if (diff) init_difftest(diff_so_file, img_size);
 }
