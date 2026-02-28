@@ -48,7 +48,7 @@ extern CPU_state cpu_n;
 
 int is_exit_status_bad();
 
-//verilog
+//verilator
 extern VerilatedFstC* tfp;
 extern Vminirv* top;
 
@@ -81,5 +81,7 @@ static inline const char* reg_name(int idx) {
 //difftest
 void init_difftest(char *ref_so_file, long img_size);
 void check_difftest();
+void difftest_skip_ref();
+// void difftest_skip_dut(int nr_ref, int nr_dut);
 
 #endif

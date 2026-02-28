@@ -7,6 +7,14 @@ void (*ref_difftest_memcpy)(uint32_t addr, void *buf, size_t n, bool direction) 
 void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
+static bool is_skip_ref = false;
+// static int skip_dut_nr_inst = 0;
+
+void difftest_skip_ref() {
+  is_skip_ref = true;
+  // skip_dut_nr_inst = 0;
+}
+
 void init_difftest(char *ref_so_file, long img_size) {
     void *handle = dlopen(ref_so_file, RTLD_LAZY);
     assert(handle);
@@ -49,9 +57,15 @@ static void checkregs(CPU_state *ref, uint32_t pc) {
 }
 
 void check_difftest() {
-  CPU_state ref_regs;
-  ref_difftest_exec(1);
+  CPU_state ref_regs;// use to check
 
+  if (is_skip_ref) {
+    ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
+    is_skip_ref = false;
+    return;
+  }
+
+  ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
 
   checkregs(&ref_regs, top->cur_pc);
