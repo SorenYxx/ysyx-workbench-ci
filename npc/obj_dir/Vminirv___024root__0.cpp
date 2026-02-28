@@ -156,6 +156,7 @@ void Vminirv___024root___nba_sequent__TOP__0(Vminirv___024root* vlSelf) {
 
 void Vminirv___024unit____Vdpiimwrap_ftrace_print_TOP____024unit(IData/*31:0*/ pc, IData/*31:0*/ target, IData/*31:0*/ rd, IData/*31:0*/ rs1);
 void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit();
+void Vminirv___024unit____Vdpiimwrap_get_csr_TOP____024unit(IData/*31:0*/ csr, IData/*31:0*/ data);
 void Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(IData/*31:0*/ raddr, IData/*31:0*/ &pmem_read__Vfuncrtn);
 extern const VlUnpacked<CData/*2:0*/, 64> Vminirv__ConstPool__TABLE_h02dc8855_0;
 void Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit();
@@ -200,9 +201,8 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
         __Vdly__minirv__DOT__my_CSR__DOT__mcycleh = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mstatus = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec = 0U;
-        vlSelfRef.minirv__DOT__my_CSR__DOT__mcause = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mepc = 0U;
-        vlSelfRef.minirv__DOT__pc = 0x80000000U;
+        vlSelfRef.minirv__DOT__my_CSR__DOT__mcause = 0U;
     } else {
         __Vdly__minirv__DOT__my_CSR__DOT__mcycle = 
             ((IData)(1U) + vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle);
@@ -211,37 +211,31 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                 = ((IData)(1U) + vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh);
         }
         if (vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) {
+            Vminirv___024unit____Vdpiimwrap_get_csr_TOP____024unit(
+                                                                   (0x00000fffU 
+                                                                    & vlSelfRef.minirv__DOT__my_IDU__DOT__imm), vlSelfRef.minirv__DOT__alu_result);
             if ((0x0300U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
                 vlSelfRef.minirv__DOT__my_CSR__DOT__mstatus 
                     = vlSelfRef.minirv__DOT__alu_result;
-            }
-            if ((0x0300U != (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                if ((0x0305U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                    vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec 
-                        = vlSelfRef.minirv__DOT__alu_result;
-                }
-                if ((0x0305U != (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                    if ((0x0341U != (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                        if ((0x0342U == (0x00000fffU 
-                                         & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                            vlSelfRef.minirv__DOT__my_CSR__DOT__mcause 
-                                = vlSelfRef.minirv__DOT__alu_result;
-                        }
-                    }
-                    if ((0x0341U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
-                        vlSelfRef.minirv__DOT__my_CSR__DOT__mepc 
-                            = vlSelfRef.minirv__DOT__alu_result;
-                    }
-                }
+            } else if ((0x0305U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
+                vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec 
+                    = vlSelfRef.minirv__DOT__alu_result;
+            } else if ((0x0341U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
+                vlSelfRef.minirv__DOT__my_CSR__DOT__mepc 
+                    = vlSelfRef.minirv__DOT__alu_result;
+            } else if ((0x0342U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) {
+                vlSelfRef.minirv__DOT__my_CSR__DOT__mcause 
+                    = vlSelfRef.minirv__DOT__alu_result;
             }
         }
         if ((2U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))) {
-            vlSelfRef.minirv__DOT__my_CSR__DOT__mcause = 0x0000000bU;
             vlSelfRef.minirv__DOT__my_CSR__DOT__mepc 
                 = vlSelfRef.minirv__DOT__pc;
+            vlSelfRef.minirv__DOT__my_CSR__DOT__mcause = 0x0000000bU;
         }
-        vlSelfRef.minirv__DOT__pc = vlSelfRef.minirv__DOT__n_pc;
     }
+    vlSelfRef.minirv__DOT__pc = ((IData)(vlSelfRef.rst)
+                                  ? 0x80000000U : vlSelfRef.minirv__DOT__n_pc);
     vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle = __Vdly__minirv__DOT__my_CSR__DOT__mcycle;
     vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh = __Vdly__minirv__DOT__my_CSR__DOT__mcycleh;
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;

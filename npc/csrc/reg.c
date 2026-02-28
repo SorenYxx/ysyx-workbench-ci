@@ -3,9 +3,19 @@
 
 uint32_t R[31] = {};
 
-extern "C" void get_reg(int waddr, int r) {
-  R[waddr] = r;
-  cpu_n.gpr[waddr] = r;
+extern "C" void get_reg(int waddr, int data) {
+  R[waddr] = data;
+  cpu_n.gpr[waddr] = data;
+}
+
+extern "C" void get_csr(int csr, int data) {
+  switch (csr) {
+    case 0x300: cpu_n.mstatus = data; return;
+    case 0x305: cpu_n.mtvec = data; return;
+    case 0x341: cpu_n.mepc = data; return;
+    case 0x342: cpu_n.mcause = data; return;
+    default: { Log("write unsupported csr addr = 0x%03x", csr); assert(0); }
+  }
 }
 
 const char *regs[] = {

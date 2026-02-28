@@ -34,6 +34,7 @@ void init_difftest(char *ref_so_file, long img_size) {
 }
 
 static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
+  // regs
   for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
       Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], pc);
@@ -41,10 +42,30 @@ static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
     }
   }
 
+// pc
   if (ref_r->pc != pc) {
     Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_r->pc, pc);
     return false;
   }
+
+  // csrs
+  if (ref_r->mstatus != cpu_n.mstatus) {
+    Log("CSR mstatus mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, pc);
+    return false;
+  }
+  if (ref_r->mtvec != cpu_n.mtvec) {
+    Log("CSR mtvec mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mtvec, cpu_n.mtvec, pc);
+    return false;
+  }
+  if (ref_r->mepc != cpu_n.mepc) {
+    Log("CSR mepc mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mepc, cpu_n.mepc, pc);
+    return false;
+  }
+  if (ref_r->mcause != cpu_n.mcause) {
+    Log("CSR mcause mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mcause, cpu_n.mcause, pc);
+    return false;
+  }
+
   return true;
 }
 

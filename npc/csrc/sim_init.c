@@ -104,6 +104,15 @@ static void init_verilator(int argc, char *argv[]) {
   top->eval(); top->rst = 0;
 }
 
+// CSRs
+static void init_csr() {
+  cpu_n.mstatus = 0;
+  cpu_n.mtvec   = 0;
+  cpu_n.mepc    = 0;
+  cpu_n.mcause  = 0;
+}
+
+// welcome
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Build time: %s, %s", __TIME__, __DATE__);
@@ -121,6 +130,9 @@ void sim_init(int argc, char *argv[]) {
   /* Initialize ftrace */
   if (g_enable_ftrace) init_ftrace(elf_file);
 
+  /* Initialize CSRs */
+  init_csr();
+  
   /* Initialize differential testing. */
   if (diff) init_difftest(diff_so_file, img_size);
 

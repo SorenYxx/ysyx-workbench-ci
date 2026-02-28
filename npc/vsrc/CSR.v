@@ -1,3 +1,5 @@
+import "DPI-C" function void get_csr(input int csr, input int data);
+
 module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
   input clk;
   input rst;
@@ -36,6 +38,7 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
       end
 
       if (csr_we) begin
+        get_csr({20'b0, csr_addr}, csr_wdata); // for ref
         case(csr_addr)
           12'h300: mstatus <= csr_wdata;
           12'h305: mtvec   <= csr_wdata;

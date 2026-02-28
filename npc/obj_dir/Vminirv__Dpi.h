@@ -20,6 +20,8 @@ extern "C" {
     extern void ebreak();
     // DPI import at vsrc/minirv.v:2:30
     extern void ftrace_print(int pc, int target, int rd, int rs1);
+    // DPI import at vsrc/CSR.v:1:30
+    extern void get_csr(int csr, int data);
     // DPI import at vsrc/GPR.v:1:30
     extern void get_reg(int waddr, int r);
     // DPI import at vsrc/IDU.v:1:30

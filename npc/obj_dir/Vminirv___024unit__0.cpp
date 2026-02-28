@@ -24,6 +24,18 @@ void Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit() {
     is_illegal_inst();
 }
 
+extern "C" void get_csr(int csr, int data);
+
+void Vminirv___024unit____Vdpiimwrap_get_csr_TOP____024unit(IData/*31:0*/ csr, IData/*31:0*/ data) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        Vminirv___024unit____Vdpiimwrap_get_csr_TOP____024unit\n"); );
+    // Body
+    int csr__Vcvt;
+    csr__Vcvt = csr;
+    int data__Vcvt;
+    data__Vcvt = data;
+    get_csr(csr__Vcvt, data__Vcvt);
+}
+
 extern "C" void ebreak();
 
 void Vminirv___024unit____Vdpiimwrap_ebreak_TOP____024unit() {
