@@ -477,7 +477,8 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     } else if (VL_UNLIKELY(((3U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))))) {
         VL_WRITEF_NX("--------mret: mepc = 0x%x\n",0,
                      32,vlSelfRef.minirv__DOT__my_CSR__DOT__mepc);
-        vlSelfRef.minirv__DOT__csr_result = vlSelfRef.minirv__DOT__my_CSR__DOT__mepc;
+        vlSelfRef.minirv__DOT__csr_result = ((IData)(4U) 
+                                             + vlSelfRef.minirv__DOT__my_CSR__DOT__mepc);
     } else {
         vlSelfRef.minirv__DOT__csr_result = (((((((
                                                    ((0x0f11U 

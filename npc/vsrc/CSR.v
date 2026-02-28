@@ -59,7 +59,7 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
       csr_rdata = mtvec;
       $display("--------ecall: mtvec = 0x%h", mtvec);
     end else if (j_type == 2'b11) begin // mret
-      csr_rdata = mepc;
+      csr_rdata = mepc + 4;
       $display("--------mret: mepc = 0x%h", mepc);
     end else begin
       case(csr_addr)
