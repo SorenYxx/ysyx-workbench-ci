@@ -166,13 +166,10 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
     Vminirv__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Locals
-    IData/*31:0*/ __Vdly__minirv__DOT__my_CSR__DOT__mcycle;
-    __Vdly__minirv__DOT__my_CSR__DOT__mcycle = 0;
-    IData/*31:0*/ __Vdly__minirv__DOT__my_CSR__DOT__mcycleh;
-    __Vdly__minirv__DOT__my_CSR__DOT__mcycleh = 0;
+    QData/*63:0*/ __Vdly__minirv__DOT__my_CSR__DOT__mc;
+    __Vdly__minirv__DOT__my_CSR__DOT__mc = 0;
     // Body
-    __Vdly__minirv__DOT__my_CSR__DOT__mcycle = vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle;
-    __Vdly__minirv__DOT__my_CSR__DOT__mcycleh = vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh;
+    __Vdly__minirv__DOT__my_CSR__DOT__mc = vlSelfRef.minirv__DOT__my_CSR__DOT__mc;
     if ((1U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))) {
         Vminirv___024unit____Vdpiimwrap_ftrace_print_TOP____024unit(vlSelfRef.minirv__DOT__pc, 
                                                                     (((0U 
@@ -197,19 +194,14 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                      vlSelfRef.minirv__DOT__inst);
     }
     if (vlSelfRef.rst) {
-        __Vdly__minirv__DOT__my_CSR__DOT__mcycle = 0U;
-        __Vdly__minirv__DOT__my_CSR__DOT__mcycleh = 0U;
+        __Vdly__minirv__DOT__my_CSR__DOT__mc = 0ULL;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mstatus = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mepc = 0U;
         vlSelfRef.minirv__DOT__my_CSR__DOT__mcause = 0U;
     } else {
-        __Vdly__minirv__DOT__my_CSR__DOT__mcycle = 
-            ((IData)(1U) + vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle);
-        if ((0U == vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle)) {
-            __Vdly__minirv__DOT__my_CSR__DOT__mcycleh 
-                = ((IData)(1U) + vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh);
-        }
+        __Vdly__minirv__DOT__my_CSR__DOT__mc = (1ULL 
+                                                + vlSelfRef.minirv__DOT__my_CSR__DOT__mc);
         if (vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) {
             Vminirv___024unit____Vdpiimwrap_get_csr_TOP____024unit(
                                                                    (0x00000fffU 
@@ -236,8 +228,7 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
     }
     vlSelfRef.minirv__DOT__pc = ((IData)(vlSelfRef.rst)
                                   ? 0x80000000U : vlSelfRef.minirv__DOT__n_pc);
-    vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle = __Vdly__minirv__DOT__my_CSR__DOT__mcycle;
-    vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh = __Vdly__minirv__DOT__my_CSR__DOT__mcycleh;
+    vlSelfRef.minirv__DOT__my_CSR__DOT__mc = __Vdly__minirv__DOT__my_CSR__DOT__mc;
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
     Vminirv___024unit____Vdpiimwrap_pmem_read_TOP____024unit(vlSelfRef.minirv__DOT__pc, vlSelfRef.__Vfunc_pmem_read__3__Vfuncout);
     vlSelfRef.minirv__DOT__inst = vlSelfRef.__Vfunc_pmem_read__3__Vfuncout;
@@ -653,13 +644,15 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                     == 
                                                     (0x00000fffU 
                                                      & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))
-                                                    ? vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle
+                                                    ? (IData)(vlSelfRef.minirv__DOT__my_CSR__DOT__mc)
                                                     : 
                                                    ((0x0b80U 
                                                      == 
                                                      (0x00000fffU 
                                                       & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))
-                                                     ? vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh
+                                                     ? (IData)(
+                                                               (vlSelfRef.minirv__DOT__my_CSR__DOT__mc 
+                                                                >> 0x00000020U))
                                                      : 
                                                     ((0x0300U 
                                                       == 

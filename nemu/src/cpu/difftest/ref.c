@@ -30,9 +30,7 @@ __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction)
 
 __EXPORT void difftest_regcpy(void *dut, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
-    printf("1 cpu.mstatus: 0x%08x\n", cpu.mstatus);
     memcpy(&cpu, dut, DIFFTEST_REG_SIZE);
-    printf("2 cpu.mstatus: 0x%08x\n", cpu.mstatus);
   } else {
     memcpy(dut, &cpu, DIFFTEST_REG_SIZE);
   }

@@ -529,13 +529,15 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                     == 
                                                     (0x00000fffU 
                                                      & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))
-                                                    ? vlSelfRef.minirv__DOT__my_CSR__DOT__mcycle
+                                                    ? (IData)(vlSelfRef.minirv__DOT__my_CSR__DOT__mc)
                                                     : 
                                                    ((0x0b80U 
                                                      == 
                                                      (0x00000fffU 
                                                       & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))
-                                                     ? vlSelfRef.minirv__DOT__my_CSR__DOT__mcycleh
+                                                     ? (IData)(
+                                                               (vlSelfRef.minirv__DOT__my_CSR__DOT__mc 
+                                                                >> 0x00000020U))
                                                      : 
                                                     ((0x0300U 
                                                       == 
@@ -1058,12 +1060,11 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->minirv__DOT__my_EXU__DOT__result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1961965708107912446ull);
     vlSelf->minirv__DOT__my_LSU__DOT__rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12886092568970533673ull);
     vlSelf->minirv__DOT__my_LSU__DOT__data_s = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3689245023193798853ull);
-    vlSelf->minirv__DOT__my_CSR__DOT__mcycle = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 4235127765007717710ull);
-    vlSelf->minirv__DOT__my_CSR__DOT__mcycleh = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1551260065919406377ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mstatus = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3028853897646203962ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mtvec = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17413039076710395707ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mepc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13893886579327575323ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mcause = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18342153677120041664ull);
+    vlSelf->minirv__DOT__my_CSR__DOT__mc = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 6865617224583036493ull);
     vlSelf->__Vfunc_pmem_read__3__Vfuncout = 0;
     vlSelf->__Vfunc_pmem_read__5__Vfuncout = 0;
     vlSelf->__Vtableidx1 = 0;

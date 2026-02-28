@@ -93,8 +93,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__result;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__rdata;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__data_s;
-        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mcycle;
-        IData/*31:0*/ minirv__DOT__my_CSR__DOT__mcycleh;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mstatus;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mtvec;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mepc;
@@ -102,6 +100,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         IData/*31:0*/ __Vfunc_pmem_read__3__Vfuncout;
         IData/*31:0*/ __Vfunc_pmem_read__5__Vfuncout;
         IData/*31:0*/ __VactIterCount;
+        QData/*63:0*/ minirv__DOT__my_CSR__DOT__mc;
         VlUnpacked<IData/*31:0*/, 32> minirv__DOT__R__DOT__rf;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;

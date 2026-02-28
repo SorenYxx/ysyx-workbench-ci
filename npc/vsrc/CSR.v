@@ -19,12 +19,12 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
   reg [31:0] mtvec;
   reg [31:0] mepc;
   reg [31:0] mcause;
+  reg [63:0] mc;
 
  // write
   always @(posedge clk, posedge rst) begin
     if (rst) begin
-      mcycle  <= 0;
-      mcycleh <= 0;
+      mc      <= 0;
       mstatus <= 0;
       mtvec   <= 0;
       mepc    <= 0;
@@ -32,10 +32,7 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
     end
 
     else begin
-      mcycle <= mcycle + 1;
-      if (mcycle == 0) begin
-        mcycleh <= mcycleh + 1;
-      end
+      mc <= mc + 1;
 
       if (csr_we) begin
         get_csr({20'b0, csr_addr}, csr_wdata); // for ref
@@ -79,4 +76,8 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
     end
 
   end
+
+  assign mcycle = mc[31:0];
+  assign mcycleh = mc[63:32];
+  
 endmodule
