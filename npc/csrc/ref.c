@@ -78,12 +78,6 @@ static void checkregs(CPU_state *ref, uint32_t pc) {
 }
 
 void check_difftest() {
-  if (top->cur_pc == 0x80017270) {
-    printf("BRANCH DEBUG: a4 = 0x%08x, a0 = 0x%08x\n", cpu_n.gpr[14], cpu_n.gpr[10]);
-    // 同时也手动算一下
-    if (cpu_n.gpr[14] < cpu_n.gpr[10]) printf("DUT should JUMP\n");
-    else printf("DUT should NOT JUMP\n");
-}
   CPU_state ref_regs;// use to check
 
   if (is_skip_ref) {
