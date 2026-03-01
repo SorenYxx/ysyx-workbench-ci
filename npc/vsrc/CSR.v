@@ -36,8 +36,8 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
 
       if (j_type == 2'b10) begin // ecall
         mepc <= pc;
-        get_csr({20'b0, 12'h341}, pc); // for ref
         mcause <= 32'd11; // M-mode
+        get_csr({20'b0, 12'h341}, pc); // for ref
         get_csr({20'b0, 12'h342}, 32'd11); // for ref
       end
 

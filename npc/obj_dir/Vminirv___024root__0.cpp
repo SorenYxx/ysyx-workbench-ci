@@ -883,7 +883,8 @@ void Vminirv___024root___nba_comb__TOP__0(Vminirv___024root* vlSelf) {
                                                  ((1U 
                                                    & (IData)(vlSelfRef.minirv__DOT__b_type))
                                                    ? 
-                                                  (VL_LTES_III(32, 0U, vlSelfRef.minirv__DOT__my_EXU__DOT__result)
+                                                  ((vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 
+                                                    >= vlSelfRef.minirv__DOT__my_EXU__DOT__rs2)
                                                     ? 
                                                    (vlSelfRef.minirv__DOT__pc 
                                                     + vlSelfRef.minirv__DOT__my_IDU__DOT__imm)

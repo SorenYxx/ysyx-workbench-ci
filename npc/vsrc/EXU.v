@@ -28,7 +28,7 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, 
           3'd2: res = ($signed(rs1) < $signed(rs2)) ? pc + imm : dnpc ;
           3'd3: res = ($signed(rs1) >= $signed(rs2)) ? pc + imm : dnpc ;
           3'd4: res = (rs1 < rs2) ? pc + imm : dnpc ;
-          3'd5: res = ($signed(result) >= 0) ? pc + imm : dnpc ;
+          3'd5: res = ($unsigned(rs1) >= $unsigned(rs2)) ? pc + imm : dnpc ;
           default: res = result;
         endcase
       end
@@ -42,9 +42,18 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, 
       4'd9: res  = rs1 ^ rs2;
       4'd10: res = rs1 & rs2;
       4'd11: res = rs1 | rs2;
-      4'd12: res = rs1; // csrrw
-      4'd13: res = rs1 | csr_result; // csrrs
-      4'd14: res = csr_result; // ecall || mret
+      4'd12: begin
+        res = rs1; // csrrw
+        // $display("csr write: csr_addr = 0x%h, csr_wdata = 0x%h", imm[11:0], rs1);
+      end
+      4'd13: begin
+        res = rs1 | csr_result; // csrrs
+        // $display("csr read: csr_addr = 0x%h, csr_wdata = 0x%h", csr_result, res);
+      end
+      4'd14: begin
+        // $display("ecall or mret: csr_result = 0x%h", csr_result);
+        res = csr_result; // ecall || mret
+      end
       default: res = 0;
     endcase
   end
