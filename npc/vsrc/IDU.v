@@ -118,7 +118,7 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we,
         (csrrw || csrrs || csrrc) ? 2'b10 : // csr
   		  (jal || jalr) ? 2'b11 : // pc + 4
         2'b00; // ALU
-  assign alu_op = (add || addi || ld_type || (j_type != 2'b00)) ? 4'd0 : 
+  assign alu_op = (add || addi || ld_type || (j_type == 2'b01)) ? 4'd0 : 
   		  (sub || inst_B) ? 4'd1 :
   		  (lui) ? 4'd2 :
   		  (sll || slli) ? 4'd3 :

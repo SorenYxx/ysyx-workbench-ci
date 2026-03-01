@@ -307,7 +307,7 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
     bufp->fullIData(oldp+32,(vlSelfRef.minirv__DOT__R__DOT__rf[31]),32);
     bufp->fullIData(oldp+33,(vlSelfRef.minirv__DOT__inst),32);
     bufp->fullIData(oldp+34,(vlSelfRef.minirv__DOT__my_IDU__DOT__imm),32);
-    bufp->fullIData(oldp+35,(vlSelfRef.minirv__DOT__csr_result),32);
+    bufp->fullIData(oldp+35,(vlSelfRef.minirv__DOT__my_CSR__DOT__csr_rdata),32);
     bufp->fullCData(oldp+36,((0x0000001fU & (vlSelfRef.minirv__DOT__inst 
                                              >> 0x0000000fU))),5);
     bufp->fullCData(oldp+37,((0x0000001fU & (vlSelfRef.minirv__DOT__inst 

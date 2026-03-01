@@ -80,12 +80,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         VL_OUT(cur_inst,31,0);
         IData/*31:0*/ minirv__DOT__inst;
         IData/*31:0*/ minirv__DOT__alu_result;
-        IData/*31:0*/ minirv__DOT__csr_result;
         IData/*31:0*/ minirv__DOT__pc;
         IData/*31:0*/ minirv__DOT__n_pc;
+        IData/*31:0*/ minirv__DOT__R__DOT__wdata;
     };
     struct {
-        IData/*31:0*/ minirv__DOT__R__DOT__wdata;
         IData/*31:0*/ minirv__DOT__R__DOT__rdata2;
         IData/*31:0*/ minirv__DOT__my_IDU__DOT__imm;
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__rs1;
@@ -93,6 +92,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__result;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__rdata;
         IData/*31:0*/ minirv__DOT__my_LSU__DOT__data_s;
+        IData/*31:0*/ minirv__DOT__my_CSR__DOT__csr_rdata;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mstatus;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mtvec;
         IData/*31:0*/ minirv__DOT__my_CSR__DOT__mepc;

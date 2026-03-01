@@ -34,7 +34,14 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
     else begin
       mc <= mc + 1;
 
-      if (csr_we) begin
+      if (j_type == 2'b10) begin // ecall
+        mepc <= pc;
+        get_csr({20'b0, 12'h341}, pc); // for ref
+        mcause <= 32'd11; // M-mode
+        get_csr({20'b0, 12'h342}, 32'd11); // for ref
+      end
+
+      else if (csr_we) begin
         get_csr({20'b0, csr_addr}, csr_wdata); // for ref
         case(csr_addr)
           12'h300: mstatus <= csr_wdata;
@@ -45,11 +52,6 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
         endcase
       end
 
-      if (j_type == 2'b10) begin // ecall
-        mepc <= pc;
-        mcause <= 32'd11; // M-mode
-      end
-
     end
   end
 
@@ -57,10 +59,10 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we);
   always @(*) begin
     if (j_type == 2'b10) begin // ecall
       csr_rdata = mtvec;
-      $display("--------ecall: mtvec = 0x%h", mtvec);
+      // $display("--------ecall: mtvec = 0x%h", mtvec);
     end else if (j_type == 2'b11) begin // mret
-      csr_rdata = mepc + 4;
-      $display("--------mret: mepc = 0x%h", mepc);
+      csr_rdata = mepc;
+      // $display("--------mret: mepc = 0x%h", mepc);
     end else begin
       case(csr_addr)
         12'hf11: csr_rdata = mvendorid;
