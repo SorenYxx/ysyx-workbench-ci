@@ -43,7 +43,7 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we, out_mep
         get_csr({20'b0, 12'h342}, 32'd11); // for ref
       end
 
-      else if (csr_we) begin
+      else if (csr_we && j_type == 2'b00) begin
         get_csr({20'b0, csr_addr}, csr_wdata); // for ref
         case(csr_addr)
           12'h300: mstatus <= csr_wdata;
@@ -59,13 +59,6 @@ module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we, out_mep
 
   // read
   always @(*) begin
-    // if (j_type == 2'b10) begin // ecall
-    //   csr_rdata = mtvec;
-    //   // $display("--------ecall: mtvec = 0x%h", mtvec);
-    // end else if (j_type == 2'b11) begin // mret
-    //   csr_rdata = mepc;
-    //   // $display("--------mret: mepc = 0x%h", mepc);
-    // end else begin
       case(csr_addr)
         12'hf11: csr_rdata = mvendorid;
         12'hf12: csr_rdata = marchid;

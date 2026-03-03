@@ -18,10 +18,13 @@ int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
   if (addr == RTC_ADDR) { 
+    if (diff) difftest_skip_ref();
     if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", (uint32_t)get_host_time(), addr);
     return (uint32_t)get_host_time(); 
   }
+  
   if (addr == RTC_ADDR + 4) {
+    if (diff) difftest_skip_ref();
     if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", (uint32_t)(get_host_time() >> 32), addr);
     return (uint32_t)(get_host_time() >> 32);
   }

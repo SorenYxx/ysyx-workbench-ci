@@ -1,10 +1,11 @@
-module WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, reg_w, waddr, wdata, n_pc);
+module WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, mepc, mtvec, reg_w, waddr, wdata, n_pc);
   input [31:0] pc;
   input [4:0] rd;
   input [1:0] rf_res;
   input [1:0] j_type;
   input [2:0] b_type;
   input [31:0] alu_result, mem_result, csr_result;
+  input [31:0] mepc, mtvec;
   input reg_w;
   
   output reg [4:0] waddr;
@@ -27,8 +28,15 @@ module WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, r
       waddr = 0;
       wdata = 0;
     end
+
+    if (j_type == 2'b10) n_pc = mtvec; // ecall
+    else if (j_type == 2'b11) begin
+      n_pc = mepc; // mret
+      // $display("mret: mepc = 0x%h", mepc);
+    end
+    else n_pc = (j_type != 2'b00 || b_type != 3'd6) ? alu_result : pc + 4;
     
   end
 
-  assign n_pc = ((j_type != 2'b00) || (b_type != 3'd6)) ? alu_result : pc + 4;
+  // assign n_pc = ((j_type != 2'b00) || (b_type != 3'd6)) ? alu_result : pc + 4;
 endmodule

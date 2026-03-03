@@ -620,15 +620,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                                : 
                                                               ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csrrs)
                                                                 ? 0x0dU
-                                                                : 
-                                                               ((0x00000073U 
-                                                                 == vlSelfRef.minirv__DOT__inst)
-                                                                 ? 0x0eU
-                                                                 : 
-                                                                ((0x30200073U 
-                                                                  == vlSelfRef.minirv__DOT__inst)
-                                                                  ? 0x0fU
-                                                                  : 0U))))))))))))))));
+                                                                : 0U))))))))))))));
     vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 = (((0x6fU 
                                                  == 
                                                  (0x0000007fU 
@@ -671,11 +663,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         vlSelfRef.minirv__DOT__alu_result = ((4U & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))
                                               ? ((2U 
                                                   & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))
-                                                  ? 
-                                                 ((1U 
-                                                   & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))
-                                                   ? vlSelfRef.minirv__DOT__my_CSR__DOT__mepc
-                                                   : vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec)
+                                                  ? 0U
                                                   : 
                                                  ((1U 
                                                    & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op))
@@ -805,11 +793,15 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         vlSelfRef.minirv__DOT__alu_result = (vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 
                                              + vlSelfRef.minirv__DOT__my_EXU__DOT__rs2);
     }
-    vlSelfRef.minirv__DOT__n_pc = (((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
-                                    | (6U != (IData)(vlSelfRef.minirv__DOT__b_type)))
-                                    ? vlSelfRef.minirv__DOT__alu_result
-                                    : ((IData)(4U) 
-                                       + vlSelfRef.minirv__DOT__pc));
+    vlSelfRef.minirv__DOT__n_pc = ((2U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
+                                    ? vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec
+                                    : ((3U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
+                                        ? vlSelfRef.minirv__DOT__my_CSR__DOT__mepc
+                                        : (((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
+                                            | (6U != (IData)(vlSelfRef.minirv__DOT__b_type)))
+                                            ? vlSelfRef.minirv__DOT__alu_result
+                                            : ((IData)(4U) 
+                                               + vlSelfRef.minirv__DOT__pc))));
     vlSelfRef.minirv__DOT__R__DOT__waddr = ((IData)(vlSelfRef.minirv__DOT__R__DOT__wen)
                                              ? (0x0000001fU 
                                                 & (vlSelfRef.minirv__DOT__inst 

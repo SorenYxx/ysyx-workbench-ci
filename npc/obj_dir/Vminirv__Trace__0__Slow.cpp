@@ -97,8 +97,6 @@ VL_ATTR_COLD void Vminirv___024root__trace_init_sub__TOP__0(Vminirv___024root* v
     tracep->declBus(c+122,0,"src2",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+34,0,"imm",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+35,0,"csr_result",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
-    tracep->declBus(c+37,0,"mtvec",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
-    tracep->declBus(c+36,0,"mepc",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+123,0,"res",-1, VerilatedTraceSigDirection::OUTPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+125,0,"rs1",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+126,0,"rs2",-1, VerilatedTraceSigDirection::NONE, VerilatedTraceSigKind::VAR, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
@@ -209,6 +207,8 @@ VL_ATTR_COLD void Vminirv___024root__trace_init_sub__TOP__0(Vminirv___024root* v
     tracep->declBus(c+123,0,"alu_result",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+135,0,"mem_result",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBus(c+35,0,"csr_result",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
+    tracep->declBus(c+36,0,"mepc",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
+    tracep->declBus(c+37,0,"mtvec",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
     tracep->declBit(c+47,0,"reg_w",-1, VerilatedTraceSigDirection::INPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1);
     tracep->declBus(c+41,0,"waddr",-1, VerilatedTraceSigDirection::OUTPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 4,0);
     tracep->declBus(c+124,0,"wdata",-1, VerilatedTraceSigDirection::OUTPUT, VerilatedTraceSigKind::WIRE, VerilatedTraceSigType::LOGIC, false,-1, 31,0);
@@ -555,10 +555,15 @@ VL_ATTR_COLD void Vminirv___024root__trace_full_0_sub_0(Vminirv___024root* vlSel
                                            | (0x000000ffU 
                                               & vlSelfRef.minirv__DOT__my_LSU__DOT__data_s))
                                         : vlSelfRef.minirv__DOT__my_LSU__DOT__data_s)))),32);
-    bufp->fullIData(oldp+136,((((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
-                                | (6U != (IData)(vlSelfRef.minirv__DOT__b_type)))
-                                ? vlSelfRef.minirv__DOT__alu_result
-                                : ((IData)(4U) + vlSelfRef.minirv__DOT__pc))),32);
+    bufp->fullIData(oldp+136,(((2U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
+                                ? vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec
+                                : ((3U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
+                                    ? vlSelfRef.minirv__DOT__my_CSR__DOT__mepc
+                                    : (((0U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type)) 
+                                        | (6U != (IData)(vlSelfRef.minirv__DOT__b_type)))
+                                        ? vlSelfRef.minirv__DOT__alu_result
+                                        : ((IData)(4U) 
+                                           + vlSelfRef.minirv__DOT__pc))))),32);
     bufp->fullIData(oldp+137,(((0U == ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sw)
                                         ? 0U : ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sb)
                                                  ? 1U

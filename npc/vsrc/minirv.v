@@ -34,11 +34,11 @@ module minirv(
   
   IDU my_IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we, alu_arc1, alu_arc2, j_type, b_type, ebreak_type);
   
-  EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, csr_result, out_mtvec, out_mepc, alu_result);
+  EXU my_EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, rdata1, rdata2, imm, csr_result, alu_result);
   
   LSU my_LSU(clk, mem_w, mem_r, alu_result, rdata2, mem_result);
   
-  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, reg_w, waddr, wdata, n_pc);
+  WBU my_WBU(pc, rd, rf_res, j_type, b_type, alu_result, mem_result, csr_result, out_mepc, out_mtvec, reg_w, waddr, wdata, n_pc);
   
   CSR my_CSR(clk, rst, j_type, imm[11:0], alu_result, csr_result, pc, csr_we, out_mepc, out_mtvec);
 
