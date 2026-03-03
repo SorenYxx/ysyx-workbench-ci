@@ -132,7 +132,8 @@ module IDU(inst, imm, rs1, rs2, rd, reg_w, mem_w, mem_r, rf_res, alu_op, csr_we,
         (r_or || ori) ? 4'd11 :
         (csrrw) ? 4'd12 :
         (csrrs) ? 4'd13 :
-        (ecall || mret) ? 4'd14 :
+        (ecall) ? 4'd14 :
+        (mret) ? 4'd15 :
         4'd0;
 
   assign alu_arc1 = (jal || auipc);// 0: src1; 1: pc

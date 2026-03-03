@@ -71,7 +71,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12;
         CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13;
-        CData/*0:0*/ minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_14;
         CData/*5:0*/ __Vtableidx1;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clk__0;
@@ -83,9 +82,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vminirv___024root final {
         IData/*31:0*/ minirv__DOT__pc;
         IData/*31:0*/ minirv__DOT__n_pc;
         IData/*31:0*/ minirv__DOT__R__DOT__wdata;
+        IData/*31:0*/ minirv__DOT__R__DOT__rdata2;
     };
     struct {
-        IData/*31:0*/ minirv__DOT__R__DOT__rdata2;
         IData/*31:0*/ minirv__DOT__my_IDU__DOT__imm;
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__rs1;
         IData/*31:0*/ minirv__DOT__my_EXU__DOT__rs2;

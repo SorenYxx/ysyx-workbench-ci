@@ -1,10 +1,12 @@
-module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, res);
+module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, mtvec, mepc, res);
   input [31:0] pc;
   input [3:0] alu_op;
   input [2:0] b_type;
   input alu_arc1, alu_arc2;
   input [31:0] src1, src2, imm;
   input [31:0] csr_result;
+  input [31:0] mtvec;
+  input [31:0] mepc;
 
   output reg [31:0] res;
   
@@ -50,10 +52,8 @@ module EXU(pc, alu_op, b_type, alu_arc1, alu_arc2, src1, src2, imm, csr_result, 
         res = rs1 | csr_result; // csrrs
         // $display("csr read: csr_addr = 0x%h, csr_wdata = 0x%h", csr_result, res);
       end
-      4'd14: begin
-        // $display("ecall or mret: csr_result = 0x%h", csr_result);
-        res = csr_result; // ecall || mret
-      end
+      4'd14: res = mtvec; // ecall
+      4'd15: res = mepc; // mret
       default: res = 0;
     endcase
   end
