@@ -1095,7 +1095,7 @@ void Vminirv___024root___eval(Vminirv___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vminirv___024root___dump_triggers__act(vlSelfRef.__VnbaTriggered, "nba"s);
 #endif
-            VL_FATAL_MT("vsrc/minirv.v", 4, "", "NBA region did not converge after 100 tries");
+            VL_FATAL_MT("vsrc/minirv.v", 8, "", "NBA region did not converge after 100 tries");
         }
         __VnbaIterCount = ((IData)(1U) + __VnbaIterCount);
         vlSelfRef.__VactIterCount = 0U;
@@ -1104,7 +1104,7 @@ void Vminirv___024root___eval(Vminirv___024root* vlSelf) {
 #ifdef VL_DEBUG
                 Vminirv___024root___dump_triggers__act(vlSelfRef.__VactTriggered, "act"s);
 #endif
-                VL_FATAL_MT("vsrc/minirv.v", 4, "", "Active region did not converge after 100 tries");
+                VL_FATAL_MT("vsrc/minirv.v", 8, "", "Active region did not converge after 100 tries");
             }
             vlSelfRef.__VactIterCount = ((IData)(1U) 
                                          + vlSelfRef.__VactIterCount);

@@ -44,7 +44,7 @@ VL_ATTR_COLD void Vminirv___024root___eval_settle(Vminirv___024root* vlSelf) {
 #ifdef VL_DEBUG
             Vminirv___024root___dump_triggers__stl(vlSelfRef.__VstlTriggered, "stl"s);
 #endif
-            VL_FATAL_MT("vsrc/minirv.v", 4, "", "Settle region did not converge after 100 tries");
+            VL_FATAL_MT("vsrc/minirv.v", 8, "", "Settle region did not converge after 100 tries");
         }
         __VstlIterCount = ((IData)(1U) + __VstlIterCount);
     } while (Vminirv___024root___eval_phase__stl(vlSelf));

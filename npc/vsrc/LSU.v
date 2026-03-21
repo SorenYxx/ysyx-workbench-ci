@@ -1,5 +1,3 @@
-import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
-  
 module LSU(clk, mem_w, mem_r, addr, wdata, out_data);
   input clk;
   input [1:0] mem_w;

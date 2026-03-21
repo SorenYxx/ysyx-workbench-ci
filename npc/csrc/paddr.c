@@ -11,7 +11,7 @@ static uint64_t get_host_time() {
   struct timeval tv;
   gettimeofday(&tv, NULL);
  
-  return (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+  return (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
 }
 
 int pmem_read(int raddr) {
@@ -19,20 +19,23 @@ int pmem_read(int raddr) {
 
   if (addr == RTC_ADDR) { 
     if (diff) difftest_skip_ref();
-    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", (uint32_t)get_host_time(), addr);
-    return (uint32_t)get_host_time(); 
+    uint32_t time_val = (uint32_t)get_host_time();
+    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+    return time_val; 
   }
   
   if (addr == RTC_ADDR + 4) {
     if (diff) difftest_skip_ref();
-    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", (uint32_t)(get_host_time() >> 32), addr);
-    return (uint32_t)(get_host_time() >> 32);
+    uint32_t time_val = (uint32_t)(get_host_time() >> 32);
+    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+    return time_val;
   }
 
   if (addr < ADDR || addr >= 0x88000000) return 0;
 
-  if (g_enable_mtrace) printf("read          0x%08x from 0x%08x\n", pmem_read(addr), addr);
-  return *(int *)(guest_to_host(addr)); //change to int* then get the uint32_t addr
+  int value = *(int *)(guest_to_host(addr));
+  if (g_enable_mtrace) printf("read          0x%08x from 0x%08x\n", value, addr);
+  return value;
 }
 
 void pmem_write(int waddr, int wdata, char wmask) {
@@ -40,6 +43,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
 
   if (addr == SERIAL_PORT) {
     putchar(wdata);
+    fflush(stdout);
     if (diff) difftest_skip_ref();
     if (g_enable_mtrace) printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
   }

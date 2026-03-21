@@ -1,5 +1,3 @@
-import "DPI-C" function void get_csr(input int csr, input int data);
-
 module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we, out_mepc, out_mtvec);
   input clk;
   input rst;

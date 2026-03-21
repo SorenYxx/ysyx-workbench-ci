@@ -1,5 +1,9 @@
 import "DPI-C" function void ebreak();
 import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
+import "DPI-C" function int pmem_read(input int raddr);
+import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void get_reg(input int waddr, input int r);
+import "DPI-C" function void get_csr(input int csr, input int data);
 
 module minirv(
   input clk,

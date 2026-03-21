@@ -20,15 +20,15 @@ extern "C" {
     extern void ebreak();
     // DPI import at vsrc/minirv.v:2:30
     extern void ftrace_print(int pc, int target, int rd, int rs1);
-    // DPI import at vsrc/CSR.v:1:30
+    // DPI import at vsrc/minirv.v:6:30
     extern void get_csr(int csr, int data);
-    // DPI import at vsrc/GPR.v:1:30
+    // DPI import at vsrc/minirv.v:5:30
     extern void get_reg(int waddr, int r);
     // DPI import at vsrc/IDU.v:1:30
     extern void is_illegal_inst();
-    // DPI import at vsrc/IFU.v:1:29
+    // DPI import at vsrc/minirv.v:3:29
     extern int pmem_read(int raddr);
-    // DPI import at vsrc/LSU.v:1:30
+    // DPI import at vsrc/minirv.v:4:30
     extern void pmem_write(int waddr, int wdata, char wmask);
 
 #ifdef __cplusplus

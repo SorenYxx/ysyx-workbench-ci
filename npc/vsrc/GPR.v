@@ -1,5 +1,3 @@
-import "DPI-C" function void get_reg(input int waddr, input int r);
-
 module GPR #(parameter ADDR_WIDTH = 5,parameter DATA_WIDTH = 32) (
   input  clk,
 
