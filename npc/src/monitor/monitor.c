@@ -7,49 +7,31 @@
 uint32_t mvendorid = 0x79737978; // "ysyx"
 uint32_t marchid   = 0x26010027; // "26010027"
 
-// ftrace
 static char *elf_file = NULL;
 
-// difftest
-static char *diff_so_file = NULL;
-bool diff = false;
-
-// trace
-bool g_enable_itrace = false;
-bool g_enable_mtrace = false;
-bool g_enable_ftrace = false;
-bool g_enable_etrace = false;
-
 void init_ftrace(const char *elf_sile);
-
-// batch
 void sdb_set_batch_mode();
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
-    {"batch" , no_argument      , NULL, 'b'},
-    {"itrace", no_argument      , NULL, 'i'},
-    {"mtrace", no_argument      , NULL, 'm'},
-    {"ftrace", no_argument      , NULL, 'f'},
-    {"etrace", no_argument      , NULL, 'x'},
-    {"diff"  , required_argument, NULL, 'd'},
     {"elf"   , required_argument, NULL, 'e'},
+    {"help"  , no_argument      , NULL, 'h'},
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-bimfxd:e:", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-e:h", table, NULL)) != -1) {
     switch (o) {
-      case 'b': sdb_set_batch_mode(); break;
-      case 'i': g_enable_itrace = true; break;
-      case 'm': g_enable_mtrace = true; break;
-      case 'f': g_enable_ftrace = true; break;
-      case 'x': g_enable_etrace = true; break;
-      case 'd': diff_so_file = optarg; if (diff_so_file) diff = true; break;
       case 'e': elf_file = optarg; break;
+      case 1:   break; // skip positional args (e.g. --img value consumed elsewhere)
+      case 'h':
+        printf("Usage: %s [OPTION...] --img IMAGE\n\n", argv[0]);
+        printf("\t-e,--elf=FILE           load ELF for function trace\n");
+        printf("\n");
+        exit(0);
       default: break;
     }
   }
-  return 0;  
+  return 0;
 }
 
 // img
@@ -68,7 +50,7 @@ static long load_img(const char *filename) {
   long size = ftell(fp);
 
   Log("The image is %s, size = %ld", filename, size);
-  
+
   fseek(fp, 0, SEEK_SET);
   int ret = fread(guest_to_host(0x80000000), size, 1, fp);
   assert(ret == 1);
@@ -91,7 +73,6 @@ static void init_img(int argc, char *argv[]) {
   }
 }
 
-// verilator and difftest
 static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
@@ -99,12 +80,11 @@ static void init_verilator(int argc, char *argv[]) {
   top->trace(tfp, 99);
   tfp->open("wave.fst");
 
-  top->rst = 1; top->clk = 0; 
+  top->rst = 1; top->clk = 0;
   top->eval(); top->clk = 1;
   top->eval(); top->rst = 0;
 }
 
-// CSRs
 static void init_csr() {
   cpu_n.mstatus = 0;
   cpu_n.mtvec   = 0;
@@ -112,7 +92,6 @@ static void init_csr() {
   cpu_n.mcause  = 0;
 }
 
-// welcome
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Build time: %s, %s", __TIME__, __DATE__);
@@ -124,17 +103,26 @@ void sim_init(int argc, char *argv[]) {
   /* Parse arguments. */
   parse_args(argc, argv);
 
-  /* Load the image to memory. This will overwrite the built-in image. */
+  /* Load the image to memory. */
   init_img(argc, argv);
-
-  /* Initialize ftrace */
-  if (g_enable_ftrace) init_ftrace(elf_file);
 
   /* Initialize CSRs */
   init_csr();
-  
+
+  /* Initialize batch mode */
+#ifdef CONFIG_BATCH_MODE
+  sdb_set_batch_mode();
+#endif
+
+  /* Initialize ftrace */
+#ifdef CONFIG_FTRACE
+  if (elf_file != NULL) init_ftrace(elf_file);
+#endif
+
   /* Initialize differential testing. */
-  if (diff) init_difftest(diff_so_file, img_size);
+#ifdef CONFIG_DIFFTEST
+  init_difftest(REF_SO_FILE, img_size);
+#endif
 
   /* Initialize the verilator */
   init_verilator(argc, argv);

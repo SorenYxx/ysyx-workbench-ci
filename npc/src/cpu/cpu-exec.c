@@ -46,7 +46,9 @@ void step_and_eval() {
 
   cpu_n.pc = top->cur_pc;
 
-  if (diff) check_difftest();
+#ifdef CONFIG_DIFFTEST
+  check_difftest();
+#endif
   check_watchpoints();
 }
 
@@ -64,7 +66,9 @@ void cpu_exec(uint64_t n) {
       npc_state.state = NPC_END;
       break;
     }
-    if (g_enable_itrace) itrace_record(top->cur_pc, top->cur_inst);
+#ifdef CONFIG_TRACE
+    itrace_record(top->cur_pc, top->cur_inst);
+#endif
     if (npc_state.state != NPC_RUNNING) break; 
   }
   if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;

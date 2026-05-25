@@ -422,32 +422,32 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                 & (0U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
-                                                    >> 0x19U)));
+                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srai = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0x20U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
-                                                    >> 0x19U)));
+                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__add = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sub = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srl = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sra = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type)
                                                    ? 1U
                                                    : 
@@ -953,10 +953,10 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
         vlSelf->minirv__DOT__R__DOT__rf[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6283656838191798135ull);
     }
     vlSelf->minirv__DOT__my_IDU__DOT__imm = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11613781066534815353ull);
-    vlSelf->minirv__DOT__my_IDU__DOT__mem_r = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 13445853517979993574ull);
     vlSelf->minirv__DOT__my_IDU__DOT__rf_res = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 493373362016603638ull);
     vlSelf->minirv__DOT__my_IDU__DOT__alu_op = VL_SCOPED_RAND_RESET_I(4, __VscopeHash, 1314578036340636476ull);
     vlSelf->minirv__DOT__my_IDU__DOT__csr_we = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14684481844139739690ull);
+    vlSelf->minirv__DOT__my_IDU__DOT__mem_r = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 13445853517979993574ull);
     vlSelf->minirv__DOT__my_IDU__DOT__j_type = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 11257576001370444710ull);
     vlSelf->minirv__DOT__my_IDU__DOT__inst_I = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14097101292123865992ull);
     vlSelf->minirv__DOT__my_IDU__DOT__inst_U = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16524922451214839081ull);

@@ -1,80 +1,74 @@
-module CSR(clk, rst, j_type, csr_addr, csr_wdata, csr_rdata, pc, csr_we, out_mepc, out_mtvec);
-  input clk;
-  input rst;
-  input [1:0] j_type;
-  input [11:0] csr_addr;
-  input [31:0] csr_wdata;
-  input [31:0] pc;
-  input csr_we;
+module CSR (
+    input             clk,
+    input             rst,
+    input      [ 1:0] j_type,
+    input      [11:0] csr_addr,
+    input      [31:0] csr_wdata,
+    input      [31:0] pc,
+    input             csr_we,
 
-  output reg [31:0] csr_rdata;
-  output [31:0] out_mepc;
-  output [31:0] out_mtvec;
+    output reg [31:0] csr_rdata,
+    output     [31:0] out_mepc,
+    output     [31:0] out_mtvec
+);
 
-  wire [31:0] mvendorid = 32'h79737978; // "ysyx"
-  wire [31:0] marchid = 32'h26010027; // "NO."
-  reg [31:0] mcycle;
-  reg [31:0] mcycleh;
-  reg [31:0] mstatus;
-  reg [31:0] mtvec;
-  reg [31:0] mepc;
-  reg [31:0] mcause;
-  reg [63:0] mc;
+    wire [31:0] mvendorid = 32'h79737978;  // "ysyx"
+    wire [31:0] marchid   = 32'h26010027;
 
- // write
-  always @(posedge clk, posedge rst) begin
-    if (rst) begin
-      mc      <= 0;
-      mstatus <= 0;
-      mtvec   <= 0;
-      mepc    <= 0;
-      mcause  <= 0;
+    reg [31:0] mstatus;
+    reg [31:0] mtvec;
+    reg [31:0] mepc;
+    reg [31:0] mcause;
+    reg [63:0] mc;
+
+    wire [31:0] mcycle  = mc[31:0];
+    wire [31:0] mcycleh = mc[63:32];
+
+    // Write
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            mc      <= 0;
+            mstatus <= 0;
+            mtvec   <= 0;
+            mepc    <= 0;
+            mcause  <= 0;
+        end else begin
+            mc <= mc + 1;
+
+            if (j_type == 2'b10) begin  // ecall
+                mepc   <= pc;
+                mcause <= 32'd11;  // M-mode
+                get_csr({20'b0, 12'h341}, pc);
+                get_csr({20'b0, 12'h342}, 32'd11);
+            end else if (csr_we && j_type == 2'b00) begin
+                get_csr({20'b0, csr_addr}, csr_wdata);
+                case (csr_addr)
+                    12'h300: mstatus <= csr_wdata;
+                    12'h305: mtvec   <= csr_wdata;
+                    12'h341: mepc    <= csr_wdata;
+                    12'h342: mcause  <= csr_wdata;
+                    default: ;
+                endcase
+            end
+        end
     end
 
-    else begin
-      mc <= mc + 1;
-
-      if (j_type == 2'b10) begin // ecall
-        mepc <= pc;
-        mcause <= 32'd11; // M-mode
-        get_csr({20'b0, 12'h341}, pc); // for ref
-        get_csr({20'b0, 12'h342}, 32'd11); // for ref
-      end
-
-      else if (csr_we && j_type == 2'b00) begin
-        get_csr({20'b0, csr_addr}, csr_wdata); // for ref
-        case(csr_addr)
-          12'h300: mstatus <= csr_wdata;
-          12'h305: mtvec   <= csr_wdata;
-          12'h341: mepc    <= csr_wdata;
-          12'h342: mcause  <= csr_wdata;
-          default: ;
+    // Read
+    always @(*) begin
+        case (csr_addr)
+            12'hf11: csr_rdata = mvendorid;
+            12'hf12: csr_rdata = marchid;
+            12'hB00: csr_rdata = mcycle;
+            12'hB80: csr_rdata = mcycleh;
+            12'h300: csr_rdata = mstatus;
+            12'h305: csr_rdata = mtvec;
+            12'h341: csr_rdata = mepc;
+            12'h342: csr_rdata = mcause;
+            default: csr_rdata = 0;
         endcase
-      end
-
     end
-  end
 
-  // read
-  always @(*) begin
-      case(csr_addr)
-        12'hf11: csr_rdata = mvendorid;
-        12'hf12: csr_rdata = marchid;
-        12'hB00: csr_rdata = mcycle;
-        12'hB80: csr_rdata = mcycleh;
-        12'h300: csr_rdata = mstatus;
-        12'h305: csr_rdata = mtvec;
-        12'h341: csr_rdata = mepc;
-        12'h342: csr_rdata = mcause;
-        default: csr_rdata = 0;
-      endcase
-    // end
+    assign out_mepc  = mepc;
+    assign out_mtvec = mtvec;
 
-  end
-
-  assign mcycle = mc[31:0];
-  assign mcycleh = mc[63:32];
-  assign out_mepc = mepc;
-  assign out_mtvec = mtvec;
-  
 endmodule

@@ -52,13 +52,7 @@ int is_exit_status_bad();
 extern VerilatedFstC* tfp;
 extern Vminirv* top;
 
-//com_para
 void itrace_record(int pc, int inst);
-extern bool g_enable_itrace;
-extern bool g_enable_mtrace;
-extern bool g_enable_ftrace;
-extern bool g_enable_etrace;
-extern bool diff;
 
 //exec
 void sim_init(int argc, char *argv[]);

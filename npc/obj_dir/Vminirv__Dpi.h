@@ -26,7 +26,7 @@ extern "C" {
     extern void get_reg(int waddr, int r);
     // DPI import at vsrc/IDU.v:1:30
     extern void is_illegal_inst();
-    // DPI import at vsrc/minirv.v:3:29
+    // DPI import at vsrc/minirv.v:3:30
     extern int pmem_read(int raddr);
     // DPI import at vsrc/minirv.v:4:30
     extern void pmem_write(int waddr, int wdata, char wmask);

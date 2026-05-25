@@ -95,18 +95,18 @@ void Vminirv___024root__trace_chg_0_sub_0(Vminirv___024root* vlSelf, VerilatedFs
         bufp->chgBit(oldp+51,((0x00100073U == vlSelfRef.minirv__DOT__inst)));
         bufp->chgIData(oldp+52,(vlSelfRef.minirv__DOT__pc),32);
         bufp->chgSData(oldp+53,((0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm)),12);
-        bufp->chgIData(oldp+54,((IData)(vlSelfRef.minirv__DOT__my_CSR__DOT__mc)),32);
-        bufp->chgIData(oldp+55,((IData)((vlSelfRef.minirv__DOT__my_CSR__DOT__mc 
+        bufp->chgIData(oldp+54,(vlSelfRef.minirv__DOT__my_CSR__DOT__mstatus),32);
+        bufp->chgIData(oldp+55,(vlSelfRef.minirv__DOT__my_CSR__DOT__mcause),32);
+        bufp->chgQData(oldp+56,(vlSelfRef.minirv__DOT__my_CSR__DOT__mc),64);
+        bufp->chgIData(oldp+58,((IData)(vlSelfRef.minirv__DOT__my_CSR__DOT__mc)),32);
+        bufp->chgIData(oldp+59,((IData)((vlSelfRef.minirv__DOT__my_CSR__DOT__mc 
                                          >> 0x00000020U))),32);
-        bufp->chgIData(oldp+56,(vlSelfRef.minirv__DOT__my_CSR__DOT__mstatus),32);
-        bufp->chgIData(oldp+57,(vlSelfRef.minirv__DOT__my_CSR__DOT__mcause),32);
-        bufp->chgQData(oldp+58,(vlSelfRef.minirv__DOT__my_CSR__DOT__mc),64);
         bufp->chgIData(oldp+60,(((IData)(4U) + vlSelfRef.minirv__DOT__pc)),32);
         bufp->chgCData(oldp+61,((0x0000007fU & vlSelfRef.minirv__DOT__inst)),7);
         bufp->chgCData(oldp+62,((7U & (vlSelfRef.minirv__DOT__inst 
-                                       >> 0x0cU))),3);
+                                       >> 0x0000000cU))),3);
         bufp->chgCData(oldp+63,((vlSelfRef.minirv__DOT__inst 
-                                 >> 0x19U)),7);
+                                 >> 0x00000019U)),7);
         bufp->chgBit(oldp+64,(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I));
         bufp->chgBit(oldp+65,(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_U));
         bufp->chgBit(oldp+66,((0x63U == (0x0000007fU 

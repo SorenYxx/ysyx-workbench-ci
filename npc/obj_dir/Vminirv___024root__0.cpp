@@ -547,32 +547,32 @@ void Vminirv___024root___nba_sequent__TOP__1(Vminirv___024root* vlSelf) {
                                                 & (0U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
-                                                    >> 0x19U)));
+                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srai = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0x20U 
                                                    == 
                                                    (vlSelfRef.minirv__DOT__inst 
-                                                    >> 0x19U)));
+                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__add = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sub = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srl = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sra = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0x20U 
                                                   == 
                                                   (vlSelfRef.minirv__DOT__inst 
-                                                   >> 0x19U)));
+                                                   >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type)
                                                    ? 1U
                                                    : 

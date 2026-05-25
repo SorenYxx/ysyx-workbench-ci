@@ -17,24 +17,34 @@ static uint64_t get_host_time() {
 int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
-  if (addr == RTC_ADDR) { 
-    if (diff) difftest_skip_ref();
+  if (addr == RTC_ADDR) {
+#ifdef CONFIG_DIFFTEST
+    difftest_skip_ref();
+#endif
     uint32_t time_val = (uint32_t)get_host_time();
-    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
-    return time_val; 
+#ifdef CONFIG_MTRACE
+    printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+#endif
+    return time_val;
   }
-  
+
   if (addr == RTC_ADDR + 4) {
-    if (diff) difftest_skip_ref();
+#ifdef CONFIG_DIFFTEST
+    difftest_skip_ref();
+#endif
     uint32_t time_val = (uint32_t)(get_host_time() >> 32);
-    if (g_enable_mtrace) printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+#ifdef CONFIG_MTRACE
+    printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+#endif
     return time_val;
   }
 
   if (addr < ADDR || addr >= 0x88000000) return 0;
 
   int value = *(int *)(guest_to_host(addr));
-  if (g_enable_mtrace) printf("read          0x%08x from 0x%08x\n", value, addr);
+#ifdef CONFIG_MTRACE
+  printf("read          0x%08x from 0x%08x\n", value, addr);
+#endif
   return value;
 }
 
@@ -44,8 +54,12 @@ void pmem_write(int waddr, int wdata, char wmask) {
   if (addr == SERIAL_PORT) {
     putchar(wdata);
     fflush(stdout);
-    if (diff) difftest_skip_ref();
-    if (g_enable_mtrace) printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
+#ifdef CONFIG_DIFFTEST
+    difftest_skip_ref();
+#endif
+#ifdef CONFIG_MTRACE
+    printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
+#endif
   }
 
   if (addr < ADDR || addr >= 0x88000000) return;
@@ -54,5 +68,7 @@ void pmem_write(int waddr, int wdata, char wmask) {
   for (int i = 0; i < 4; i++) {
     if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
   }
-  if (g_enable_mtrace) printf("write         0x%08x to   0x%08x\n", wdata, addr);
+#ifdef CONFIG_MTRACE
+  printf("write         0x%08x to   0x%08x\n", wdata, addr);
+#endif
 }
