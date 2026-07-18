@@ -106,6 +106,15 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     // Body
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
     vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__ifu_rdata;
+    vlSelfRef.minirv__DOT__R__DOT__rdata2 = ((0U == 
+                                              (0x0000001fU 
+                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  >> 0x00000014U)))
+                                              ? 0U : 
+                                             vlSelfRef.minirv__DOT__R__DOT__rf
+                                             [(0x0000001fU 
+                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  >> 0x00000014U))]);
     vlSelfRef.minirv__DOT__my_IDU__DOT__sw = (IData)(
                                                      (0x00002023U 
                                                       == 
@@ -121,15 +130,6 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                       == 
                                                       (0x0000707fU 
                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
-    vlSelfRef.minirv__DOT__R__DOT__rdata2 = ((0U == 
-                                              (0x0000001fU 
-                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                  >> 0x00000014U)))
-                                              ? 0U : 
-                                             vlSelfRef.minirv__DOT__R__DOT__rf
-                                             [(0x0000001fU 
-                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                  >> 0x00000014U))]);
     vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13 
         = ((0x6fU == (0x0000007fU & vlSelfRef.minirv__DOT__ifu_rdata)) 
            | (0x67U == (0x0000007fU & vlSelfRef.minirv__DOT__ifu_rdata)));
@@ -313,7 +313,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                      == vlSelfRef.minirv__DOT__ifu_rdata)
                                                      ? 3U
                                                      : 0U)));
-    vlSelfRef.__Vtableidx1 = ((((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu) 
+    vlSelfRef.__Vtableidx2 = ((((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu) 
                                 << 5U) | (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bltu) 
                                            << 4U) | 
                                           ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bge) 
@@ -323,7 +323,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                              << 1U) 
                                             | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bne))));
     vlSelfRef.minirv__DOT__b_type = Vminirv__ConstPool__TABLE_h02dc8855_0
-        [vlSelfRef.__Vtableidx1];
+        [vlSelfRef.__Vtableidx2];
     vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csrrw) 
                                                   | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csrrs) 
                                                      | (IData)(
@@ -457,6 +457,10 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_wen 
         = ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
            & (3U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w)));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_reqValid 
+        = ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
+           & ((3U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w)) 
+              | (5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lsu_stall = 
         ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
          & ((5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r)) 
@@ -955,6 +959,9 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->rst = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18209466448985614591ull);
     vlSelf->cur_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14920093658057763058ull);
     vlSelf->cur_inst = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5584302711918894221ull);
+    vlSelf->minirv__DOT__ifu_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14061333626106992693ull);
+    vlSelf->minirv__DOT__ifu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11771757366744761206ull);
+    vlSelf->minirv__DOT__lsu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 749349366826619989ull);
     vlSelf->minirv__DOT__ifu_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3846681039024878433ull);
     vlSelf->minirv__DOT__pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13130012410628472097ull);
     vlSelf->minirv__DOT__n_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3796541715291209964ull);
@@ -969,6 +976,7 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
         vlSelf->minirv__DOT__R__DOT__rf[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6283656838191798135ull);
     }
     vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_wen = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5787824507785177049ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3041066451275562828ull);
     vlSelf->minirv__DOT__my_IFU__DOT__state = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 9873836437827919515ull);
     vlSelf->minirv__DOT__my_IDU__DOT__lsu_stall = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7784486428190836292ull);
     vlSelf->minirv__DOT__my_IDU__DOT__imm = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11613781066534815353ull);
@@ -1031,7 +1039,7 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->minirv__DOT__my_CSR__DOT__mepc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13893886579327575323ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mcause = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18342153677120041664ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mc = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 6865617224583036493ull);
-    vlSelf->__Vtableidx1 = 0;
+    vlSelf->__Vtableidx2 = 0;
     vlSelf->__Vdly__minirv__DOT__my_IFU__DOT__state = 0;
     vlSelf->__Vdly__minirv__DOT__pc = 0;
     vlSelf->__Vdly__minirv__DOT__my_CSR__DOT__mc = 0;

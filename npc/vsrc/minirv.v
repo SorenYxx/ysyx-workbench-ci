@@ -13,6 +13,11 @@ module minirv (
     output [31:0] cur_inst
 );
 
+    wire        ifu_reqValid;
+    wire        ifu_respValid;
+    wire        lsu_reqValid;
+    wire        lsu_respValid;
+
     wire [31:0] ifu_rdata, ifu_raddr;
     wire [31:0] inst;
     wire [31:0] pc, n_pc;
@@ -56,17 +61,24 @@ module minirv (
 
         .ifu_raddr(ifu_raddr),
         .ifu_rdata(ifu_rdata),
+        .ifu_reqValid(ifu_reqValid),
+        .ifu_respValid(ifu_respValid),
 
         .lsu_rdata(lsu_rdata),
         .lsu_addr (lsu_addr),
         .lsu_wen  (lsu_wen),
         .lsu_wdata(lsu_wdata),
-        .lsu_wmask(lsu_wmask)
+        .lsu_wmask(lsu_wmask),
+        .lsu_reqValid(lsu_reqValid),
+        .lsu_respValid(lsu_respValid)
+
     );
 
     IFU my_IFU (
         .ifu_rdata(ifu_rdata),
         .ifu_raddr(ifu_raddr),
+        .ifu_respValid(ifu_respValid),
+        .ifu_reqValid(ifu_reqValid),
 
         .clk      (clk),
         .rst      (rst),
@@ -113,23 +125,25 @@ module minirv (
     );
 
     LSU my_LSU (
-        .clk      (clk),
-        .rst      (rst),
-        .mem_w    (mem_w),
-        .mem_r    (mem_r),
-        .addr     (alu_result),
-        .wdata    (rdata2),
+        .clk          (clk),
+        .rst          (rst),
+        .mem_w        (mem_w),
+        .mem_r        (mem_r),
+        .addr         (alu_result),
+        .wdata        (rdata2),
 
-        .lsu_rdata(lsu_rdata),
-        .lsu_addr (lsu_addr),
-        .lsu_wen  (lsu_wen),
-        .lsu_wdata(lsu_wdata),
-        .lsu_wmask(lsu_wmask),
+        .lsu_reqValid (lsu_reqValid),
+        .lsu_respValid(lsu_respValid),
+        .lsu_rdata    (lsu_rdata),
+        .lsu_addr     (lsu_addr),
+        .lsu_wen      (lsu_wen),
+        .lsu_wdata    (lsu_wdata),
+        .lsu_wmask    (lsu_wmask),
 
-        .out_data (mem_result),
-        .lsu_stall(lsu_stall),
+        .out_data     (mem_result),
+        .lsu_stall    (lsu_stall),
 
-        .ifu_stall  (ifu_stall)
+        .ifu_stall    (ifu_stall)
     );
 
     WBU my_WBU (

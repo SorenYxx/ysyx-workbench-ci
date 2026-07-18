@@ -1,6 +1,8 @@
 module IFU (
     input      [31:0] ifu_rdata,
     output     [31:0] ifu_raddr,
+    input             ifu_respValid,
+    output     reg    ifu_reqValid,
 
     input             clk,
     input             rst,
@@ -11,6 +13,7 @@ module IFU (
     output reg        ifu_stall,
 
     input             lsu_stall
+
 );
 
     reg [1:0] state;
@@ -19,16 +22,22 @@ module IFU (
 
     always @(posedge clk, posedge rst) begin
         if (rst) begin
-            state <= IDLE;
-            pc    <= 32'h80000000;
+            ifu_reqValid <= 1'b1;
+            state        <= IDLE;
+            pc           <= 32'h80000000;
         end else begin
             case (state)
                 IDLE: begin
+                if (ifu_reqValid && !lsu_stall) begin
                     pc    <= pc;
                     state <= WAIT;
+                end else begin
+                    pc    <= pc;
+                    state <= IDLE;
+                end
                 end
                 WAIT: begin
-                    if (lsu_stall) begin //load
+                    if (lsu_stall || !ifu_respValid) begin //Load or Wait for resp
                         pc <= pc;
                     end else begin
                         pc    <= n_pc;

@@ -13,3 +13,17 @@ extern const VlUnpacked<CData/*2:0*/, 64> Vminirv__ConstPool__TABLE_h02dc8855_0 
     4U, 0U, 1U, 0U, 2U, 0U, 1U, 0U,
     3U, 0U, 1U, 0U, 2U, 0U, 1U, 0U
 }};
+
+extern const VlUnpacked<CData/*1:0*/, 32> Vminirv__ConstPool__TABLE_h84b0629e_0 = {{
+    0U, 0U, 1U, 0U, 0U, 0U, 0U, 0U,
+    1U, 0U, 1U, 0U, 0U, 0U, 0U, 0U,
+    0U, 0U, 0U, 0U, 0U, 0U, 0U, 0U,
+    1U, 0U, 0U, 0U, 0U, 0U, 0U, 0U
+}};
+
+extern const VlUnpacked<CData/*0:0*/, 32> Vminirv__ConstPool__TABLE_hbb1fa0e6_0 = {{
+    0U, 1U, 1U, 1U, 1U, 1U, 1U, 1U,
+    1U, 1U, 1U, 1U, 1U, 1U, 1U, 1U,
+    0U, 1U, 1U, 1U, 1U, 1U, 1U, 1U,
+    1U, 1U, 1U, 1U, 1U, 1U, 1U, 1U
+}};

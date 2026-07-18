@@ -6,6 +6,8 @@ module LSU (
     input      [31:0] addr,
     input      [31:0] wdata,
 
+    input             lsu_respValid,
+    output            lsu_reqValid,
     input      [31:0] lsu_rdata,
     output     [31:0] lsu_addr,
     output            lsu_wen,
@@ -35,6 +37,8 @@ module LSU (
                        (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
                        4'h0;
 
+    assign lsu_reqValid = !ifu_stall && (mem_w != 2'b11 || mem_r != 3'd5); //load/store访存请求有效
+
     // Load state machine
     always @(posedge clk, posedge rst) begin
         if (rst) begin
@@ -42,10 +46,13 @@ module LSU (
         end else begin
             case (state)
                 IDLE: begin
-                    if (!ifu_stall && (mem_r != 3'd5)) state <= WAIT; //mem_r 应有效
+                    if (lsu_reqValid) begin
+                        state <= WAIT; //mem_r 应有效
+                    end
                 end
                 WAIT: begin
-                    state <= IDLE;
+                    if (lsu_respValid) state <= IDLE;
+                    else state <= WAIT;
                 end
                 default: state <= IDLE;
             endcase
