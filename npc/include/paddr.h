@@ -16,7 +16,7 @@ extern "C" {
 
 // ----- DPI-C------
 int pmem_read(int raddr);
-void pmem_write(int waddr, int wdata, char wmask);
+void pmem_write(int waddr, int wdata, int wmask);
 
 void is_illegal_inst();
 

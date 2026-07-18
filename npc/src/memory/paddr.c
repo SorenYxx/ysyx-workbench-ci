@@ -48,8 +48,17 @@ int pmem_read(int raddr) {
   return value;
 }
 
-void pmem_write(int waddr, int wdata, char wmask) {
+// int wmask(int wstrb) {
+//   int mask = 0;
+//   for (int i = 0; i < 4; i++) {
+//     if ((wstrb >> i) & 0x1) mask |= (0xFF << (i * 8));
+//   }
+//   return mask;
+// }
+
+void pmem_write(int waddr, int wdata, int wmask) {
   uint32_t addr = (uint32_t)waddr & ~0x3u;
+  // wmask(wstrb);
 
   if (addr == SERIAL_PORT) {
     putchar(wdata);

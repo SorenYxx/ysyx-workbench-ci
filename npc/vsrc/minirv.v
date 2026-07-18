@@ -1,7 +1,8 @@
 import "DPI-C" function void ebreak();
 import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
 import "DPI-C" function int  pmem_read(input int raddr);
-import "DPI-C" function void pmem_write(input int waddr, input int wdata, input byte wmask);
+import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
+import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
 
@@ -12,7 +13,14 @@ module minirv (
     output [31:0] cur_inst
 );
 
+    wire [31:0] ifu_rdata, ifu_raddr;
     wire [31:0] inst;
+    wire [31:0] pc, n_pc;
+
+    wire [31:0] lsu_rdata, lsu_addr, lsu_wdata;
+    wire        lsu_wen;
+    wire [ 3:0] lsu_wmask;
+
     wire [31:0] imm;
     wire [31:0] rdata1, rdata2;
     wire [31:0] alu_result, mem_result, csr_result;
@@ -29,8 +37,8 @@ module minirv (
     wire [ 2:0] b_type;
     wire [31:0] wdata;
     wire        ebreak_type;
-
-    reg [31:0] pc, n_pc;
+    wire        ifu_stall;
+    wire        lsu_stall;
 
     GPR R (
         .clk   (clk),
@@ -43,13 +51,37 @@ module minirv (
         .rdata2(rdata2)
     );
 
+    RegisterFile my_RegisterFile (
+        .clk      (clk),
+
+        .ifu_raddr(ifu_raddr),
+        .ifu_rdata(ifu_rdata),
+
+        .lsu_rdata(lsu_rdata),
+        .lsu_addr (lsu_addr),
+        .lsu_wen  (lsu_wen),
+        .lsu_wdata(lsu_wdata),
+        .lsu_wmask(lsu_wmask)
+    );
+
     IFU my_IFU (
-        .pc   (pc),
-        .inst (inst)
+        .ifu_rdata(ifu_rdata),
+        .ifu_raddr(ifu_raddr),
+
+        .clk      (clk),
+        .rst      (rst),
+        .n_pc     (n_pc),
+        .pc       (pc),
+        .inst     (inst),
+        .ifu_stall  (ifu_stall),
+        .lsu_stall(lsu_stall)
+
     );
 
     IDU my_IDU (
         .inst       (inst),
+        .ifu_stall    (ifu_stall),
+        .lsu_stall  (lsu_stall),
         .imm        (imm),
         .rs1        (rs1),
         .rs2        (rs2),
@@ -81,12 +113,23 @@ module minirv (
     );
 
     LSU my_LSU (
-        .clk     (clk),
-        .mem_w   (mem_w),
-        .mem_r   (mem_r),
-        .addr    (alu_result),
-        .wdata   (rdata2),
-        .out_data(mem_result)
+        .clk      (clk),
+        .rst      (rst),
+        .mem_w    (mem_w),
+        .mem_r    (mem_r),
+        .addr     (alu_result),
+        .wdata    (rdata2),
+
+        .lsu_rdata(lsu_rdata),
+        .lsu_addr (lsu_addr),
+        .lsu_wen  (lsu_wen),
+        .lsu_wdata(lsu_wdata),
+        .lsu_wmask(lsu_wmask),
+
+        .out_data (mem_result),
+        .lsu_stall(lsu_stall),
+
+        .ifu_stall  (ifu_stall)
     );
 
     WBU my_WBU (
@@ -116,21 +159,17 @@ module minirv (
         .pc         (pc),
         .csr_we     (csr_we),
         .out_mepc   (out_mepc),
-        .out_mtvec  (out_mtvec)
+        .out_mtvec  (out_mtvec),
+
+        .ifu_stall    (ifu_stall)
     );
 
-    always @(posedge clk, posedge rst) begin
-        if (rst) begin
-            pc <= 32'h80000000;
-        end else begin
-            pc <= n_pc;
-        end
-
-        if (j_type == 2'b01) begin
+    always @(posedge clk) begin
+        if (j_type == 2'b01 && !ifu_stall) begin
             ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
         end
 
-        if (ebreak_type) begin
+        if (ebreak_type && !ifu_stall) begin
             ebreak();
             $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
         end

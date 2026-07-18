@@ -1,7 +1,7 @@
-import "DPI-C" function void is_illegal_inst();
-
 module IDU (
     input  [31:0] inst,
+    input         ifu_stall,
+    input         lsu_stall,
 
     output reg [31:0] imm,
     output reg [ 4:0] rs1, rs2, rd,
@@ -144,7 +144,7 @@ module IDU (
     assign alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
     assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
-    assign reg_w  = inst_I || inst_R || inst_J || inst_U || csr_we;
+    assign reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we) && !ifu_stall && !lsu_stall;
     assign csr_we = csrrw || csrrs || csrrc;
 
     assign mem_w = sw ? 2'b00 :

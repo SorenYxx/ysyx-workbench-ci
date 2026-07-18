@@ -7,6 +7,8 @@ module CSR (
     input      [31:0] pc,
     input             csr_we,
 
+    input             ifu_stall,
+
     output reg [31:0] csr_rdata,
     output     [31:0] out_mepc,
     output     [31:0] out_mtvec
@@ -33,14 +35,14 @@ module CSR (
             mepc    <= 0;
             mcause  <= 0;
         end else begin
-            mc <= mc + 1;
+            mc <= ifu_stall ? mc : mc + 1;
 
-            if (j_type == 2'b10) begin  // ecall
+            if (j_type == 2'b10 && !ifu_stall) begin  // ecall
                 mepc   <= pc;
                 mcause <= 32'd11;  // M-mode
                 get_csr({20'b0, 12'h341}, pc);
                 get_csr({20'b0, 12'h342}, 32'd11);
-            end else if (csr_we && j_type == 2'b00) begin
+            end else if (csr_we && j_type == 2'b00 && !ifu_stall) begin
                 get_csr({20'b0, csr_addr}, csr_wdata);
                 case (csr_addr)
                     12'h300: mstatus <= csr_wdata;
