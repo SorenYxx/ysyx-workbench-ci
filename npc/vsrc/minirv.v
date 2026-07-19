@@ -13,18 +13,22 @@ module minirv (
     output [31:0] cur_inst
 );
 
-    wire        ifu_reqValid;
-    wire        ifu_respValid;
-    wire        lsu_reqValid;
-    wire        lsu_respValid;
+    wire        ifu_rom_reqValid;
+    wire        rom_ifu_respValid;
+    wire        rom_ifu_reqReady;
+    wire        ifu_rom_respReady;
+    wire        lsu_ram_reqValid;
+    wire        ram_lsu_respValid;
+    wire        ram_lsu_reqReady;
+    wire        lsu_ram_respReady;
 
-    wire [31:0] ifu_rdata, ifu_raddr;
+    wire [31:0] rom_ifu_rdata, ifu_rom_raddr;
     wire [31:0] inst;
     wire [31:0] pc, n_pc;
 
-    wire [31:0] lsu_rdata, lsu_addr, lsu_wdata;
-    wire        lsu_wen;
-    wire [ 3:0] lsu_wmask;
+    wire [31:0] ram_lsu_rdata, lsu_ram_addr, lsu_ram_wdata;
+    wire        lsu_ram_wen;
+    wire [ 3:0] lsu_ram_wmask;
 
     wire [31:0] imm;
     wire [31:0] rdata1, rdata2;
@@ -58,27 +62,34 @@ module minirv (
 
     RegisterFile my_RegisterFile (
         .clk      (clk),
+        .rst      (rst),
 
-        .ifu_raddr(ifu_raddr),
-        .ifu_rdata(ifu_rdata),
-        .ifu_reqValid(ifu_reqValid),
-        .ifu_respValid(ifu_respValid),
+        .ifu_rom_raddr      (ifu_rom_raddr),
+        .rom_ifu_rdata      (rom_ifu_rdata),
+        .ifu_rom_reqValid   (ifu_rom_reqValid),
+        .rom_ifu_respValid  (rom_ifu_respValid),
+        .ifu_rom_respReady  (ifu_rom_respReady),
+        .rom_ifu_reqReady   (rom_ifu_reqReady),
 
-        .lsu_rdata(lsu_rdata),
-        .lsu_addr (lsu_addr),
-        .lsu_wen  (lsu_wen),
-        .lsu_wdata(lsu_wdata),
-        .lsu_wmask(lsu_wmask),
-        .lsu_reqValid(lsu_reqValid),
-        .lsu_respValid(lsu_respValid)
+        .lsu_ram_addr       (lsu_ram_addr),
+        .lsu_ram_wen        (lsu_ram_wen),
+        .lsu_ram_wdata      (lsu_ram_wdata),
+        .lsu_ram_wmask      (lsu_ram_wmask),
+        .ram_lsu_rdata      (ram_lsu_rdata),
+        .lsu_ram_reqValid   (lsu_ram_reqValid),
+        .ram_lsu_respValid  (ram_lsu_respValid),
+        .lsu_ram_respReady  (lsu_ram_respReady),
+        .ram_lsu_reqReady   (ram_lsu_reqReady)
 
     );
 
     IFU my_IFU (
-        .ifu_rdata(ifu_rdata),
-        .ifu_raddr(ifu_raddr),
-        .ifu_respValid(ifu_respValid),
-        .ifu_reqValid(ifu_reqValid),
+        .rom_ifu_rdata   (rom_ifu_rdata),
+        .ifu_rom_raddr   (ifu_rom_raddr),
+        .rom_ifu_respValid(rom_ifu_respValid),
+        .ifu_rom_reqValid(ifu_rom_reqValid),
+        .rom_ifu_reqReady(rom_ifu_reqReady),
+        .ifu_rom_respReady(ifu_rom_respReady),
 
         .clk      (clk),
         .rst      (rst),
@@ -92,7 +103,7 @@ module minirv (
 
     IDU my_IDU (
         .inst       (inst),
-        .ifu_stall    (ifu_stall),
+        .ifu_stall  (ifu_stall),
         .lsu_stall  (lsu_stall),
         .imm        (imm),
         .rs1        (rs1),
@@ -132,13 +143,15 @@ module minirv (
         .addr         (alu_result),
         .wdata        (rdata2),
 
-        .lsu_reqValid (lsu_reqValid),
-        .lsu_respValid(lsu_respValid),
-        .lsu_rdata    (lsu_rdata),
-        .lsu_addr     (lsu_addr),
-        .lsu_wen      (lsu_wen),
-        .lsu_wdata    (lsu_wdata),
-        .lsu_wmask    (lsu_wmask),
+        .ram_lsu_respValid  (ram_lsu_respValid),
+        .lsu_ram_reqValid   (lsu_ram_reqValid),
+        .ram_lsu_reqReady   (ram_lsu_reqReady),
+        .lsu_ram_respReady  (lsu_ram_respReady),
+        .ram_lsu_rdata      (ram_lsu_rdata),
+        .lsu_ram_addr       (lsu_ram_addr),
+        .lsu_ram_wen        (lsu_ram_wen),
+        .lsu_ram_wdata      (lsu_ram_wdata),
+        .lsu_ram_wmask      (lsu_ram_wmask),
 
         .out_data     (mem_result),
         .lsu_stall    (lsu_stall),

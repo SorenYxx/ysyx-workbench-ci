@@ -105,194 +105,200 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     auto& vlSelfRef = std::ref(*vlSelf).get();
     // Body
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
-    vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__ifu_rdata;
-    vlSelfRef.minirv__DOT__R__DOT__rdata2 = ((0U == 
-                                              (0x0000001fU 
-                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                  >> 0x00000014U)))
-                                              ? 0U : 
-                                             vlSelfRef.minirv__DOT__R__DOT__rf
-                                             [(0x0000001fU 
-                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                  >> 0x00000014U))]);
+    vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__rom_ifu_rdata;
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_resp 
+        = ((1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state)) 
+           & (IData)(vlSelfRef.minirv__DOT__ram_lsu_respValid));
+    vlSelfRef.minirv__DOT__my_LSU__DOT__handshake_lsu_resp 
+        = ((IData)(vlSelfRef.minirv__DOT__ram_lsu_respValid) 
+           & (1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sw = (IData)(
                                                      (0x00002023U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sb = (IData)(
                                                      (0x00000023U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sh = (IData)(
                                                      (0x00001023U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
+    vlSelfRef.minirv__DOT__R__DOT__rdata2 = ((0U == 
+                                              (0x0000001fU 
+                                               & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                  >> 0x00000014U)))
+                                              ? 0U : 
+                                             vlSelfRef.minirv__DOT__R__DOT__rf
+                                             [(0x0000001fU 
+                                               & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                  >> 0x00000014U))]);
     vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13 
-        = ((0x6fU == (0x0000007fU & vlSelfRef.minirv__DOT__ifu_rdata)) 
-           | (0x67U == (0x0000007fU & vlSelfRef.minirv__DOT__ifu_rdata)));
+        = ((0x6fU == (0x0000007fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
+           | (0x67U == (0x0000007fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__bne = (IData)(
                                                       (0x00001063U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__beq = (IData)(
                                                       (0x00000063U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__blt = (IData)(
                                                       (0x00004063U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__bge = (IData)(
                                                       (0x00005063U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__bltu = (IData)(
                                                        (0x00006063U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu = (IData)(
                                                        (0x00007063U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__addi = (IData)(
                                                        (0x00000013U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__slti = (IData)(
                                                        (0x00002013U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__slli = (IData)(
                                                        (0x00001013U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sltiu = (IData)(
                                                         (0x00003013U 
                                                          == 
                                                          (0x0000707fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__xori = (IData)(
                                                        (0x00004013U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__ori = (IData)(
                                                       (0x00006013U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__andi = (IData)(
                                                        (0x00007013U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sll = (IData)(
                                                       (0x00001033U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__slt = (IData)(
                                                       (0x00002033U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sltu = (IData)(
                                                        (0x00003033U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__r_xor = (IData)(
                                                         (0x00004033U 
                                                          == 
                                                          (0x0000707fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__r_or = (IData)(
                                                        (0x00006033U 
                                                         == 
                                                         (0x0000707fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__r_and = (IData)(
                                                         (0x00007033U 
                                                          == 
                                                          (0x0000707fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__inst_U = ((0x37U 
                                                    == 
                                                    (0x0000007fU 
-                                                    & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                    & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                                   | (0x17U 
                                                      == 
                                                      (0x0000007fU 
-                                                      & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                      & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__csrrw = (IData)(
                                                         (0x00001073U 
                                                          == 
                                                          (0x0000707fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__csrrs = (IData)(
                                                         (0x00002073U 
                                                          == 
                                                          (0x0000707fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
+    vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I = ((0x13U 
+                                                   == 
+                                                   (0x0000007fU 
+                                                    & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
+                                                  | ((3U 
+                                                      == 
+                                                      (0x0000007fU 
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
+                                                     | ((0x67U 
+                                                         == 
+                                                         (0x0000007fU 
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
+                                                        | (0x73U 
+                                                           == 
+                                                           (0x0000007fU 
+                                                            & vlSelfRef.minirv__DOT__rom_ifu_rdata)))));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lbu = (IData)(
                                                       (0x00004003U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lhu = (IData)(
                                                       (0x00005003U 
                                                        == 
                                                        (0x0000707fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lw = (IData)(
                                                      (0x00002003U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lh = (IData)(
                                                      (0x00001003U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__lb = (IData)(
                                                      (3U 
                                                       == 
                                                       (0x0000707fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I = ((0x13U 
-                                                   == 
-                                                   (0x0000007fU 
-                                                    & vlSelfRef.minirv__DOT__ifu_rdata)) 
-                                                  | ((3U 
-                                                      == 
-                                                      (0x0000007fU 
-                                                       & vlSelfRef.minirv__DOT__ifu_rdata)) 
-                                                     | ((0x67U 
-                                                         == 
-                                                         (0x0000007fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)) 
-                                                        | (0x73U 
-                                                           == 
-                                                           (0x0000007fU 
-                                                            & vlSelfRef.minirv__DOT__ifu_rdata)))));
+                                                       & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4 
-        = (IData)((0x00005013U == (0x0000707fU & vlSelfRef.minirv__DOT__ifu_rdata)));
+        = (IData)((0x00005013U == (0x0000707fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11 
-        = (IData)((0x00000033U == (0x0000707fU & vlSelfRef.minirv__DOT__ifu_rdata)));
+        = (IData)((0x00000033U == (0x0000707fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12 
-        = (IData)((0x00005033U == (0x0000707fU & vlSelfRef.minirv__DOT__ifu_rdata)));
+        = (IData)((0x00005033U == (0x0000707fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sw)
                                                   ? 0U
                                                   : 
@@ -306,11 +312,11 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                    ? 1U
                                                    : 
                                                   ((0x00000073U 
-                                                    == vlSelfRef.minirv__DOT__ifu_rdata)
+                                                    == vlSelfRef.minirv__DOT__rom_ifu_rdata)
                                                     ? 2U
                                                     : 
                                                    ((0x30200073U 
-                                                     == vlSelfRef.minirv__DOT__ifu_rdata)
+                                                     == vlSelfRef.minirv__DOT__rom_ifu_rdata)
                                                      ? 3U
                                                      : 0U)));
     vlSelfRef.__Vtableidx2 = ((((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu) 
@@ -330,7 +336,80 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                                (0x00003073U 
                                                                 == 
                                                                 (0x0000707fU 
-                                                                 & vlSelfRef.minirv__DOT__ifu_rdata)))));
+                                                                 & vlSelfRef.minirv__DOT__rom_ifu_rdata)))));
+    vlSelfRef.minirv__DOT__my_IDU__DOT__imm = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I)
+                                                ? (
+                                                   ((- (IData)(
+                                                               (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                >> 0x0000001fU))) 
+                                                    << 0x0000000cU) 
+                                                   | (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                      >> 0x00000014U))
+                                                : (
+                                                   (0x23U 
+                                                    == 
+                                                    (0x0000007fU 
+                                                     & vlSelfRef.minirv__DOT__rom_ifu_rdata))
+                                                    ? 
+                                                   (((- (IData)(
+                                                                (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                 >> 0x0000001fU))) 
+                                                     << 0x0000000cU) 
+                                                    | ((0x00000fe0U 
+                                                        & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                           >> 0x00000014U)) 
+                                                       | (0x0000001fU 
+                                                          & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                             >> 7U))))
+                                                    : 
+                                                   ((0x63U 
+                                                     == 
+                                                     (0x0000007fU 
+                                                      & vlSelfRef.minirv__DOT__rom_ifu_rdata))
+                                                     ? 
+                                                    (((- (IData)(
+                                                                 (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                  >> 0x0000001fU))) 
+                                                      << 0x0000000cU) 
+                                                     | ((0x00000800U 
+                                                         & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                            << 4U)) 
+                                                        | ((0x000007e0U 
+                                                            & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                               >> 0x00000014U)) 
+                                                           | (0x0000001eU 
+                                                              & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                 >> 7U)))))
+                                                     : 
+                                                    ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_U)
+                                                      ? 
+                                                     (0xfffff000U 
+                                                      & vlSelfRef.minirv__DOT__rom_ifu_rdata)
+                                                      : 
+                                                     ((0x6fU 
+                                                       == 
+                                                       (0x0000007fU 
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata))
+                                                       ? 
+                                                      ((((0x00000ffeU 
+                                                          & ((- (IData)(
+                                                                        (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                         >> 0x0000001fU))) 
+                                                             << 1U)) 
+                                                         | (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                            >> 0x0000001fU)) 
+                                                        << 0x00000014U) 
+                                                       | ((((0x000001feU 
+                                                             & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                >> 0x0000000bU)) 
+                                                            | (1U 
+                                                               & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                  >> 0x00000014U))) 
+                                                           << 0x0000000bU) 
+                                                          | (0x000007feU 
+                                                             & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
+                                                                >> 0x00000014U))))
+                                                       : 0U)))));
     vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw)
                                                   ? 0U
                                                   : 
@@ -351,129 +430,36 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                       | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lw) 
                                                          | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lh) 
                                                             | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lb)))));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__imm = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I)
-                                                ? (
-                                                   ((- (IData)(
-                                                               (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                >> 0x0000001fU))) 
-                                                    << 0x0000000cU) 
-                                                   | (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                      >> 0x00000014U))
-                                                : (
-                                                   (0x23U 
-                                                    == 
-                                                    (0x0000007fU 
-                                                     & vlSelfRef.minirv__DOT__ifu_rdata))
-                                                    ? 
-                                                   (((- (IData)(
-                                                                (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                 >> 0x0000001fU))) 
-                                                     << 0x0000000cU) 
-                                                    | ((0x00000fe0U 
-                                                        & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                           >> 0x00000014U)) 
-                                                       | (0x0000001fU 
-                                                          & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                             >> 7U))))
-                                                    : 
-                                                   ((0x63U 
-                                                     == 
-                                                     (0x0000007fU 
-                                                      & vlSelfRef.minirv__DOT__ifu_rdata))
-                                                     ? 
-                                                    (((- (IData)(
-                                                                 (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                  >> 0x0000001fU))) 
-                                                      << 0x0000000cU) 
-                                                     | ((0x00000800U 
-                                                         & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                            << 4U)) 
-                                                        | ((0x000007e0U 
-                                                            & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                               >> 0x00000014U)) 
-                                                           | (0x0000001eU 
-                                                              & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                 >> 7U)))))
-                                                     : 
-                                                    ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_U)
-                                                      ? 
-                                                     (0xfffff000U 
-                                                      & vlSelfRef.minirv__DOT__ifu_rdata)
-                                                      : 
-                                                     ((0x6fU 
-                                                       == 
-                                                       (0x0000007fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata))
-                                                       ? 
-                                                      ((((0x00000ffeU 
-                                                          & ((- (IData)(
-                                                                        (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                         >> 0x0000001fU))) 
-                                                             << 1U)) 
-                                                         | (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                            >> 0x0000001fU)) 
-                                                        << 0x00000014U) 
-                                                       | ((((0x000001feU 
-                                                             & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                >> 0x0000000bU)) 
-                                                            | (1U 
-                                                               & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                  >> 0x00000014U))) 
-                                                           << 0x0000000bU) 
-                                                          | (0x000007feU 
-                                                             & (vlSelfRef.minirv__DOT__ifu_rdata 
-                                                                >> 0x00000014U))))
-                                                       : 0U)))));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srli = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0U 
                                                    == 
-                                                   (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                   (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                     >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srai = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_4) 
                                                 & (0x20U 
                                                    == 
-                                                   (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                   (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                     >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__add = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0U 
                                                   == 
-                                                  (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sub = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_11) 
                                                & (0x20U 
                                                   == 
-                                                  (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__srl = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0U 
                                                   == 
-                                                  (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                    >> 0x00000019U)));
     vlSelfRef.minirv__DOT__my_IDU__DOT__sra = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_12) 
                                                & (0x20U 
                                                   == 
-                                                  (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                  (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                    >> 0x00000019U)));
-    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_wen 
-        = ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
-           & (3U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w)));
-    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_reqValid 
-        = ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
-           & ((3U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w)) 
-              | (5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__lsu_stall = 
-        ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
-         & ((5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r)) 
-            & (0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state))));
-    vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type)
-                                                   ? 1U
-                                                   : 
-                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we)
-                                                    ? 2U
-                                                    : 
-                                                   ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13)
-                                                     ? 3U
-                                                     : 0U)));
     vlSelfRef.minirv__DOT__my_CSR__DOT__csr_rdata = 
         ((((0x0f11U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm)) 
            | (0x0f12U == (0x00000fffU & vlSelfRef.minirv__DOT__my_IDU__DOT__imm))) 
@@ -519,6 +505,23 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                       ? vlSelfRef.minirv__DOT__my_CSR__DOT__mepc
                                                       : vlSelfRef.minirv__DOT__my_CSR__DOT__mcause)))))))
           : 0U);
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_reqValid 
+        = ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
+           & ((3U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_w)) 
+              | (5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r))));
+    vlSelfRef.minirv__DOT__my_IDU__DOT__lsu_stall = 
+        ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
+         & ((5U != (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__mem_r)) 
+            & (0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state))));
+    vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res = ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__ld_type)
+                                                   ? 1U
+                                                   : 
+                                                  ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we)
+                                                    ? 2U
+                                                    : 
+                                                   ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT____VdfgRegularize_h52656aab_0_13)
+                                                     ? 3U
+                                                     : 0U)));
     if (((~ (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__addi) 
               | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__slti) 
                  | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__slli) 
@@ -536,7 +539,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                      | (0x67U 
                                                         == 
                                                         (0x0000007fU 
-                                                         & vlSelfRef.minirv__DOT__ifu_rdata)))))))))))))))) 
+                                                         & vlSelfRef.minirv__DOT__rom_ifu_rdata)))))))))))))))) 
              | (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__add) 
                  | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sub) 
                     | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sll) 
@@ -556,16 +559,16 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                              | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bge) 
                                 | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bltu) 
                                    | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__bgeu)))))) 
-                      | ((0x37U == (0x0000007fU & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                      | ((0x37U == (0x0000007fU & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                          | (((0x17U == (0x0000007fU 
-                                        & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                              | (0x6fU == (0x0000007fU 
-                                          & vlSelfRef.minirv__DOT__ifu_rdata))) 
+                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata))) 
                             | (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we) 
-                                | ((0x00000073U == vlSelfRef.minirv__DOT__ifu_rdata) 
-                                   | (0x30200073U == vlSelfRef.minirv__DOT__ifu_rdata))) 
-                               | (0x00100073U == vlSelfRef.minirv__DOT__ifu_rdata))))))))) 
-         & (0U != vlSelfRef.minirv__DOT__ifu_rdata))) {
+                                | ((0x00000073U == vlSelfRef.minirv__DOT__rom_ifu_rdata) 
+                                   | (0x30200073U == vlSelfRef.minirv__DOT__rom_ifu_rdata))) 
+                               | (0x00100073U == vlSelfRef.minirv__DOT__rom_ifu_rdata))))))))) 
+         & (0U != vlSelfRef.minirv__DOT__rom_ifu_rdata))) {
         Vminirv___024unit____Vdpiimwrap_is_illegal_inst_TOP____024unit();
     }
     vlSelfRef.minirv__DOT__my_IDU__DOT__alu_op = (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__add) 
@@ -579,13 +582,13 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                     | (0x63U 
                                                        == 
                                                        (0x0000007fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)))
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)))
                                                     ? 1U
                                                     : 
                                                    ((0x37U 
                                                      == 
                                                      (0x0000007fU 
-                                                      & vlSelfRef.minirv__DOT__ifu_rdata))
+                                                      & vlSelfRef.minirv__DOT__rom_ifu_rdata))
                                                      ? 2U
                                                      : 
                                                     (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__sll) 
@@ -628,14 +631,17 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                               ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csrrs)
                                                                 ? 0x0dU
                                                                 : 0U))))))))))))));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__ifu_rom_respReady 
+        = ((~ (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lsu_stall)) 
+           & (1U == (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)));
     vlSelfRef.minirv__DOT__R__DOT__wen = (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I) 
                                            | ((0x33U 
                                                == (0x0000007fU 
-                                                   & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                   & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                               | ((0x6fU 
                                                   == 
                                                   (0x0000007fU 
-                                                   & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                   & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                                  | ((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_U) 
                                                     | (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__csr_we))))) 
                                           & ((0U != (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state)) 
@@ -643,38 +649,38 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 = (((0x6fU 
                                                  == 
                                                  (0x0000007fU 
-                                                  & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                  & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                                 | (0x17U 
                                                    == 
                                                    (0x0000007fU 
-                                                    & vlSelfRef.minirv__DOT__ifu_rdata)))
+                                                    & vlSelfRef.minirv__DOT__rom_ifu_rdata)))
                                                 ? vlSelfRef.minirv__DOT__pc
                                                 : (
                                                    (0U 
                                                     == 
                                                     (0x0000001fU 
-                                                     & (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                     & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                         >> 0x0000000fU)))
                                                     ? 0U
                                                     : 
                                                    vlSelfRef.minirv__DOT__R__DOT__rf
                                                    [
                                                    (0x0000001fU 
-                                                    & (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                    & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                        >> 0x0000000fU))]));
     vlSelfRef.minirv__DOT__my_EXU__DOT__rs2 = (((IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__inst_I) 
                                                 | ((0x23U 
                                                     == 
                                                     (0x0000007fU 
-                                                     & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                     & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                                    | ((0x17U 
                                                        == 
                                                        (0x0000007fU 
-                                                        & vlSelfRef.minirv__DOT__ifu_rdata)) 
+                                                        & vlSelfRef.minirv__DOT__rom_ifu_rdata)) 
                                                       | (0x6fU 
                                                          == 
                                                          (0x0000007fU 
-                                                          & vlSelfRef.minirv__DOT__ifu_rdata)))))
+                                                          & vlSelfRef.minirv__DOT__rom_ifu_rdata)))))
                                                 ? vlSelfRef.minirv__DOT__my_IDU__DOT__imm
                                                 : vlSelfRef.minirv__DOT__R__DOT__rdata2);
     vlSelfRef.minirv__DOT__my_EXU__DOT__result = 0U;
@@ -812,6 +818,9 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         vlSelfRef.minirv__DOT__alu_result = (vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 
                                              + vlSelfRef.minirv__DOT__my_EXU__DOT__rs2);
     }
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_ifu_resp 
+        = ((IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__ifu_rom_respReady) 
+           & (IData)(vlSelfRef.minirv__DOT__rom_ifu_respValid));
     vlSelfRef.minirv__DOT__n_pc = ((2U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
                                     ? vlSelfRef.minirv__DOT__my_CSR__DOT__mtvec
                                     : ((3U == (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__j_type))
@@ -822,12 +831,12 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                             : ((IData)(4U) 
                                                + vlSelfRef.minirv__DOT__pc))));
     vlSelfRef.minirv__DOT__my_LSU__DOT__rdata_shifted 
-        = VL_SHIFTR_III(32,32,32, vlSelfRef.minirv__DOT__lsu_rdata, 
+        = VL_SHIFTR_III(32,32,32, vlSelfRef.minirv__DOT__ram_lsu_rdata, 
                         VL_SHIFTL_III(32,32,32, (3U 
                                                  & vlSelfRef.minirv__DOT__alu_result), 3U));
     if (vlSelfRef.minirv__DOT__R__DOT__wen) {
         vlSelfRef.minirv__DOT__R__DOT__waddr = (0x0000001fU 
-                                                & (vlSelfRef.minirv__DOT__ifu_rdata 
+                                                & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
                                                    >> 7U));
         vlSelfRef.minirv__DOT__R__DOT__wdata = ((2U 
                                                  & (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__rf_res))
@@ -959,13 +968,13 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->rst = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18209466448985614591ull);
     vlSelf->cur_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14920093658057763058ull);
     vlSelf->cur_inst = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 5584302711918894221ull);
-    vlSelf->minirv__DOT__ifu_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14061333626106992693ull);
-    vlSelf->minirv__DOT__ifu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11771757366744761206ull);
-    vlSelf->minirv__DOT__lsu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 749349366826619989ull);
-    vlSelf->minirv__DOT__ifu_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3846681039024878433ull);
+    vlSelf->minirv__DOT__ifu_rom_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4200814144274140838ull);
+    vlSelf->minirv__DOT__rom_ifu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13708533157620350143ull);
+    vlSelf->minirv__DOT__ram_lsu_respValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7948745766090160590ull);
+    vlSelf->minirv__DOT__rom_ifu_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 2259621504961363027ull);
     vlSelf->minirv__DOT__pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13130012410628472097ull);
     vlSelf->minirv__DOT__n_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3796541715291209964ull);
-    vlSelf->minirv__DOT__lsu_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 4585170320119755850ull);
+    vlSelf->minirv__DOT__ram_lsu_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17932227667748003513ull);
     vlSelf->minirv__DOT__alu_result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11951689444161528703ull);
     vlSelf->minirv__DOT__b_type = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 8936444214542677347ull);
     vlSelf->minirv__DOT__R__DOT__waddr = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 145516464858728425ull);
@@ -975,8 +984,10 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     for (int __Vi0 = 0; __Vi0 < 32; ++__Vi0) {
         vlSelf->minirv__DOT__R__DOT__rf[__Vi0] = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 6283656838191798135ull);
     }
-    vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_wen = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5787824507785177049ull);
-    vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3041066451275562828ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__ifu_rom_respReady = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9253965788804491105ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_ram_reqValid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16717488230850438611ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_ifu_resp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6670564334417431632ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_resp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1754121272749032292ull);
     vlSelf->minirv__DOT__my_IFU__DOT__state = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 9873836437827919515ull);
     vlSelf->minirv__DOT__my_IDU__DOT__lsu_stall = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7784486428190836292ull);
     vlSelf->minirv__DOT__my_IDU__DOT__imm = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11613781066534815353ull);
@@ -1033,6 +1044,7 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->minirv__DOT__my_EXU__DOT__result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1961965708107912446ull);
     vlSelf->minirv__DOT__my_LSU__DOT__state = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 6931465424155918722ull);
     vlSelf->minirv__DOT__my_LSU__DOT__rdata_shifted = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18361977288581372492ull);
+    vlSelf->minirv__DOT__my_LSU__DOT__handshake_lsu_resp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4069609183447505256ull);
     vlSelf->minirv__DOT__my_CSR__DOT__csr_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1440923004177438012ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mstatus = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3028853897646203962ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mtvec = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17413039076710395707ull);
