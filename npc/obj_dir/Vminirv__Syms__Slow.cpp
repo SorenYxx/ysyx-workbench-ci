@@ -11,7 +11,7 @@ Vminirv__Syms::Vminirv__Syms(VerilatedContext* contextp, const char* namep, Vmin
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(450);
+    Verilated::stackCheck(490);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision

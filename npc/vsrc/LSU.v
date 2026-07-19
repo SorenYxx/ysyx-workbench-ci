@@ -5,68 +5,113 @@ module LSU (
     input      [ 2:0] mem_r,
     input      [31:0] addr,
     input      [31:0] wdata,
-
-    input             ram_lsu_respValid,
-    output            lsu_ram_reqValid,
-    input             ram_lsu_reqReady,
-    output            lsu_ram_respReady,
-
-    input      [31:0] ram_lsu_rdata,
-    output     [31:0] lsu_ram_addr,
-    output            lsu_ram_wen,
-    output     [31:0] lsu_ram_wdata,
-    output     [ 3:0] lsu_ram_wmask,
-
     output reg [31:0] out_data,
-    output wire       lsu_stall,
 
+    // ----------- AXI-Lite -----------
+    input             ram_lsu_arready,
+    output     [31:0] lsu_ram_araddr,
+    output     reg    lsu_ram_arvalid,
+
+    output            lsu_ram_rready,
+    input             ram_lsu_rvalid,
+    input      [31:0] ram_lsu_rdata,
+    input      [ 1:0] ram_lsu_rresp,
+
+    output     [31:0] lsu_ram_awaddr,
+    output            lsu_ram_awvalid,
+    input             ram_lsu_awready,
+
+    output     [31:0] lsu_ram_wdata,
+    output     [ 3:0] lsu_ram_wstrb,
+    output            lsu_ram_wvalid,
+    input             ram_lsu_wready,
+
+    input      [ 1:0] ram_lsu_bresp,
+    input             ram_lsu_bvalid,
+    output            lsu_ram_bready,
+
+    // --------------------------------
+
+    output     wire   lsu_stall,
     input             ifu_stall
-);
 
-    reg [1:0] state;
-    localparam IDLE = 2'b00;
-    localparam WAIT = 2'b01;
+);
+    
+    reg [2:0] state_w;
+    reg [1:0] state_r;
+
+    localparam W_IDLE = 3'b000;
+    localparam B_WAIT = 3'b010;
+    localparam R_IDLE = 2'b00;
+    localparam R_WAIT = 2'b01;
+
+    wire ren = (mem_r != 3'd5) && !ifu_stall;
+    wire wen = (mem_w != 2'b11) && !ifu_stall;
 
     // 数据移位信号w/r
     wire [31:0] wdata_shifted = (mem_w != 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
     wire [31:0] rdata_shifted = ram_lsu_rdata >> (addr[1:0] * 8);
 
-    // load阻塞
-    assign lsu_stall = !ifu_stall && (mem_r != 3'd5) && (state == IDLE);
-
+    // load/store 阻塞
+    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && state_w == W_IDLE);
+    
     // 访存相关数据
-    assign lsu_ram_addr  = addr;
-    assign lsu_ram_wen   = (mem_w != 2'b11) && !ifu_stall;
-    assign lsu_ram_wdata = wdata_shifted;
-    assign lsu_ram_wmask = (mem_w == 2'b00) ? 4'hF :
-                           (mem_w == 2'b01) ? (4'h1 << addr[1:0]) :
-                           (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
-                           4'h0;
+    assign lsu_ram_awaddr = addr;
+    assign lsu_ram_araddr = addr;
+    assign lsu_ram_wdata  = wdata_shifted;
+    assign lsu_ram_wstrb  = (mem_w == 2'b00) ? 4'hF :
+                            (mem_w == 2'b01) ? (4'h1 << addr[1:0]) :
+                            (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
+                            4'h0;
 
-    // load/store访存请求与响应有效
-    assign lsu_ram_reqValid  = !ifu_stall && (mem_w != 2'b11 || mem_r != 3'd5);
-    assign lsu_ram_respReady = (state == WAIT);
+    // load/store 访存请求与响应有效
+    assign lsu_ram_awvalid = (state_w == W_IDLE) && wen;
+    assign lsu_ram_wvalid  = (state_w == W_IDLE) && wen;
+    assign lsu_ram_arvalid = (state_r == R_IDLE) && ren;
+    assign lsu_ram_rready  = (state_r == R_WAIT);
+    assign lsu_ram_bready  = (state_w == B_WAIT);
 
     // 握手请求与响应信号
-    wire handshake_lsu_req  = ram_lsu_reqReady && lsu_ram_reqValid;
-    wire handshake_lsu_resp = ram_lsu_respValid && lsu_ram_respReady;
+    wire handshake_aw = ram_lsu_awready && lsu_ram_awvalid;
+    wire handshake_w  = ram_lsu_wready && lsu_ram_wvalid;
+    wire handshake_ar = ram_lsu_arready && lsu_ram_arvalid;
+    wire handshake_r  = lsu_ram_rready && ram_lsu_rvalid && (ram_lsu_rresp == 2'b00);
+    wire handshake_b  = ram_lsu_bvalid && lsu_ram_bready && (ram_lsu_bresp == 2'b00);
     
-    // LSU 状态机
+    // LSU W状态机
     always @(posedge clk, posedge rst) begin
         if (rst) begin
-            state <= IDLE;
+            state_w <= W_IDLE;
         end else begin
-            case (state)
-                IDLE: begin
-                    if (handshake_lsu_req) begin
-                        state <= WAIT; //mem_r 应有效
-                    end
+            case (state_w)
+                W_IDLE: begin
+                    if (handshake_aw && handshake_w) state_w <= B_WAIT;
+                    else state_w <= W_IDLE;
                 end
-                WAIT: begin
-                    if (handshake_lsu_resp) state <= IDLE;
-                    else state <= WAIT;
+                B_WAIT: begin
+                    if (handshake_b) state_w <= W_IDLE;
+                    else state_w <= B_WAIT;
                 end
-                default: state <= IDLE;
+                default: state_w <= W_IDLE;
+            endcase
+        end
+    end
+
+    // LSU R状态机
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            state_r <= R_IDLE;
+        end else begin
+            case (state_r)
+                R_IDLE: begin
+                    if (handshake_ar) state_r <= R_WAIT;
+                    else state_r <= R_IDLE;
+                end
+                R_WAIT: begin
+                    if (handshake_r) state_r <= R_IDLE;
+                    else state_r <= R_WAIT;
+                end
+                default: state_r <= R_IDLE;
             endcase
         end
     end

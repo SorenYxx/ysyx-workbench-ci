@@ -13,22 +13,42 @@ module minirv (
     output [31:0] cur_inst
 );
 
-    wire        ifu_rom_reqValid;
-    wire        rom_ifu_respValid;
-    wire        rom_ifu_reqReady;
-    wire        ifu_rom_respReady;
-    wire        lsu_ram_reqValid;
-    wire        ram_lsu_respValid;
-    wire        ram_lsu_reqReady;
-    wire        lsu_ram_respReady;
+    // ===== IFU ↔ RegisterFile (AXI-Lite: AR + R) =====
+    wire        ifu_rom_arvalid;
+    wire        rom_ifu_arready;
+    wire [31:0] ifu_rom_araddr;
 
-    wire [31:0] rom_ifu_rdata, ifu_rom_raddr;
+    wire        rom_ifu_rvalid;
+    wire        ifu_rom_rready;
+    wire [31:0] rom_ifu_rdata;
+    wire [ 1:0] rom_ifu_rresp;
+
+    // ===== LSU ↔ RegisterFile (AXI-Lite: AR + R + AW + W + B) =====
+    wire        lsu_ram_arvalid;
+    wire        ram_lsu_arready;
+    wire [31:0] lsu_ram_araddr;
+
+    wire        ram_lsu_rvalid;      // FIXME: 方向反了，应为 ram_lsu_rvalid(slave→master)
+    wire        lsu_ram_rready;      // FIXME: 方向反了，应为 lsu_ram_rready(master→slave)
+    wire [31:0] ram_lsu_rdata;
+    wire [ 1:0] ram_lsu_rresp;
+
+    wire        lsu_ram_awvalid;
+    wire        ram_lsu_awready;
+    wire [31:0] lsu_ram_awaddr;
+
+    wire        lsu_ram_wvalid;
+    wire        ram_lsu_wready;
+    wire [31:0] lsu_ram_wdata;
+    wire [ 3:0] lsu_ram_wstrb;
+
+    wire        ram_lsu_bvalid;
+    wire        lsu_ram_bready;
+    wire [ 1:0] ram_lsu_bresp;
+
+    // ===== 内部信号 =====
     wire [31:0] inst;
     wire [31:0] pc, n_pc;
-
-    wire [31:0] ram_lsu_rdata, lsu_ram_addr, lsu_ram_wdata;
-    wire        lsu_ram_wen;
-    wire [ 3:0] lsu_ram_wmask;
 
     wire [31:0] imm;
     wire [31:0] rdata1, rdata2;
@@ -64,41 +84,63 @@ module minirv (
         .clk      (clk),
         .rst      (rst),
 
-        .ifu_rom_raddr      (ifu_rom_raddr),
-        .rom_ifu_rdata      (rom_ifu_rdata),
-        .ifu_rom_reqValid   (ifu_rom_reqValid),
-        .rom_ifu_respValid  (rom_ifu_respValid),
-        .ifu_rom_respReady  (ifu_rom_respReady),
-        .rom_ifu_reqReady   (rom_ifu_reqReady),
+        // IFU (AXI-Lite AR + R)
+        .ifu_rom_araddr (ifu_rom_araddr),
+        .ifu_rom_arvalid(ifu_rom_arvalid),
+        .rom_ifu_arready(rom_ifu_arready),
 
-        .lsu_ram_addr       (lsu_ram_addr),
-        .lsu_ram_wen        (lsu_ram_wen),
-        .lsu_ram_wdata      (lsu_ram_wdata),
-        .lsu_ram_wmask      (lsu_ram_wmask),
-        .ram_lsu_rdata      (ram_lsu_rdata),
-        .lsu_ram_reqValid   (lsu_ram_reqValid),
-        .ram_lsu_respValid  (ram_lsu_respValid),
-        .lsu_ram_respReady  (lsu_ram_respReady),
-        .ram_lsu_reqReady   (ram_lsu_reqReady)
+        .ifu_rom_rready (ifu_rom_rready),
+        .rom_ifu_rdata  (rom_ifu_rdata),
+        .rom_ifu_rvalid (rom_ifu_rvalid),
+        .rom_ifu_rresp  (rom_ifu_rresp),
 
+        // LSU (AXI-Lite AR + R)
+        .lsu_ram_araddr (lsu_ram_araddr),
+        .lsu_ram_arvalid(lsu_ram_arvalid),
+        .ram_lsu_arready(ram_lsu_arready),
+
+        .lsu_ram_rready (lsu_ram_rready),
+        .ram_lsu_rvalid (ram_lsu_rvalid),
+        .ram_lsu_rdata  (ram_lsu_rdata),
+        .ram_lsu_rresp  (ram_lsu_rresp),
+
+        // LSU (AXI-Lite AW)
+        .lsu_ram_awaddr (lsu_ram_awaddr),
+        .lsu_ram_awvalid(lsu_ram_awvalid),
+        .ram_lsu_awready(ram_lsu_awready),
+
+        // LSU (AXI-Lite W)
+        .lsu_ram_wdata (lsu_ram_wdata),
+        .lsu_ram_wstrb (lsu_ram_wstrb),
+        .lsu_ram_wvalid(lsu_ram_wvalid),
+        .ram_lsu_wready(ram_lsu_wready),
+
+        // LSU (AXI-Lite B)
+        .ram_lsu_bresp (ram_lsu_bresp),
+        .ram_lsu_bvalid(ram_lsu_bvalid),
+        .lsu_ram_bready(lsu_ram_bready)
     );
 
     IFU my_IFU (
-        .rom_ifu_rdata   (rom_ifu_rdata),
-        .ifu_rom_raddr   (ifu_rom_raddr),
-        .rom_ifu_respValid(rom_ifu_respValid),
-        .ifu_rom_reqValid(ifu_rom_reqValid),
-        .rom_ifu_reqReady(rom_ifu_reqReady),
-        .ifu_rom_respReady(ifu_rom_respReady),
-
         .clk      (clk),
         .rst      (rst),
         .n_pc     (n_pc),
         .pc       (pc),
         .inst     (inst),
-        .ifu_stall  (ifu_stall),
-        .lsu_stall(lsu_stall)
 
+        // AXI-Lite AR
+        .rom_ifu_arready(rom_ifu_arready),
+        .ifu_rom_araddr (ifu_rom_araddr),
+        .ifu_rom_arvalid(ifu_rom_arvalid),
+
+        // AXI-Lite R
+        .rom_ifu_rvalid(rom_ifu_rvalid),
+        .ifu_rom_rready(ifu_rom_rready),
+        .rom_ifu_rdata (rom_ifu_rdata),
+        .rom_ifu_rresp (rom_ifu_rresp),
+
+        .ifu_stall (ifu_stall),
+        .lsu_stall (lsu_stall)
     );
 
     IDU my_IDU (
@@ -136,27 +178,43 @@ module minirv (
     );
 
     LSU my_LSU (
-        .clk          (clk),
-        .rst          (rst),
-        .mem_w        (mem_w),
-        .mem_r        (mem_r),
-        .addr         (alu_result),
-        .wdata        (rdata2),
+        .clk   (clk),
+        .rst   (rst),
+        .mem_w (mem_w),
+        .mem_r (mem_r),
+        .addr  (alu_result),
+        .wdata (rdata2),
 
-        .ram_lsu_respValid  (ram_lsu_respValid),
-        .lsu_ram_reqValid   (lsu_ram_reqValid),
-        .ram_lsu_reqReady   (ram_lsu_reqReady),
-        .lsu_ram_respReady  (lsu_ram_respReady),
-        .ram_lsu_rdata      (ram_lsu_rdata),
-        .lsu_ram_addr       (lsu_ram_addr),
-        .lsu_ram_wen        (lsu_ram_wen),
-        .lsu_ram_wdata      (lsu_ram_wdata),
-        .lsu_ram_wmask      (lsu_ram_wmask),
+        // AXI-Lite AR
+        .ram_lsu_arready(ram_lsu_arready),
+        .lsu_ram_araddr (lsu_ram_araddr),
+        .lsu_ram_arvalid(lsu_ram_arvalid),
 
-        .out_data     (mem_result),
-        .lsu_stall    (lsu_stall),
+        // AXI-Lite R
+        .lsu_ram_rready(lsu_ram_rready),
+        .ram_lsu_rvalid(ram_lsu_rvalid),
+        .ram_lsu_rdata (ram_lsu_rdata),
+        .ram_lsu_rresp (ram_lsu_rresp),
 
-        .ifu_stall    (ifu_stall)
+        // AXI-Lite AW
+        .ram_lsu_awready(ram_lsu_awready),
+        .lsu_ram_awaddr (lsu_ram_awaddr),
+        .lsu_ram_awvalid(lsu_ram_awvalid),
+
+        // AXI-Lite W
+        .ram_lsu_wready(ram_lsu_wready),
+        .lsu_ram_wdata (lsu_ram_wdata),
+        .lsu_ram_wstrb (lsu_ram_wstrb),
+        .lsu_ram_wvalid(lsu_ram_wvalid),
+
+        // AXI-Lite B
+        .ram_lsu_bresp (ram_lsu_bresp),
+        .ram_lsu_bvalid(ram_lsu_bvalid),
+        .lsu_ram_bready(lsu_ram_bready),
+
+        .out_data  (mem_result),
+        .lsu_stall (lsu_stall),
+        .ifu_stall (ifu_stall)
     );
 
     WBU my_WBU (
@@ -188,7 +246,7 @@ module minirv (
         .out_mepc   (out_mepc),
         .out_mtvec  (out_mtvec),
 
-        .ifu_stall    (ifu_stall)
+        .ifu_stall  (ifu_stall)
     );
 
     always @(posedge clk) begin
