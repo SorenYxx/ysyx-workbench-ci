@@ -14,10 +14,6 @@
 #define MSB 128 * 1024 * 1024
 #define ADDR 0x80000000
 
-//MMIO
-#define SERIAL_PORT     0x10000000
-#define RTC_ADDR        0x10000048
-
 //mem
 extern uint8_t pmem[MSB];
 

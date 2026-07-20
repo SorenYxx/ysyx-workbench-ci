@@ -13,7 +13,7 @@ module LSU (
     output     reg    lsu_ram_arvalid,
 
     output            lsu_ram_rready,
-    input             ram_lsu_rvalid,
+    input      reg    ram_lsu_rvalid,
     input      [31:0] ram_lsu_rdata,
     input      [ 1:0] ram_lsu_rresp,
 
@@ -41,6 +41,7 @@ module LSU (
     reg [1:0] state_r;
 
     localparam W_IDLE = 3'b000;
+    localparam W_WAIT = 3'b001;
     localparam B_WAIT = 3'b010;
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
@@ -48,12 +49,12 @@ module LSU (
     wire ren = (mem_r != 3'd5) && !ifu_stall;
     wire wen = (mem_w != 2'b11) && !ifu_stall;
 
-    // 数据移位信号w/r
+    // 数据移位信号 w/r
     wire [31:0] wdata_shifted = (mem_w != 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
     wire [31:0] rdata_shifted = ram_lsu_rdata >> (addr[1:0] * 8);
 
     // load/store 阻塞
-    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && state_w == W_IDLE);
+    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && (state_w == W_IDLE || state_w == W_WAIT));
     
     // 访存相关数据
     assign lsu_ram_awaddr = addr;
@@ -65,8 +66,8 @@ module LSU (
                             4'h0;
 
     // load/store 访存请求与响应有效
-    assign lsu_ram_awvalid = (state_w == W_IDLE) && wen;
-    assign lsu_ram_wvalid  = (state_w == W_IDLE) && wen;
+    assign lsu_ram_awvalid = (state_w == W_IDLE || state_w == W_WAIT) && wen;
+    assign lsu_ram_wvalid  = (state_w == W_WAIT) && wen;
     assign lsu_ram_arvalid = (state_r == R_IDLE) && ren;
     assign lsu_ram_rready  = (state_r == R_WAIT);
     assign lsu_ram_bready  = (state_w == B_WAIT);
@@ -85,8 +86,12 @@ module LSU (
         end else begin
             case (state_w)
                 W_IDLE: begin
-                    if (handshake_aw && handshake_w) state_w <= B_WAIT;
+                    if (handshake_aw) state_w <= W_WAIT;
                     else state_w <= W_IDLE;
+                end
+                W_WAIT: begin
+                    if (handshake_w) state_w <= B_WAIT;
+                    else state_w <= W_WAIT;
                 end
                 B_WAIT: begin
                     if (handshake_b) state_w <= W_IDLE;

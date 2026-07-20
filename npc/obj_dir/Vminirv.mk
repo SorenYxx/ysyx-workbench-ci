@@ -37,7 +37,7 @@ VM_PREFIX = Vminirv
 VM_MODPREFIX = Vminirv
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-  -I/home/soren/ysyx-workbench/npc/include -DCONFIG_WATCHPOINT -DCONFIG_TRACE  -DCONFIG_BATCH_MODE \
+  -I/home/soren/ysyx-workbench/npc/include -DCONFIG_HAS_TIMER -DCONFIG_WATCHPOINT  -DCONFIG_HAS_SERIAL -DCONFIG_TRACE  -DCONFIG_BATCH_MODE  -DCONFIG_DEVICE \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
@@ -48,6 +48,11 @@ VM_USER_LDLIBS = \
 VM_USER_CLASSES = \
   cpu-exec \
   dut \
+  device \
+  map \
+  mmio \
+  serial \
+  timer \
   reg \
   main \
   paddr \
@@ -64,6 +69,7 @@ VM_USER_DIR = \
   ../src \
   ../src/cpu \
   ../src/cpu/difftest \
+  ../src/device \
   ../src/isa \
   ../src/memory \
   ../src/monitor \
@@ -82,6 +88,16 @@ VPATH += $(VM_USER_DIR)
 cpu-exec.o: ./src/cpu/cpu-exec.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 dut.o: ./src/cpu/difftest/dut.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+device.o: ./src/device/device.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+map.o: ./src/device/map.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+mmio.o: ./src/device/mmio.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+serial.o: ./src/device/serial.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+timer.o: ./src/device/timer.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 reg.o: ./src/isa/reg.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<

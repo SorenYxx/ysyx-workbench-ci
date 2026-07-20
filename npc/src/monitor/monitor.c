@@ -1,6 +1,7 @@
 #include <common.h>
 #include <npc.h>
 #include <paddr.h>
+#include <device/map.h>
 #include <getopt.h>
 
 // NO.
@@ -114,9 +115,14 @@ void sim_init(int argc, char *argv[]) {
   sdb_set_batch_mode();
 #endif
 
-  /* Initialize ftrace */
+  /* Initialize footrace */
 #ifdef CONFIG_FTRACE
   if (elf_file != NULL) init_ftrace(elf_file);
+#endif
+
+  /* Initialize devices. */
+#ifdef CONFIG_DEVICE
+  init_device();
 #endif
 
   /* Initialize differential testing. */

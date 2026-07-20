@@ -27,8 +27,8 @@ module IFU (
     localparam WAIT = 2'b01;
 
     // 握手请求与响应信号
-    wire handshake_ifu_req  = ifu_rom_arvalid && rom_ifu_arready;
-    wire handshake_ifu_resp = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
+    wire handshake_ifu_ar = ifu_rom_arvalid && rom_ifu_arready;
+    wire handshake_ifu_r  = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
 
     assign ifu_rom_rready = (state == WAIT) && !lsu_stall;
 
@@ -41,7 +41,7 @@ module IFU (
         end else begin
             case (state)
                 IDLE: begin
-                    if (handshake_ifu_req && !lsu_stall) begin
+                    if (handshake_ifu_ar && !lsu_stall) begin
                         pc    <= pc;
                         state <= WAIT;
                     end else begin
@@ -51,7 +51,7 @@ module IFU (
                 end
                 WAIT: begin
                     // 等待响应
-                    if (lsu_stall || !handshake_ifu_resp) begin //Load or Wait for resp
+                    if (lsu_stall || !handshake_ifu_r) begin //Load or Wait for resp
                         pc <= pc;
                     end else begin
                         pc    <= n_pc;

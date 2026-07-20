@@ -1,83 +1,54 @@
 #include <npc.h>
 #include <common.h>
 #include <paddr.h>
-#include <sys/time.h>
+#include <device/mmio.h>
+#include <device/map.h>
 
 u_int8_t pmem[] = {};
 
-uint8_t* guest_to_host(paddr_t addr) { return pmem + (addr - ADDR); } //get the uint8_t addr
+uint8_t* guest_to_host(paddr_t addr) { return pmem + (addr - ADDR); }
 
-static uint64_t get_host_time() {
-  struct timeval tv;
-  gettimeofday(&tv, NULL);
- 
-  return (uint64_t)tv.tv_sec * 1000000 + (uint64_t)tv.tv_usec;
+static inline bool in_pmem(paddr_t addr) {
+  return addr >= ADDR && addr < ADDR + MSB;
 }
 
 int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
-  if (addr == RTC_ADDR) {
-#ifdef CONFIG_DIFFTEST
-    difftest_skip_ref();
-#endif
-    uint32_t time_val = (uint32_t)get_host_time();
+  if (in_pmem(addr)) {
+    int value = *(int *)(guest_to_host(addr));
 #ifdef CONFIG_MTRACE
-    printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
+    printf("read          0x%08x from 0x%08x\n", value, addr);
 #endif
-    return time_val;
+    return value;
   }
 
-  if (addr == RTC_ADDR + 4) {
-#ifdef CONFIG_DIFFTEST
-    difftest_skip_ref();
-#endif
-    uint32_t time_val = (uint32_t)(get_host_time() >> 32);
-#ifdef CONFIG_MTRACE
-    printf("(device)read  0x%08x from 0x%08x\n", time_val, addr);
-#endif
-    return time_val;
+#ifdef CONFIG_DEVICE
+  {
+    word_t ret = mmio_read(addr, 4);
+    return (int)ret;
   }
-
-  if (addr < ADDR || addr >= 0x88000000) return 0;
-
-  int value = *(int *)(guest_to_host(addr));
-#ifdef CONFIG_MTRACE
-  printf("read          0x%08x from 0x%08x\n", value, addr);
 #endif
-  return value;
+
+  return 0;
 }
-
-// int wmask(int wstrb) {
-//   int mask = 0;
-//   for (int i = 0; i < 4; i++) {
-//     if ((wstrb >> i) & 0x1) mask |= (0xFF << (i * 8));
-//   }
-//   return mask;
-// }
 
 void pmem_write(int waddr, int wdata, int wmask) {
   uint32_t addr = (uint32_t)waddr & ~0x3u;
-  // wmask(wstrb);
 
-  if (addr == SERIAL_PORT) {
-    putchar(wdata);
-    fflush(stdout);
-#ifdef CONFIG_DIFFTEST
-    difftest_skip_ref();
-#endif
+  if (in_pmem(addr)) {
+    uint8_t *pt = guest_to_host(addr);
+    for (int i = 0; i < 4; i++) {
+      if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
+    }
 #ifdef CONFIG_MTRACE
-    printf("(device)write 0x%08x to   0x%08x\n", wdata, addr);
+    printf("write         0x%08x to   0x%08x\n", wdata, addr);
 #endif
+    return;
   }
 
-  if (addr < ADDR || addr >= 0x88000000) return;
-  uint8_t *pt = guest_to_host(addr);
-
-  for (int i = 0; i < 4; i++) {
-    if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
-  }
-#ifdef CONFIG_MTRACE
-  printf("write         0x%08x to   0x%08x\n", wdata, addr);
+#ifdef CONFIG_DEVICE
+  mmio_write(addr, 4, wdata);
+  return;
 #endif
 }

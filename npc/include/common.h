@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <assert.h>
+#include <generated/autoconf.h>
 #include <paddr.h>
 
 // ---------------- log ---------------

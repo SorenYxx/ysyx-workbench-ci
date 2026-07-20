@@ -106,11 +106,14 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
     // Body
     vlSelfRef.cur_pc = vlSelfRef.minirv__DOT__pc;
     vlSelfRef.cur_inst = vlSelfRef.minirv__DOT__rom_ifu_rdata;
-    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_rresp 
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_ifu_ar 
+        = ((IData)(vlSelfRef.minirv__DOT__ifu_rom_arvalid) 
+           & (1U == (IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__grant)));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_r 
         = ((IData)(vlSelfRef.minirv__DOT__ram_lsu_rvalid) 
            & ((1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_r)) 
               & (0U == (IData)(vlSelfRef.minirv__DOT__ram_lsu_rresp))));
-    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_bresp 
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_b 
         = ((IData)(vlSelfRef.minirv__DOT__ram_lsu_bvalid) 
            & ((2U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w)) 
               & (0U == (IData)(vlSelfRef.minirv__DOT__ram_lsu_bresp))));
@@ -118,6 +121,9 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         = ((1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_r)) 
            & ((IData)(vlSelfRef.minirv__DOT__ram_lsu_rvalid) 
               & (0U == (IData)(vlSelfRef.minirv__DOT__ram_lsu_rresp))));
+    vlSelfRef.minirv__DOT__my_LSU__DOT____VdfgRegularize_hac146698_0_4 
+        = ((0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w)) 
+           | (1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w)));
     vlSelfRef.minirv__DOT__R__DOT__rdata2 = ((0U == 
                                               (0x0000001fU 
                                                & (vlSelfRef.minirv__DOT__rom_ifu_rdata 
@@ -638,7 +644,10 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
                                                                 ? 0x0dU
                                                                 : 0U))))))))))))));
     vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_awvalid 
-        = ((0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w)) 
+        = ((IData)(vlSelfRef.minirv__DOT__my_LSU__DOT____VdfgRegularize_hac146698_0_4) 
+           & (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__wen));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_wvalid 
+        = ((1U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w)) 
            & (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__wen));
     vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_arvalid 
         = ((0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_r)) 
@@ -647,7 +656,7 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         (((IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__ren) 
           & (0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_r))) 
          | ((IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__wen) 
-            & (0U == (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT__state_w))));
+            & (IData)(vlSelfRef.minirv__DOT__my_LSU__DOT____VdfgRegularize_hac146698_0_4)));
     vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 = (((0x6fU 
                                                  == 
                                                  (0x0000007fU 
@@ -820,7 +829,16 @@ VL_ATTR_COLD void Vminirv___024root___stl_sequent__TOP__0(Vminirv___024root* vlS
         vlSelfRef.minirv__DOT__alu_result = (vlSelfRef.minirv__DOT__my_EXU__DOT__rs1 
                                              + vlSelfRef.minirv__DOT__my_EXU__DOT__rs2);
     }
-    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_ifu_resp 
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_aw 
+        = ((IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_awvalid) 
+           & (2U == (IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__grant)));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_w 
+        = ((IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_wvalid) 
+           & (2U == (IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__grant)));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_lsu_ar 
+        = ((IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__lsu_ram_arvalid) 
+           & (2U == (IData)(vlSelfRef.minirv__DOT__my_RegisterFile__DOT__grant)));
+    vlSelfRef.minirv__DOT__my_RegisterFile__DOT__handshake_ifu_r 
         = ((IData)(vlSelfRef.minirv__DOT__rom_ifu_rvalid) 
            & (((~ (IData)(vlSelfRef.minirv__DOT__my_IDU__DOT__lsu_stall)) 
                & (1U == (IData)(vlSelfRef.minirv__DOT__my_IFU__DOT__state))) 
@@ -1006,9 +1024,17 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     }
     vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_ram_arvalid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8847558806853267156ull);
     vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_ram_awvalid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1327099801975509273ull);
-    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_ifu_resp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6670564334417431632ull);
-    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_rresp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14906830563044127060ull);
-    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_bresp = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5885794163170775891ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__lsu_ram_wvalid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7689638958253669677ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_ifu_ar = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17449358085882303067ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_ar = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2958895971633202847ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_aw = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12955677996121532802ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_w = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17294716158342390731ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_ifu_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13642423954768202789ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2655050318960200130ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__handshake_lsu_b = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 13950364849785077321ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__w_pending = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 634570332779002416ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__awaddr_latch = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14660471684233547752ull);
+    vlSelf->minirv__DOT__my_RegisterFile__DOT__grant = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 12341628781058336465ull);
     vlSelf->minirv__DOT__my_IFU__DOT__state = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 9873836437827919515ull);
     vlSelf->minirv__DOT__my_IDU__DOT__lsu_stall = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 7784486428190836292ull);
     vlSelf->minirv__DOT__my_IDU__DOT__imm = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11613781066534815353ull);
@@ -1069,6 +1095,7 @@ VL_ATTR_COLD void Vminirv___024root___ctor_var_reset(Vminirv___024root* vlSelf) 
     vlSelf->minirv__DOT__my_LSU__DOT__wen = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 6165768311056088881ull);
     vlSelf->minirv__DOT__my_LSU__DOT__rdata_shifted = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 18361977288581372492ull);
     vlSelf->minirv__DOT__my_LSU__DOT__handshake_r = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 17054884104244238135ull);
+    vlSelf->minirv__DOT__my_LSU__DOT____VdfgRegularize_hac146698_0_4 = 0;
     vlSelf->minirv__DOT__my_CSR__DOT__csr_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1440923004177438012ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mstatus = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3028853897646203962ull);
     vlSelf->minirv__DOT__my_CSR__DOT__mtvec = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 17413039076710395707ull);
