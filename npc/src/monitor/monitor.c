@@ -81,9 +81,9 @@ static void init_verilator(int argc, char *argv[]) {
   top->trace(tfp, 99);
   tfp->open("wave.fst");
 
-  top->rst = 1; top->clk = 0;
-  top->eval(); top->clk = 1;
-  top->eval(); top->rst = 0;
+  top->reset = 1; top->clock = 0;
+  top->eval(); top->clock = 1;
+  top->eval(); top->reset = 0;
 }
 
 static void init_csr() {

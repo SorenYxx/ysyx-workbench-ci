@@ -16,7 +16,7 @@ void ebreak() {
 
 // verilator
 VerilatedFstC* tfp = new VerilatedFstC;
-Vminirv* top = new Vminirv;
+Vysyx_26010027* top = new Vysyx_26010027;
 vluint64_t main_time = 0;
 
 
@@ -38,8 +38,8 @@ int is_exit_status_bad() {
 
 // eval
 void step_and_eval() {
-  top->clk = 0; top->eval();
-  top->clk = 1; top->eval();
+  top->clock = 0; top->eval();
+  top->clock = 1; top->eval();
 
   tfp->dump(main_time); 
   main_time ++;

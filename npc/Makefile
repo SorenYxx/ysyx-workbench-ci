@@ -1,5 +1,5 @@
 SIMULATOR = verilator
-TOP       = minirv
+TOP       = ysyx_26010027
 NPC_HOME  = $(shell pwd)
 VFLAGS    = $(shell find ./vsrc -name "*.v")
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c")

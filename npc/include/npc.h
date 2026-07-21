@@ -7,7 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include "verilated.h"
-#include "Vminirv.h"
+#include "Vysyx_26010027.h"
 #include "verilated_fst_c.h"
 
 //MEM
@@ -46,7 +46,7 @@ int is_exit_status_bad();
 
 //verilator
 extern VerilatedFstC* tfp;
-extern Vminirv* top;
+extern Vysyx_26010027* top;
 
 void itrace_record(int pc, int inst);
 
