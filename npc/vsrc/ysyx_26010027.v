@@ -51,6 +51,7 @@ module ysyx_26010027 (
 
 );
     // ----- AXI-Lite -----
+    // master
     wire     [31:0] io_master_araddr;
     wire            io_master_arvalid;
     wire            io_master_arready;
@@ -72,6 +73,121 @@ module ysyx_26010027 (
     wire     [ 1:0] io_master_bresp;
     wire            io_master_bvalid;
     wire            io_master_bready;
+
+    // slave
+    wire     [31:0] io_slave_araddr;
+    wire            io_slave_arvalid;
+    wire            io_slave_arready;
+
+    wire            io_slave_rready;
+    wire     [31:0] io_slave_rdata;
+    wire            io_slave_rvalid;
+    wire     [ 1:0] io_slave_rresp;
+
+    wire     [31:0] io_slave_awaddr;
+    wire            io_slave_awvalid;
+    wire            io_slave_awready;
+
+    wire     [31:0] io_slave_wdata;
+    wire     [ 3:0] io_slave_wstrb;
+    wire            io_slave_wvalid;
+    wire            io_slave_wready;
+
+    wire     [ 1:0] io_slave_bresp;
+    wire            io_slave_bvalid;
+    wire            io_slave_bready;
+
+    wire     [ 1:0] sel;
+
+    // ----- 外设接口信号 -----
+    // slave -> master
+    wire            io_sram_arready;
+    wire            io_sram_rvalid;
+    wire     [31:0] io_sram_rdata;
+    wire     [ 1:0] io_sram_rresp;
+    wire            io_sram_awready;
+    wire            io_sram_wready;
+    wire            io_sram_bvalid;
+    wire     [ 1:0] io_sram_bresp;
+
+    wire            io_uart_arready;
+    wire            io_uart_rvalid;
+    wire     [31:0] io_uart_rdata;
+    wire     [ 1:0] io_uart_rresp;
+    wire            io_uart_awready;
+    wire            io_uart_wready;
+    wire            io_uart_bvalid;
+    wire     [ 1:0] io_uart_bresp;
+
+    wire            io_clint_arready;
+    wire            io_clint_rvalid;
+    wire     [31:0] io_clint_rdata;
+    wire     [ 1:0] io_clint_rresp;
+    wire            io_clint_awready;
+    wire            io_clint_wready;
+    wire            io_clint_bvalid;
+    wire     [ 1:0] io_clint_bresp;
+
+    localparam SRAM  = 2'b01;
+    localparam CLINT = 2'b10;
+    localparam UART  = 2'b11;
+
+    assign io_slave_arready = (sel == SRAM)  ? io_sram_arready :
+                              (sel == UART)  ? io_uart_arready :
+                              (sel == CLINT) ? io_clint_arready : 1'b0;
+    assign io_slave_rvalid  = (sel == SRAM)  ? io_sram_rvalid :
+                              (sel == UART)  ? io_uart_rvalid :
+                              (sel == CLINT) ? io_clint_rvalid : 1'b0;
+    assign io_slave_rdata   = (sel == SRAM)  ? io_sram_rdata :
+                              (sel == UART)  ? io_uart_rdata :
+                              (sel == CLINT) ? io_clint_rdata : 32'b0;
+    assign io_slave_rresp   = (sel == SRAM)  ? io_sram_rresp :
+                              (sel == UART)  ? io_uart_rresp :
+                              (sel == CLINT) ? io_clint_rresp : 2'b0;
+    assign io_slave_awready = (sel == SRAM)  ? io_sram_awready :
+                              (sel == UART)  ? io_uart_awready :
+                              (sel == CLINT) ? io_clint_awready : 1'b0;
+    assign io_slave_wready  = (sel == SRAM)  ? io_sram_wready :
+                              (sel == UART)  ? io_uart_wready :
+                              (sel == CLINT) ? io_clint_wready : 1'b0;
+    assign io_slave_bvalid  = (sel == SRAM)  ? io_sram_bvalid :
+                              (sel == UART)  ? io_uart_bvalid :
+                              (sel == CLINT) ? io_clint_bvalid : 1'b0;
+    assign io_slave_bresp   = (sel == SRAM)  ? io_sram_bresp :
+                              (sel == UART)  ? io_uart_bresp :
+                              (sel == CLINT) ? io_clint_bresp : 2'b0;
+
+    // master -> slave
+    wire        io_sram_arvalid = (sel == SRAM) ? io_slave_arvalid : 1'b0;
+    wire [31:0] io_sram_araddr  = (sel == SRAM) ? io_slave_araddr  : 32'b0;
+    wire        io_sram_rready  = (sel == SRAM) ? io_slave_rready  : 1'b0;
+    wire        io_sram_awvalid = (sel == SRAM) ? io_slave_awvalid : 1'b0;
+    wire [31:0] io_sram_awaddr  = (sel == SRAM) ? io_slave_awaddr  : 32'b0;
+    wire [31:0] io_sram_wdata   = (sel == SRAM) ? io_slave_wdata   : 32'b0;
+    wire [ 3:0] io_sram_wstrb   = (sel == SRAM) ? io_slave_wstrb   : 4'b0;
+    wire        io_sram_wvalid  = (sel == SRAM) ? io_slave_wvalid  : 1'b0;
+    wire        io_sram_bready  = (sel == SRAM) ? io_slave_bready  : 1'b0;
+
+    wire        io_uart_arvalid = (sel == UART) ? io_slave_arvalid : 1'b0;
+    wire [31:0] io_uart_araddr  = (sel == UART) ? io_slave_araddr  : 32'b0;
+    wire        io_uart_rready  = (sel == UART) ? io_slave_rready  : 1'b0;
+    wire        io_uart_awvalid = (sel == UART) ? io_slave_awvalid : 1'b0;
+    wire [31:0] io_uart_awaddr  = (sel == UART) ? io_slave_awaddr  : 32'b0;
+    wire [31:0] io_uart_wdata   = (sel == UART) ? io_slave_wdata   : 32'b0;
+    wire [ 3:0] io_uart_wstrb   = (sel == UART) ? io_slave_wstrb   : 4'b0;
+    wire        io_uart_wvalid  = (sel == UART) ? io_slave_wvalid  : 1'b0;
+    wire        io_uart_bready  = (sel == UART) ? io_slave_bready  : 1'b0;
+
+    wire        io_clint_arvalid = (sel == CLINT) ? io_slave_arvalid : 1'b0;
+    wire [31:0] io_clint_araddr  = (sel == CLINT) ? io_slave_araddr  : 32'b0;
+    wire        io_clint_rready  = (sel == CLINT) ? io_slave_rready  : 1'b0;
+    wire        io_clint_awvalid = (sel == CLINT) ? io_slave_awvalid : 1'b0;
+    wire [31:0] io_clint_awaddr  = (sel == CLINT) ? io_slave_awaddr  : 32'b0;
+    wire [31:0] io_clint_wdata   = (sel == CLINT) ? io_slave_wdata   : 32'b0;
+    wire [ 3:0] io_clint_wstrb   = (sel == CLINT) ? io_slave_wstrb   : 4'b0;
+    wire        io_clint_wvalid  = (sel == CLINT) ? io_slave_wvalid  : 1'b0;
+    wire        io_clint_bready  = (sel == CLINT) ? io_slave_bready  : 1'b0;
+
 
     // ----- 内部信号 -----
     wire [31:0] inst;
@@ -107,31 +223,139 @@ module ysyx_26010027 (
         .rdata2(rdata2)
     );
 
+    ysyx_26010027_Xbar my_Xbar (
+        .clock     (clock),
+        .reset     (reset),
+
+        .io_master_araddr (io_master_araddr),
+        .io_master_arvalid(io_master_arvalid),
+        .io_master_arready(io_master_arready),
+
+        .io_master_rready (io_master_rready),
+        .io_master_rvalid (io_master_rvalid),
+        .io_master_rdata  (io_master_rdata),
+        .io_master_rresp  (io_master_rresp),
+
+        .io_master_awaddr (io_master_awaddr),
+        .io_master_awvalid(io_master_awvalid),
+        .io_master_awready(io_master_awready),
+
+        .io_master_wdata (io_master_wdata),
+        .io_master_wstrb (io_master_wstrb),
+        .io_master_wvalid(io_master_wvalid),
+        .io_master_wready(io_master_wready),
+
+        .io_master_bresp (io_master_bresp),
+        .io_master_bvalid(io_master_bvalid),
+        .io_master_bready(io_master_bready),
+
+        .io_slave_araddr (io_slave_araddr),
+        .io_slave_arvalid(io_slave_arvalid),
+        .io_slave_arready(io_slave_arready),
+
+        .io_slave_rready (io_slave_rready),
+        .io_slave_rvalid (io_slave_rvalid),
+        .io_slave_rdata  (io_slave_rdata),
+        .io_slave_rresp  (io_slave_rresp),
+
+        .io_slave_awaddr (io_slave_awaddr),
+        .io_slave_awvalid(io_slave_awvalid),
+        .io_slave_awready(io_slave_awready),
+
+        .io_slave_wdata (io_slave_wdata),
+        .io_slave_wstrb (io_slave_wstrb),
+        .io_slave_wvalid(io_slave_wvalid),
+        .io_slave_wready(io_slave_wready),
+
+        .io_slave_bresp (io_slave_bresp),
+        .io_slave_bvalid(io_slave_bvalid),
+        .io_slave_bready(io_slave_bready),
+
+        .sel(sel)
+
+    );
+
     ysyx_26010027_SRAM my_SRAM (
         .clock     (clock),
         .reset     (reset),
 
-        .io_slave_araddr (io_master_araddr),
-        .io_slave_arvalid(io_master_arvalid),
-        .io_slave_arready(io_master_arready),
+        .io_slave_araddr (io_sram_araddr),
+        .io_slave_arvalid(io_sram_arvalid),
+        .io_slave_arready(io_sram_arready),
 
-        .io_slave_rready (io_master_rready),
-        .io_slave_rvalid (io_master_rvalid),
-        .io_slave_rdata  (io_master_rdata),
-        .io_slave_rresp  (io_master_rresp),
+        .io_slave_rready (io_sram_rready),
+        .io_slave_rvalid (io_sram_rvalid),
+        .io_slave_rdata  (io_sram_rdata),
+        .io_slave_rresp  (io_sram_rresp),
 
-        .io_slave_awaddr (io_master_awaddr),
-        .io_slave_awvalid(io_master_awvalid),
-        .io_slave_awready(io_master_awready),
+        .io_slave_awaddr (io_sram_awaddr),
+        .io_slave_awvalid(io_sram_awvalid),
+        .io_slave_awready(io_sram_awready),
 
-        .io_slave_wdata (io_master_wdata),
-        .io_slave_wstrb (io_master_wstrb),
-        .io_slave_wvalid(io_master_wvalid),
-        .io_slave_wready(io_master_wready),
+        .io_slave_wdata (io_sram_wdata),
+        .io_slave_wstrb (io_sram_wstrb),
+        .io_slave_wvalid(io_sram_wvalid),
+        .io_slave_wready(io_sram_wready),
 
-        .io_slave_bresp (io_master_bresp),
-        .io_slave_bvalid(io_master_bvalid),
-        .io_slave_bready(io_master_bready)
+        .io_slave_bresp (io_sram_bresp),
+        .io_slave_bvalid(io_sram_bvalid),
+        .io_slave_bready(io_sram_bready)
+
+    );
+
+    ysyx_26010027_CLINT my_CLINT (
+        .clock     (clock),
+        .reset     (reset),
+
+        .io_slave_araddr (io_clint_araddr),
+        .io_slave_arvalid(io_clint_arvalid),
+        .io_slave_arready(io_clint_arready),
+
+        .io_slave_rready (io_clint_rready),
+        .io_slave_rvalid (io_clint_rvalid),
+        .io_slave_rdata  (io_clint_rdata),
+        .io_slave_rresp  (io_clint_rresp),
+
+        .io_slave_awaddr (io_clint_awaddr),
+        .io_slave_awvalid(io_clint_awvalid),
+        .io_slave_awready(io_clint_awready),
+
+        .io_slave_wdata (io_clint_wdata),
+        .io_slave_wstrb (io_clint_wstrb),
+        .io_slave_wvalid(io_clint_wvalid),
+        .io_slave_wready(io_clint_wready),
+
+        .io_slave_bresp (io_clint_bresp),
+        .io_slave_bvalid(io_clint_bvalid),
+        .io_slave_bready(io_clint_bready)
+
+    );
+
+    ysyx_26010027_UART my_UART (
+        .clock     (clock),
+        .reset     (reset),
+
+        .io_slave_araddr (io_uart_araddr),
+        .io_slave_arvalid(io_uart_arvalid),
+        .io_slave_arready(io_uart_arready),
+
+        .io_slave_rready (io_uart_rready),
+        .io_slave_rvalid (io_uart_rvalid),
+        .io_slave_rdata  (io_uart_rdata),
+        .io_slave_rresp  (io_uart_rresp),
+
+        .io_slave_awaddr (io_uart_awaddr),
+        .io_slave_awvalid(io_uart_awvalid),
+        .io_slave_awready(io_uart_awready),
+
+        .io_slave_wdata (io_uart_wdata),
+        .io_slave_wstrb (io_uart_wstrb),
+        .io_slave_wvalid(io_uart_wvalid),
+        .io_slave_wready(io_uart_wready),
+
+        .io_slave_bresp (io_uart_bresp),
+        .io_slave_bvalid(io_uart_bvalid),
+        .io_slave_bready(io_uart_bready)
 
     );
 
