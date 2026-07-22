@@ -131,9 +131,8 @@ module ysyx_26010027 (
 
         .io_slave_bresp (io_master_bresp),
         .io_slave_bvalid(io_master_bvalid),
-        .io_slave_bready(io_master_bready),
+        .io_slave_bready(io_master_bready)
 
-        .w_pending      (w_pending)
     );
 
     // ----- IFU AXI-Lite -----
@@ -329,17 +328,17 @@ module ysyx_26010027 (
     assign cur_pc   = pc;
     assign cur_inst = inst;
     
-    // Arbiter
+
+    // ----- Arbiter -----
     reg [1:0] grant;
-    reg       w_pending;
 
     localparam IFU_GRANT = 2'b01;
     localparam LSU_GRANT = 2'b10;
 
-    // 握手信号
-    wire handshake_ifu_resp = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
-    wire handshake_lsu_r    = ram_lsu_rvalid  && lsu_ram_rready  && (ram_lsu_rresp  == 2'b00);
-    wire handshake_lsu_b    = ram_lsu_bvalid  && lsu_ram_bready  && (ram_lsu_bresp  == 2'b00);
+    // 必要的握手信号
+    wire handshake_ifu_r = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
+    wire handshake_lsu_r = ram_lsu_rvalid  && lsu_ram_rready  && (ram_lsu_rresp  == 2'b00);
+    wire handshake_lsu_b = ram_lsu_bvalid  && lsu_ram_bready  && (ram_lsu_bresp  == 2'b00);
 
     // output signals
     assign io_master_arvalid = (grant == IFU_GRANT) ? ifu_rom_arvalid : lsu_ram_arvalid;
@@ -356,19 +355,21 @@ module ysyx_26010027 (
 
     assign io_master_bready  = lsu_ram_bready;
 
+    // grant 状态机
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             grant <= IFU_GRANT;
         end else begin
-            // grant 状态机
             case (grant)
                 IFU_GRANT:
-                    if (handshake_ifu_resp) begin
-                        if (lsu_ram_arvalid || lsu_ram_awvalid || w_pending) grant <= LSU_GRANT;
+                    // IFU 握手后检测 LSU 是否有请求
+                    if (handshake_ifu_r) begin
+                        if (lsu_ram_arvalid || lsu_ram_awvalid) grant <= LSU_GRANT;
                     end
                     else grant <= IFU_GRANT;
 
                 LSU_GRANT:
+                    // LSU 握手后直接切回 IFU
                     if (handshake_lsu_r || handshake_lsu_b) begin
                         grant <= IFU_GRANT;
                     end
@@ -377,5 +378,7 @@ module ysyx_26010027 (
             endcase
         end
     end
+
+    // ---------------
 
 endmodule

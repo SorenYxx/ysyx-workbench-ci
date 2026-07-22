@@ -23,9 +23,8 @@ module ysyx_26010027_SRAM (
 
     output     [ 1:0] io_slave_bresp,
     output reg        io_slave_bvalid,
-    input             io_slave_bready,
+    input             io_slave_bready
 
-    output reg        w_pending
 
     // --------------------------------
 );
@@ -56,33 +55,29 @@ module ysyx_26010027_SRAM (
     end
 
     // write
-    reg [31:0] awaddr_latch;
+    reg [31:0] awaddr_latch; // 锁存 AWaddr 等 W
+    reg w_pending;
 
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            awaddr_latch <= 32'b0;
-            w_pending    <= 1'b0;
-        end
-        else begin
+            awaddr_latch    <= 32'b0;
+            io_slave_bvalid <= 1'b0;
+            io_slave_bresp  <= 2'b0;
+            w_pending       <= 1'b0;
+        end else begin
             if (handshake_aw) begin
                 awaddr_latch <= io_slave_awaddr;
                 w_pending    <= 1'b1;
             end
-            if (handshake_w) w_pending <= 1'b0;
-        end
-    end
-
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            io_slave_bvalid <= 1'b0;
-            io_slave_bresp  <= 2'b0;
-        end else begin
-            if (handshake_w) begin
+            else if (handshake_w) begin
                 pmem_write(awaddr_latch, io_slave_wdata, {28'b0, io_slave_wstrb});
                 io_slave_bvalid <= 1'b1;
                 io_slave_bresp  <= 2'b0;
+                w_pending       <= 1'b0;
             end
-            else if (handshake_b) io_slave_bvalid <= 1'b0;
+            else if (handshake_b) begin
+                io_slave_bvalid <= 1'b0;
+            end
         end
     end
 

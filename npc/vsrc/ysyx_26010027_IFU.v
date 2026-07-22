@@ -26,11 +26,9 @@ module ysyx_26010027_IFU (
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
 
-    reg [31:0] inst_latch;
-
     // 握手请求与响应信号
-    wire handshake_ifu_req  = ifu_rom_arvalid && rom_ifu_arready;
-    wire handshake_ifu_resp = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
+    wire handshake_ifu_ar = ifu_rom_arvalid && rom_ifu_arready;
+    wire handshake_ifu_r  = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
 
     assign ifu_rom_rready = (state == WAIT);
 
@@ -39,15 +37,15 @@ module ysyx_26010027_IFU (
     // IFU 状态机
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            state           <= IDLE;
-            pc              <= 32'h80000000;
-            lsu_pending     <= 1'b0;
+            state       <= IDLE;
+            pc          <= 32'h80000000;
+            lsu_pending <= 1'b0;
         end else begin
             case (state)
                 IDLE: begin
-                    if (handshake_ifu_req && !lsu_stall) begin
-                        pc         <= pc;
-                        state      <= WAIT;
+                    if (handshake_ifu_ar && !lsu_stall) begin
+                        pc    <= pc;
+                        state <= WAIT;
                     end else begin
                         pc    <= pc;
                         state <= IDLE;
@@ -59,7 +57,7 @@ module ysyx_26010027_IFU (
                         pc    <= pc;
                         state <= WAIT; // 保持在 WAIT 状态，等待 LSU 完成
                         lsu_pending <= 1'b1; // 标记 LSU 正在处理
-                    end else if (handshake_ifu_resp) begin
+                    end else if (handshake_ifu_r) begin
                         pc    <= n_pc;
                         state <= IDLE;
                         lsu_pending <= 1'b0; // 清除 LSU 处理标记
@@ -80,11 +78,14 @@ module ysyx_26010027_IFU (
         end
     end
 
+    // inst 锁存处理
+    reg [31:0] inst_latch;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             inst_latch <= 32'h0;
         end else begin
-            if (rom_ifu_rvalid && state == WAIT) begin
+            // 当 rom 发来真正有效数据才锁存
+            if (rom_ifu_rvalid) begin
                 inst_latch <= rom_ifu_rdata;
             end else begin
                 inst_latch <= inst_latch;
@@ -93,8 +94,8 @@ module ysyx_26010027_IFU (
     end
 
     assign ifu_rom_araddr  = pc;
-    assign ifu_rom_arvalid = (state == IDLE);
-    assign ifu_stall       = (state == IDLE);
-    assign inst            = (rom_ifu_rvalid) ? rom_ifu_rdata : inst_latch;
+    assign ifu_rom_arvalid = (state == IDLE); // 只有需要取指时才发起请求 避免盲目请求
+    assign ifu_stall       = (state == IDLE); // 请求时阻塞 CPU  统一执行周期
+    assign inst            = (rom_ifu_rvalid) ? rom_ifu_rdata : inst_latch; // 避免仲裁 LSU 时 inst 丢失
 
 endmodule
