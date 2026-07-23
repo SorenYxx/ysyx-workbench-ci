@@ -101,6 +101,9 @@ static void welcome() {
 }
 
 void sim_init(int argc, char *argv[]) {
+ /* Initialize the verilator */
+  init_verilator(argc, argv);
+
   /* Parse arguments. */
   parse_args(argc, argv);
 
@@ -129,9 +132,6 @@ void sim_init(int argc, char *argv[]) {
 #ifdef CONFIG_DIFFTEST
   init_difftest(REF_SO_FILE, img_size);
 #endif
-
-  /* Initialize the verilator */
-  init_verilator(argc, argv);
 
   /* Initialize the simple debugger. */
   init_sdb();

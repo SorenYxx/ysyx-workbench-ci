@@ -1,7 +1,8 @@
 SIMULATOR = verilator
-TOP       = ysyx_26010027
+TOP       = ysyxSoCFull
 NPC_HOME  = $(shell pwd)
-VFLAGS    = $(shell find ./vsrc -name "*.v")
+VFLAGS    = $(shell find ./vsrc -name "*.v") $(shell find ../ysyxSoC/perip -name "*.v") ../ysyxSoC/build/ysyxSoCFull.v
+VINCS     = -I../ysyxSoC/perip/uart16550/rtl -I../ysyxSoC/perip/spi/rtl
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c")
 INC_PATH  = $(NPC_HOME)/include
 NEMU_HOME = $(abspath ../nemu)
@@ -31,7 +32,11 @@ all: sim compile run
 
 compile:
 	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
-        $(VFLAGS) $(CSRC)\
+        -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME \
+        -Wno-DEFPARAM -Wno-ASSIGNDLY -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
+        -Wno-UNDRIVEN \
+        --timescale "1ns/1ns" --no-timing \
+        $(VFLAGS) $(VINCS) $(CSRC)\
 		-CFLAGS "-I$(INC_PATH) $(NPC_CFLAGS)" \
 		-LDFLAGS "$(LIBS)" \
 		--o V$(TOP)

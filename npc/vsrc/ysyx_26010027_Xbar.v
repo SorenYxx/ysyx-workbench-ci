@@ -52,7 +52,6 @@ module ysyx_26010027_Xbar (
     output    [ 1:0] sel
 
 );
-
     wire req = (io_master_arvalid || io_master_awvalid);
     reg [1:0] state;
 
@@ -106,28 +105,30 @@ module ysyx_26010027_Xbar (
 
     assign sel = state;
 
-    // slave -> master
-    assign io_master_arready = io_slave_arready;
+    // 防止 sel 切换前错误 slave 抢先完成握手
+    wire sel_matches = (state == SRAM)  ? (!addr_is_uart && !addr_is_clint) :
+                       (state == UART)  ? addr_is_uart :
+                       (state == CLINT) ? addr_is_clint : 1'b0;
+
+    assign io_master_arready = io_slave_arready && sel_matches;
+    assign io_master_awready = io_slave_awready && sel_matches;
+    assign io_master_wready  = io_slave_wready;
 
     assign io_master_rdata   = io_slave_rdata;
     assign io_master_rvalid  = io_slave_rvalid;
     assign io_master_rresp   = io_slave_rresp;
-
-    assign io_master_awready = io_slave_awready;
-
-    assign io_master_wready  = io_slave_wready;
 
     assign io_master_bresp   = io_slave_bresp;
     assign io_master_bvalid  = io_slave_bvalid;
 
     // master -> slave
     assign io_slave_araddr  = io_master_araddr;
-    assign io_slave_arvalid = io_master_arvalid;
+    assign io_slave_arvalid = io_master_arvalid && sel_matches;
 
     assign io_slave_rready  = io_master_rready;
 
     assign io_slave_awaddr  = io_master_awaddr;
-    assign io_slave_awvalid = io_master_awvalid;
+    assign io_slave_awvalid = io_master_awvalid && sel_matches;
 
     assign io_slave_wdata   = io_master_wdata;
     assign io_slave_wstrb   = io_master_wstrb;

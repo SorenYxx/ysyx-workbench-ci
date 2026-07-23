@@ -26,7 +26,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  printf("pc: 0x%08X\n", top->cur_pc);
+  printf("pc: 0x%08X\n", CPU_PC());
   for (int i = 0; i <= 31; i += 8) {
     printf("%s: 0x%08X  ", regs[i], R[i]);
     if (i == 31) { printf("\n"); break; }
@@ -43,7 +43,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
     }
     else if (strcmp("pc", s) == 0) {
       *success = true;
-      return top->cur_pc;
+      return CPU_PC();
     }
   }
   printf("no this reg!\n");

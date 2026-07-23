@@ -6,7 +6,7 @@
 int is_end = 0;
 
 void ebreak() {
-  if (R[10] == 0) { is_end = 1; npc_state.halt_pc = top->cur_pc; Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
+  if (R[10] == 0) { is_end = 1; npc_state.halt_pc = CPU_PC(); Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
   else {
     Log("\033[1;31mHIT BAD TRAP\033[0m");
     // exit(0);
@@ -16,7 +16,7 @@ void ebreak() {
 
 // verilator
 VerilatedFstC* tfp = new VerilatedFstC;
-Vysyx_26010027* top = new Vysyx_26010027;
+VysyxSoCFull* top = new VysyxSoCFull;
 vluint64_t main_time = 0;
 
 
@@ -25,9 +25,9 @@ NPCState npc_state = { .state = NPC_STOP };
 CPU_state cpu_n = { .pc = 0x80000000 };
 
 void is_illegal_inst() {
-  Log("\033[1;31mAbort at PC = 0x%08x with illegal_inst = 0x%08x\033[0m", top->cur_pc, top->cur_inst);
-  npc_state.state = NPC_ABORT; 
-  npc_state.halt_pc = top->cur_pc;
+  Log("\033[1;31mAbort at PC = 0x%08x with illegal_inst = 0x%08x\033[0m", CPU_PC(), CPU_INST());
+  npc_state.state = NPC_ABORT;
+  npc_state.halt_pc = CPU_PC();
 }
 
 int is_exit_status_bad() {
@@ -44,7 +44,7 @@ void step_and_eval() {
   tfp->dump(main_time); 
   main_time ++;
 
-  cpu_n.pc = top->cur_pc;
+  cpu_n.pc = CPU_PC();
 
 #ifdef CONFIG_DIFFTEST
   check_difftest();
@@ -67,7 +67,7 @@ void cpu_exec(uint64_t n) {
       break;
     }
 #ifdef CONFIG_TRACE
-    itrace_record(top->cur_pc, top->cur_inst);
+    itrace_record(CPU_PC(), CPU_INST());
 #endif
     if (npc_state.state != NPC_RUNNING) break; 
   }

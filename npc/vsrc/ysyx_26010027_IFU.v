@@ -6,14 +6,14 @@ module ysyx_26010027_IFU (
     output     [31:0] inst,
 
     // ----------- AXI-Lite -----------
-    input             rom_ifu_arready,
-    output     [31:0] ifu_rom_araddr,
-    output            ifu_rom_arvalid,
+    input             cpu_ifu_arready,
+    output     [31:0] ifu_cpu_araddr,
+    output            ifu_cpu_arvalid,
 
-    input             rom_ifu_rvalid,
-    output            ifu_rom_rready,
-    input      [31:0] rom_ifu_rdata,
-    input      [ 1:0] rom_ifu_rresp,
+    input             cpu_ifu_rvalid,
+    output            ifu_cpu_rready,
+    input      [31:0] cpu_ifu_rdata,
+    input      [ 1:0] cpu_ifu_rresp,
 
     // --------------------------------
 
@@ -27,10 +27,10 @@ module ysyx_26010027_IFU (
     localparam WAIT = 2'b01;
 
     // 握手请求与响应信号
-    wire handshake_ifu_ar = ifu_rom_arvalid && rom_ifu_arready;
-    wire handshake_ifu_r  = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
+    wire handshake_ifu_ar = ifu_cpu_arvalid && cpu_ifu_arready;
+    wire handshake_ifu_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
-    assign ifu_rom_rready = (state == WAIT);
+    assign ifu_cpu_rready = (state == WAIT);
 
     reg lsu_pending;
 
@@ -84,18 +84,18 @@ module ysyx_26010027_IFU (
         if (reset) begin
             inst_latch <= 32'h0;
         end else begin
-            // 当 rom 发来真正有效数据才锁存
-            if (rom_ifu_rvalid) begin
-                inst_latch <= rom_ifu_rdata;
+            // 当总线发来真正有效数据才锁存
+            if (cpu_ifu_rvalid) begin
+                inst_latch <= cpu_ifu_rdata;
             end else begin
                 inst_latch <= inst_latch;
             end
         end
     end
 
-    assign ifu_rom_araddr  = pc;
-    assign ifu_rom_arvalid = (state == IDLE); // 只有需要取指时才发起请求 避免盲目请求
+    assign ifu_cpu_araddr  = pc;
+    assign ifu_cpu_arvalid = (state == IDLE); // 只有需要取指时才发起请求 避免盲目请求
     assign ifu_stall       = (state == IDLE); // 请求时阻塞 CPU  统一执行周期
-    assign inst            = (rom_ifu_rvalid) ? rom_ifu_rdata : inst_latch; // 避免仲裁 LSU 时 inst 丢失
+    assign inst            = (cpu_ifu_rvalid) ? cpu_ifu_rdata : inst_latch; // 避免仲裁 LSU 时 inst 丢失
 
 endmodule

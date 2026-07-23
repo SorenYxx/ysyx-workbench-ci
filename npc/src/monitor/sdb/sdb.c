@@ -69,7 +69,7 @@ static int cmd_x(char *args) {
   bool success;
 
   if (args == NULL) {
-    printf("Now: 0x%08X: %08x\n", top->cur_pc, pmem_read(top->cur_pc));
+    printf("Now: 0x%08X: %08x\n", CPU_PC(), pmem_read(CPU_PC()));
     return 0;
   }
 
@@ -78,7 +78,7 @@ static int cmd_x(char *args) {
 
   if (arg0 != NULL) {
     n = strtol(arg0, &a0, 10);
-    s = (arg1 == NULL) ? top->cur_pc: expr(arg1, &success);
+    s = (arg1 == NULL) ? CPU_PC(): expr(arg1, &success);
 
     if (a0 == arg0 || *a0 != '\0' || n <= 0) printf("Error: Unknown usage: '%s'\n", arg);
 

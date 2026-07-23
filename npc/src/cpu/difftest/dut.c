@@ -88,7 +88,7 @@ void check_difftest() {
 
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
-  // printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, top->cur_pc);
+  // printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, CPU_PC());
 
-  checkregs(&ref_regs, top->cur_pc);
+  checkregs(&ref_regs, CPU_PC());
 }

@@ -7,7 +7,11 @@
 #include <cstdio>
 #include <cstdlib>
 #include "verilated.h"
-#include "Vysyx_26010027.h"
+#include "VysyxSoCFull.h"
+#include "VysyxSoCFull___024root.h"
+
+#define CPU_PC()   (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc)
+#define CPU_INST() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__inst)
 #include "verilated_fst_c.h"
 
 //MEM
@@ -46,7 +50,7 @@ int is_exit_status_bad();
 
 //verilator
 extern VerilatedFstC* tfp;
-extern Vysyx_26010027* top;
+extern VysyxSoCFull* top;
 
 void itrace_record(int pc, int inst);
 

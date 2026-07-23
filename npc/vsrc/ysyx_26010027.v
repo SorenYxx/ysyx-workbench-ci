@@ -9,187 +9,83 @@ import "DPI-C" function void get_csr(input int csr, input int data);
 module ysyx_26010027 (
     input         clock,
     input         reset,
-    output [31:0] cur_pc,
-    output [31:0] cur_inst
 
-    // ----- AXI4 -----
-    // input         io_master_awready,
-    // output        io_master_awvalid,
-    // output [31:0] io_master_awaddr,
-    // output [ 3:0] io_master_awid,
-    // output [ 7:0] io_master_awlen,
-    // output [ 2:0] io_master_awsize,
-    // output [ 1:0] io_master_awburst,
+    // MASTER
+    // AR
+    input         io_master_arready,
+    output        io_master_arvalid,
+    output [31:0] io_master_araddr,
+    output [ 3:0] io_master_arid,
+    output [ 7:0] io_master_arlen,
+    output [ 2:0] io_master_arsize,
+    output [ 1:0] io_master_arburst,
+    // R
+    output        io_master_rready,
+    input         io_master_rvalid,
+    input  [31:0] io_master_rdata,
+    input  [ 1:0] io_master_rresp,
+    input  [ 3:0] io_master_rid,
+    input         io_master_rlast,
+    // AW
+    input         io_master_awready,
+    output        io_master_awvalid,
+    output [31:0] io_master_awaddr,
+    output [ 3:0] io_master_awid,
+    output [ 7:0] io_master_awlen,
+    output [ 2:0] io_master_awsize,
+    output [ 1:0] io_master_awburst,
+    // W
+    input         io_master_wready,
+    output        io_master_wvalid,
+    output [31:0] io_master_wdata,
+    output [ 3:0] io_master_wstrb,
+    output        io_master_wlast,
+    // B
+    input         io_master_bvalid,
+    output        io_master_bready,
+    input  [ 1:0] io_master_bresp,
+    input  [ 3:0] io_master_bid,
 
-    // input         io_master_wready,
-    // output        io_master_wvalid,
-    // output [31:0] io_master_wdata,
-    // output [ 3:0] io_master_wstrb,
-    // output        io_master_wlast,
-    // input         io_master_bvalid,
-    // output        io_master_bready,
-    // input  [ 1:0] io_master_bresp,
-    // input  [ 3:0] io_master_bid,
+    // SLAVE
+    // AR
+    output        io_slave_arready,
+    input         io_slave_arvalid,
+    input  [31:0] io_slave_araddr,
+    input  [ 3:0] io_slave_arid,
+    input  [ 7:0] io_slave_arlen,
+    input  [ 2:0] io_slave_arsize,
+    input  [ 1:0] io_slave_arburst,
+    // R
+    input         io_slave_rready,
+    output        io_slave_rvalid,
+    output [31:0] io_slave_rdata,
+    output [ 1:0] io_slave_rresp,
+    output [ 3:0] io_slave_rid,
+    output        io_slave_rlast,
+    // AW
+    output        io_slave_awready,
+    input         io_slave_awvalid,
+    input  [31:0] io_slave_awaddr,
+    input  [ 3:0] io_slave_awid,
+    input  [ 7:0] io_slave_awlen,
+    input  [ 2:0] io_slave_awsize,
+    input  [ 1:0] io_slave_awburst,
+    // W
+    output        io_slave_wready,
+    input         io_slave_wvalid,
+    input  [31:0] io_slave_wdata,
+    input  [ 3:0] io_slave_wstrb,
+    input         io_slave_wlast,
+    // B
+    output        io_slave_bvalid,
+    input         io_slave_bready,
+    output [ 1:0] io_slave_bresp,
+    output [ 3:0] io_slave_bid,
 
-    // input         io_master_arready,
-    // output        io_master_arvalid,
-    // output [31:0] io_master_araddr,
-    // output [ 3:0] io_master_arid,
-    // output [ 7:0] io_master_arlen,
-    // output [ 2:0] io_master_arsize,
-    // output [ 1:0] io_master_arburst,
-
-    // output        io_master_rready,
-    // input         io_master_rvalid,
-    // input  [31:0] io_master_rdata,
-    // input  [ 1:0] io_master_rresp,
-    // input  [ 3:0] io_master_rid,
-    // input         io_master_rlast,
-
-    // input         io_interrupt
-    // ---------------
-
+    input         io_interrupt
 );
-    // ----- AXI-Lite -----
-    // master
-    wire     [31:0] io_master_araddr;
-    wire            io_master_arvalid;
-    wire            io_master_arready;
 
-    wire            io_master_rready;
-    wire     [31:0] io_master_rdata;
-    wire            io_master_rvalid;
-    wire     [ 1:0] io_master_rresp;
-
-    wire     [31:0] io_master_awaddr;
-    wire            io_master_awvalid;
-    wire            io_master_awready;
-
-    wire     [31:0] io_master_wdata;
-    wire     [ 3:0] io_master_wstrb;
-    wire            io_master_wvalid;
-    wire            io_master_wready;
-
-    wire     [ 1:0] io_master_bresp;
-    wire            io_master_bvalid;
-    wire            io_master_bready;
-
-    // slave
-    wire     [31:0] io_slave_araddr;
-    wire            io_slave_arvalid;
-    wire            io_slave_arready;
-
-    wire            io_slave_rready;
-    wire     [31:0] io_slave_rdata;
-    wire            io_slave_rvalid;
-    wire     [ 1:0] io_slave_rresp;
-
-    wire     [31:0] io_slave_awaddr;
-    wire            io_slave_awvalid;
-    wire            io_slave_awready;
-
-    wire     [31:0] io_slave_wdata;
-    wire     [ 3:0] io_slave_wstrb;
-    wire            io_slave_wvalid;
-    wire            io_slave_wready;
-
-    wire     [ 1:0] io_slave_bresp;
-    wire            io_slave_bvalid;
-    wire            io_slave_bready;
-
-    wire     [ 1:0] sel;
-
-    // ----- 外设接口信号 -----
-    // slave -> master
-    wire            io_sram_arready;
-    wire            io_sram_rvalid;
-    wire     [31:0] io_sram_rdata;
-    wire     [ 1:0] io_sram_rresp;
-    wire            io_sram_awready;
-    wire            io_sram_wready;
-    wire            io_sram_bvalid;
-    wire     [ 1:0] io_sram_bresp;
-
-    wire            io_uart_arready;
-    wire            io_uart_rvalid;
-    wire     [31:0] io_uart_rdata;
-    wire     [ 1:0] io_uart_rresp;
-    wire            io_uart_awready;
-    wire            io_uart_wready;
-    wire            io_uart_bvalid;
-    wire     [ 1:0] io_uart_bresp;
-
-    wire            io_clint_arready;
-    wire            io_clint_rvalid;
-    wire     [31:0] io_clint_rdata;
-    wire     [ 1:0] io_clint_rresp;
-    wire            io_clint_awready;
-    wire            io_clint_wready;
-    wire            io_clint_bvalid;
-    wire     [ 1:0] io_clint_bresp;
-
-    localparam SRAM  = 2'b01;
-    localparam CLINT = 2'b10;
-    localparam UART  = 2'b11;
-
-    assign io_slave_arready = (sel == SRAM)  ? io_sram_arready :
-                              (sel == UART)  ? io_uart_arready :
-                              (sel == CLINT) ? io_clint_arready : 1'b0;
-    assign io_slave_rvalid  = (sel == SRAM)  ? io_sram_rvalid :
-                              (sel == UART)  ? io_uart_rvalid :
-                              (sel == CLINT) ? io_clint_rvalid : 1'b0;
-    assign io_slave_rdata   = (sel == SRAM)  ? io_sram_rdata :
-                              (sel == UART)  ? io_uart_rdata :
-                              (sel == CLINT) ? io_clint_rdata : 32'b0;
-    assign io_slave_rresp   = (sel == SRAM)  ? io_sram_rresp :
-                              (sel == UART)  ? io_uart_rresp :
-                              (sel == CLINT) ? io_clint_rresp : 2'b0;
-    assign io_slave_awready = (sel == SRAM)  ? io_sram_awready :
-                              (sel == UART)  ? io_uart_awready :
-                              (sel == CLINT) ? io_clint_awready : 1'b0;
-    assign io_slave_wready  = (sel == SRAM)  ? io_sram_wready :
-                              (sel == UART)  ? io_uart_wready :
-                              (sel == CLINT) ? io_clint_wready : 1'b0;
-    assign io_slave_bvalid  = (sel == SRAM)  ? io_sram_bvalid :
-                              (sel == UART)  ? io_uart_bvalid :
-                              (sel == CLINT) ? io_clint_bvalid : 1'b0;
-    assign io_slave_bresp   = (sel == SRAM)  ? io_sram_bresp :
-                              (sel == UART)  ? io_uart_bresp :
-                              (sel == CLINT) ? io_clint_bresp : 2'b0;
-
-    // master -> slave
-    wire        io_sram_arvalid = (sel == SRAM) ? io_slave_arvalid : 1'b0;
-    wire [31:0] io_sram_araddr  = (sel == SRAM) ? io_slave_araddr  : 32'b0;
-    wire        io_sram_rready  = (sel == SRAM) ? io_slave_rready  : 1'b0;
-    wire        io_sram_awvalid = (sel == SRAM) ? io_slave_awvalid : 1'b0;
-    wire [31:0] io_sram_awaddr  = (sel == SRAM) ? io_slave_awaddr  : 32'b0;
-    wire [31:0] io_sram_wdata   = (sel == SRAM) ? io_slave_wdata   : 32'b0;
-    wire [ 3:0] io_sram_wstrb   = (sel == SRAM) ? io_slave_wstrb   : 4'b0;
-    wire        io_sram_wvalid  = (sel == SRAM) ? io_slave_wvalid  : 1'b0;
-    wire        io_sram_bready  = (sel == SRAM) ? io_slave_bready  : 1'b0;
-
-    wire        io_uart_arvalid = (sel == UART) ? io_slave_arvalid : 1'b0;
-    wire [31:0] io_uart_araddr  = (sel == UART) ? io_slave_araddr  : 32'b0;
-    wire        io_uart_rready  = (sel == UART) ? io_slave_rready  : 1'b0;
-    wire        io_uart_awvalid = (sel == UART) ? io_slave_awvalid : 1'b0;
-    wire [31:0] io_uart_awaddr  = (sel == UART) ? io_slave_awaddr  : 32'b0;
-    wire [31:0] io_uart_wdata   = (sel == UART) ? io_slave_wdata   : 32'b0;
-    wire [ 3:0] io_uart_wstrb   = (sel == UART) ? io_slave_wstrb   : 4'b0;
-    wire        io_uart_wvalid  = (sel == UART) ? io_slave_wvalid  : 1'b0;
-    wire        io_uart_bready  = (sel == UART) ? io_slave_bready  : 1'b0;
-
-    wire        io_clint_arvalid = (sel == CLINT) ? io_slave_arvalid : 1'b0;
-    wire [31:0] io_clint_araddr  = (sel == CLINT) ? io_slave_araddr  : 32'b0;
-    wire        io_clint_rready  = (sel == CLINT) ? io_slave_rready  : 1'b0;
-    wire        io_clint_awvalid = (sel == CLINT) ? io_slave_awvalid : 1'b0;
-    wire [31:0] io_clint_awaddr  = (sel == CLINT) ? io_slave_awaddr  : 32'b0;
-    wire [31:0] io_clint_wdata   = (sel == CLINT) ? io_slave_wdata   : 32'b0;
-    wire [ 3:0] io_clint_wstrb   = (sel == CLINT) ? io_slave_wstrb   : 4'b0;
-    wire        io_clint_wvalid  = (sel == CLINT) ? io_slave_wvalid  : 1'b0;
-    wire        io_clint_bready  = (sel == CLINT) ? io_slave_bready  : 1'b0;
-
-
-    // ----- 内部信号 -----
+    // 内部信号
     wire [31:0] inst;
     wire [31:0] pc, n_pc;
 
@@ -212,6 +108,113 @@ module ysyx_26010027 (
     wire        ifu_stall;
     wire        lsu_stall;
 
+    // Arbiter相关信号
+    wire        arb_arvalid;
+    wire        arb_arready;
+    wire [31:0] arb_araddr;
+    wire        arb_rvalid;
+    wire        arb_rready;
+    wire [31:0] arb_rdata;
+    wire [ 1:0] arb_rresp;
+
+    wire        arb_awvalid;
+    wire        arb_awready;
+    wire [31:0] arb_awaddr;
+    wire        arb_wvalid;
+    wire        arb_wready;
+    wire [31:0] arb_wdata;
+    wire [ 3:0] arb_wstrb;
+    wire        arb_bvalid;
+    wire        arb_bready;
+    wire [ 1:0] arb_bresp;
+
+    // CLINT 接口信号
+    wire            io_clint_arready;
+    wire            io_clint_rvalid;
+    wire     [31:0] io_clint_rdata;
+    wire     [ 1:0] io_clint_rresp;
+    wire            io_clint_awready;
+    wire            io_clint_wready;
+    wire            io_clint_bvalid;
+    wire     [ 1:0] io_clint_bresp;
+
+    // 地址译码
+    wire addr_is_clint_ar = (arb_araddr >= 32'h1000_0048) && (arb_araddr <= 32'h1000_004f);
+
+    reg  addr_is_clint_r;
+    always @(posedge clock, posedge reset) begin
+        if (reset)
+            addr_is_clint_r <= 1'b0;
+        else if (arb_arvalid && arb_arready)
+            addr_is_clint_r <= addr_is_clint_ar;
+    end
+
+    // AR
+    wire io_clint_arvalid = arb_arvalid && addr_is_clint_ar;
+    wire [31:0] io_clint_araddr  = arb_araddr;
+    wire io_clint_rready  = arb_rready && addr_is_clint_r;
+
+    wire io_clint_awvalid = 1'b0;
+    wire [31:0] io_clint_awaddr  = 32'b0;
+    wire [31:0] io_clint_wdata  = 32'b0;
+    wire [ 3:0] io_clint_wstrb  = 4'b0;
+    wire io_clint_wvalid = 1'b0;
+    wire io_clint_bready = 1'b0;
+
+    assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar;
+    assign io_master_araddr  = arb_araddr;
+
+    assign io_master_arid    = 4'h0;
+    assign io_master_arlen   = 8'h0;    // 单拍
+    assign io_master_arsize  = 3'b010;  // 4 字节
+    assign io_master_arburst = 2'b01;   // INCR
+
+    assign arb_arready = addr_is_clint_ar ? io_clint_arready : io_master_arready;
+
+    // --- R 响应方向 (用寄存版本，打断环路) ---
+    assign arb_rvalid = addr_is_clint_r ? io_clint_rvalid : io_master_rvalid;
+    assign arb_rdata  = addr_is_clint_r ? io_clint_rdata  : io_master_rdata;
+    assign arb_rresp  = addr_is_clint_r ? io_clint_rresp  : io_master_rresp;
+
+    assign io_master_rready = arb_rready && !addr_is_clint_r;
+
+    // AW
+    assign io_master_awvalid = arb_awvalid;
+    assign io_master_awaddr  = arb_awaddr;
+    assign io_master_awid    = 4'h0;
+    assign io_master_awlen   = 8'h0;
+    assign io_master_awsize  = 3'b010;
+    assign io_master_awburst = 2'b01;
+
+    assign arb_awready = io_master_awready;
+
+    // W
+    assign io_master_wvalid = arb_wvalid;
+    assign io_master_wdata  = arb_wdata;
+    assign io_master_wstrb  = arb_wstrb;
+    assign io_master_wlast  = 1'b1;     // 单拍，始终 last
+
+    assign arb_wready = io_master_wready;
+
+    // B
+    assign arb_bvalid = io_master_bvalid;
+    assign arb_bresp  = io_master_bresp;
+
+    assign io_master_bready = arb_bready;
+
+    // slave output 置零
+    assign io_slave_arready = 1'b0;
+    assign io_slave_rvalid  = 1'b0;
+    assign io_slave_rdata   = 32'b0;
+    assign io_slave_rresp   = 2'b0;
+    assign io_slave_rid     = 4'b0;
+    assign io_slave_rlast   = 1'b0;
+    assign io_slave_awready = 1'b0;
+    assign io_slave_wready  = 1'b0;
+    assign io_slave_bvalid  = 1'b0;
+    assign io_slave_bresp   = 2'b0;
+    assign io_slave_bid     = 4'b0;
+
     ysyx_26010027_GPR R (
         .clock  (clock),
         .waddr (waddr),
@@ -221,86 +224,6 @@ module ysyx_26010027 (
         .raddr2(rs2),
         .rdata1(rdata1),
         .rdata2(rdata2)
-    );
-
-    ysyx_26010027_Xbar my_Xbar (
-        .clock     (clock),
-        .reset     (reset),
-
-        .io_master_araddr (io_master_araddr),
-        .io_master_arvalid(io_master_arvalid),
-        .io_master_arready(io_master_arready),
-
-        .io_master_rready (io_master_rready),
-        .io_master_rvalid (io_master_rvalid),
-        .io_master_rdata  (io_master_rdata),
-        .io_master_rresp  (io_master_rresp),
-
-        .io_master_awaddr (io_master_awaddr),
-        .io_master_awvalid(io_master_awvalid),
-        .io_master_awready(io_master_awready),
-
-        .io_master_wdata (io_master_wdata),
-        .io_master_wstrb (io_master_wstrb),
-        .io_master_wvalid(io_master_wvalid),
-        .io_master_wready(io_master_wready),
-
-        .io_master_bresp (io_master_bresp),
-        .io_master_bvalid(io_master_bvalid),
-        .io_master_bready(io_master_bready),
-
-        .io_slave_araddr (io_slave_araddr),
-        .io_slave_arvalid(io_slave_arvalid),
-        .io_slave_arready(io_slave_arready),
-
-        .io_slave_rready (io_slave_rready),
-        .io_slave_rvalid (io_slave_rvalid),
-        .io_slave_rdata  (io_slave_rdata),
-        .io_slave_rresp  (io_slave_rresp),
-
-        .io_slave_awaddr (io_slave_awaddr),
-        .io_slave_awvalid(io_slave_awvalid),
-        .io_slave_awready(io_slave_awready),
-
-        .io_slave_wdata (io_slave_wdata),
-        .io_slave_wstrb (io_slave_wstrb),
-        .io_slave_wvalid(io_slave_wvalid),
-        .io_slave_wready(io_slave_wready),
-
-        .io_slave_bresp (io_slave_bresp),
-        .io_slave_bvalid(io_slave_bvalid),
-        .io_slave_bready(io_slave_bready),
-
-        .sel(sel)
-
-    );
-
-    ysyx_26010027_SRAM my_SRAM (
-        .clock     (clock),
-        .reset     (reset),
-
-        .io_slave_araddr (io_sram_araddr),
-        .io_slave_arvalid(io_sram_arvalid),
-        .io_slave_arready(io_sram_arready),
-
-        .io_slave_rready (io_sram_rready),
-        .io_slave_rvalid (io_sram_rvalid),
-        .io_slave_rdata  (io_sram_rdata),
-        .io_slave_rresp  (io_sram_rresp),
-
-        .io_slave_awaddr (io_sram_awaddr),
-        .io_slave_awvalid(io_sram_awvalid),
-        .io_slave_awready(io_sram_awready),
-
-        .io_slave_wdata (io_sram_wdata),
-        .io_slave_wstrb (io_sram_wstrb),
-        .io_slave_wvalid(io_sram_wvalid),
-        .io_slave_wready(io_sram_wready),
-
-        .io_slave_bresp (io_sram_bresp),
-        .io_slave_bvalid(io_sram_bvalid),
-        .io_slave_bready(io_sram_bready)
-
     );
 
     ysyx_26010027_CLINT my_CLINT (
@@ -328,51 +251,22 @@ module ysyx_26010027 (
         .io_slave_bresp (io_clint_bresp),
         .io_slave_bvalid(io_clint_bvalid),
         .io_slave_bready(io_clint_bready)
-
     );
 
-    ysyx_26010027_UART my_UART (
-        .clock     (clock),
-        .reset     (reset),
+    // ----- IFU (AXI-Lite) -----
+    wire        ifu_cpu_arvalid;
+    wire        cpu_ifu_arready;
+    wire [31:0] ifu_cpu_araddr;
 
-        .io_slave_araddr (io_uart_araddr),
-        .io_slave_arvalid(io_uart_arvalid),
-        .io_slave_arready(io_uart_arready),
+    wire        cpu_ifu_rvalid;
+    wire        ifu_cpu_rready;
+    wire [31:0] cpu_ifu_rdata;
+    wire [ 1:0] cpu_ifu_rresp;
 
-        .io_slave_rready (io_uart_rready),
-        .io_slave_rvalid (io_uart_rvalid),
-        .io_slave_rdata  (io_uart_rdata),
-        .io_slave_rresp  (io_uart_rresp),
-
-        .io_slave_awaddr (io_uart_awaddr),
-        .io_slave_awvalid(io_uart_awvalid),
-        .io_slave_awready(io_uart_awready),
-
-        .io_slave_wdata (io_uart_wdata),
-        .io_slave_wstrb (io_uart_wstrb),
-        .io_slave_wvalid(io_uart_wvalid),
-        .io_slave_wready(io_uart_wready),
-
-        .io_slave_bresp (io_uart_bresp),
-        .io_slave_bvalid(io_uart_bvalid),
-        .io_slave_bready(io_uart_bready)
-
-    );
-
-    // ----- IFU AXI-Lite -----
-    wire        ifu_rom_arvalid;
-    wire        rom_ifu_arready;
-    wire [31:0] ifu_rom_araddr;
-
-    wire        rom_ifu_rvalid;
-    wire        ifu_rom_rready;
-    wire [31:0] rom_ifu_rdata;
-    wire [ 1:0] rom_ifu_rresp;
-
-    assign rom_ifu_arready = (grant == IFU_GRANT) ? io_master_arready : 1'b0;
-    assign rom_ifu_rvalid  = (grant == IFU_GRANT) ? io_master_rvalid  : 1'b0;
-    assign rom_ifu_rdata   = (grant == IFU_GRANT) ? io_master_rdata   : 32'b0;
-    assign rom_ifu_rresp   = (grant == IFU_GRANT) ? io_master_rresp   : 2'b0;
+    assign cpu_ifu_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
+    assign cpu_ifu_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
+    assign cpu_ifu_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
+    assign cpu_ifu_rresp   = (grant == IFU_GRANT) ? arb_rresp   : 2'b0;
 
     ysyx_26010027_IFU my_IFU (
         .clock    (clock),
@@ -381,16 +275,14 @@ module ysyx_26010027 (
         .pc       (pc),
         .inst     (inst),
 
-        // AXI-Lite AR
-        .rom_ifu_arready(rom_ifu_arready),
-        .ifu_rom_araddr (ifu_rom_araddr),
-        .ifu_rom_arvalid(ifu_rom_arvalid),
+        .cpu_ifu_arready(cpu_ifu_arready),
+        .ifu_cpu_araddr (ifu_cpu_araddr),
+        .ifu_cpu_arvalid(ifu_cpu_arvalid),
 
-        // AXI-Lite R
-        .rom_ifu_rvalid(rom_ifu_rvalid),
-        .ifu_rom_rready(ifu_rom_rready),
-        .rom_ifu_rdata (rom_ifu_rdata),
-        .rom_ifu_rresp (rom_ifu_rresp),
+        .cpu_ifu_rvalid(cpu_ifu_rvalid),
+        .ifu_cpu_rready(ifu_cpu_rready),
+        .cpu_ifu_rdata (cpu_ifu_rdata),
+        .cpu_ifu_rresp (cpu_ifu_rresp),
 
         .ifu_stall (ifu_stall),
         .lsu_stall (lsu_stall)
@@ -430,41 +322,37 @@ module ysyx_26010027 (
         .res       (alu_result)
     );
 
-    // ----- LSU AXI-Lite -----
-    wire        lsu_ram_arvalid;
-    wire        ram_lsu_arready;
-    wire [31:0] lsu_ram_araddr;
+    // ----- LSU (AXI-Lite) -----
+    wire        lsu_cpu_arvalid;
+    wire        cpu_lsu_arready;
+    wire [31:0] lsu_cpu_araddr;
 
-    wire        ram_lsu_rvalid; 
-    wire        lsu_ram_rready;
-    wire [31:0] ram_lsu_rdata;
-    wire [ 1:0] ram_lsu_rresp;
+    wire        cpu_lsu_rvalid;
+    wire        lsu_cpu_rready;
+    wire [31:0] cpu_lsu_rdata;
+    wire [ 1:0] cpu_lsu_rresp;
 
-    wire        lsu_ram_awvalid;
-    wire        ram_lsu_awready;
-    wire [31:0] lsu_ram_awaddr;
+    wire        lsu_cpu_awvalid;
+    wire        cpu_lsu_awready;
+    wire [31:0] lsu_cpu_awaddr;
 
-    wire        lsu_ram_wvalid;
-    wire        ram_lsu_wready;
-    wire [31:0] lsu_ram_wdata;
-    wire [ 3:0] lsu_ram_wstrb;
+    wire        lsu_cpu_wvalid;
+    wire        cpu_lsu_wready;
+    wire [31:0] lsu_cpu_wdata;
+    wire [ 3:0] lsu_cpu_wstrb;
 
-    wire        ram_lsu_bvalid;
-    wire        lsu_ram_bready;
-    wire [ 1:0] ram_lsu_bresp;
+    wire        cpu_lsu_bvalid;
+    wire        lsu_cpu_bready;
+    wire [ 1:0] cpu_lsu_bresp;
 
-
-    assign ram_lsu_arready = (grant == LSU_GRANT) ? io_master_arready : 1'b0;
-
-    assign ram_lsu_rvalid  = (grant == LSU_GRANT) ? io_master_rvalid  : 1'b0;
-    assign ram_lsu_rdata   = (grant == LSU_GRANT) ? io_master_rdata   : 32'b0;
-    assign ram_lsu_rresp   = (grant == LSU_GRANT) ? io_master_rresp   : 2'b0;
-
-    assign ram_lsu_awready = (grant == LSU_GRANT) ? io_master_awready : 1'b0;
-    assign ram_lsu_wready  = (grant == LSU_GRANT) ? io_master_wready  : 1'b0;
-
-    assign ram_lsu_bvalid  = (grant == LSU_GRANT) ? io_master_bvalid  : 1'b0;
-    assign ram_lsu_bresp   = (grant == LSU_GRANT) ? io_master_bresp   : 2'b0;
+    assign cpu_lsu_arready = (grant == LSU_GRANT) ? arb_arready : 1'b0;
+    assign cpu_lsu_rvalid  = (grant == LSU_GRANT) ? arb_rvalid  : 1'b0;
+    assign cpu_lsu_rdata   = (grant == LSU_GRANT) ? arb_rdata   : 32'b0;
+    assign cpu_lsu_rresp   = (grant == LSU_GRANT) ? arb_rresp   : 2'b0;
+    assign cpu_lsu_awready = (grant == LSU_GRANT) ? arb_awready : 1'b0;
+    assign cpu_lsu_wready  = (grant == LSU_GRANT) ? arb_wready  : 1'b0;
+    assign cpu_lsu_bvalid  = (grant == LSU_GRANT) ? arb_bvalid  : 1'b0;
+    assign cpu_lsu_bresp   = (grant == LSU_GRANT) ? arb_bresp   : 2'b0;
 
     ysyx_26010027_LSU my_LSU (
         .clock           (clock),
@@ -474,32 +362,27 @@ module ysyx_26010027 (
         .addr           (alu_result),
         .wdata          (rdata2),
 
-        // AR
-        .ram_lsu_arready(ram_lsu_arready),
-        .lsu_ram_araddr (lsu_ram_araddr),
-        .lsu_ram_arvalid(lsu_ram_arvalid),
+        .cpu_lsu_arready(cpu_lsu_arready),
+        .lsu_cpu_araddr (lsu_cpu_araddr),
+        .lsu_cpu_arvalid(lsu_cpu_arvalid),
 
-        // R
-        .lsu_ram_rready (lsu_ram_rready),
-        .ram_lsu_rvalid (ram_lsu_rvalid),
-        .ram_lsu_rdata  (ram_lsu_rdata),
-        .ram_lsu_rresp  (ram_lsu_rresp),
+        .lsu_cpu_rready (lsu_cpu_rready),
+        .cpu_lsu_rvalid (cpu_lsu_rvalid),
+        .cpu_lsu_rdata  (cpu_lsu_rdata),
+        .cpu_lsu_rresp  (cpu_lsu_rresp),
 
-        // AW
-        .ram_lsu_awready(ram_lsu_awready),
-        .lsu_ram_awaddr (lsu_ram_awaddr),
-        .lsu_ram_awvalid(lsu_ram_awvalid),
+        .cpu_lsu_awready(cpu_lsu_awready),
+        .lsu_cpu_awaddr (lsu_cpu_awaddr),
+        .lsu_cpu_awvalid(lsu_cpu_awvalid),
 
-        // W
-        .ram_lsu_wready (ram_lsu_wready),
-        .lsu_ram_wdata  (lsu_ram_wdata),
-        .lsu_ram_wstrb  (lsu_ram_wstrb),
-        .lsu_ram_wvalid (lsu_ram_wvalid),
+        .cpu_lsu_wready (cpu_lsu_wready),
+        .lsu_cpu_wdata  (lsu_cpu_wdata),
+        .lsu_cpu_wstrb  (lsu_cpu_wstrb),
+        .lsu_cpu_wvalid (lsu_cpu_wvalid),
 
-        // B
-        .ram_lsu_bresp  (ram_lsu_bresp),
-        .ram_lsu_bvalid (ram_lsu_bvalid),
-        .lsu_ram_bready (lsu_ram_bready),
+        .cpu_lsu_bresp  (cpu_lsu_bresp),
+        .cpu_lsu_bvalid (cpu_lsu_bvalid),
+        .lsu_cpu_bready (lsu_cpu_bready),
 
         .out_data       (mem_result),
         .lsu_stall      (lsu_stall),
@@ -538,6 +421,53 @@ module ysyx_26010027 (
         .ifu_stall  (ifu_stall)
     );
 
+    // ----- Arbiter -----
+    reg [1:0] grant;
+
+    localparam IFU_GRANT = 2'b01;
+    localparam LSU_GRANT = 2'b10;
+
+    // 事务完成时握手信号
+    wire handshake_ifu_r = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
+    wire handshake_lsu_r = cpu_lsu_rvalid  && lsu_cpu_rready  && (cpu_lsu_rresp  == 2'b00);
+    wire handshake_lsu_b = cpu_lsu_bvalid  && lsu_cpu_bready  && (cpu_lsu_bresp  == 2'b00);
+
+    // arbiter -> 下游总线
+    assign arb_arvalid = (grant == IFU_GRANT) ? ifu_cpu_arvalid : lsu_cpu_arvalid;
+    assign arb_araddr  = (grant == IFU_GRANT) ? ifu_cpu_araddr  : lsu_cpu_araddr;
+    assign arb_rready  = (grant == IFU_GRANT) ? ifu_cpu_rready  : lsu_cpu_rready;
+
+    assign arb_awvalid = (grant == LSU_GRANT) ? lsu_cpu_awvalid : 1'b0;
+    assign arb_awaddr  = lsu_cpu_awaddr;
+    assign arb_wvalid  = lsu_cpu_wvalid;
+    assign arb_wdata   = lsu_cpu_wdata;
+    assign arb_wstrb   = lsu_cpu_wstrb;
+    assign arb_bready  = lsu_cpu_bready;
+
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            grant <= IFU_GRANT;
+        end else begin
+            case (grant)
+                IFU_GRANT:
+                    // IFU 握手后检测 LSU 相关信号 
+                    if (handshake_ifu_r) begin
+                        if (lsu_cpu_arvalid || lsu_cpu_awvalid)
+                            grant <= LSU_GRANT;
+                    end
+                    else grant <= IFU_GRANT;
+
+                LSU_GRANT:
+                    // LSU 握手后直接切回 IFU
+                    if (handshake_lsu_r || handshake_lsu_b)
+                        grant <= IFU_GRANT;
+                    else grant <= LSU_GRANT;
+                default: grant <= IFU_GRANT;
+            endcase
+        end
+    end
+    // ---------------
+
     always @(posedge clock) begin
         if (j_type == 2'b01 && !ifu_stall) begin
             ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
@@ -548,61 +478,5 @@ module ysyx_26010027 (
             $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
         end
     end
-
-    assign cur_pc   = pc;
-    assign cur_inst = inst;
-    
-
-    // ----- Arbiter -----
-    reg [1:0] grant;
-
-    localparam IFU_GRANT = 2'b01;
-    localparam LSU_GRANT = 2'b10;
-
-    // 必要的握手信号
-    wire handshake_ifu_r = rom_ifu_rvalid && ifu_rom_rready && (rom_ifu_rresp == 2'b00);
-    wire handshake_lsu_r = ram_lsu_rvalid  && lsu_ram_rready  && (ram_lsu_rresp  == 2'b00);
-    wire handshake_lsu_b = ram_lsu_bvalid  && lsu_ram_bready  && (ram_lsu_bresp  == 2'b00);
-
-    // output signals
-    assign io_master_arvalid = (grant == IFU_GRANT) ? ifu_rom_arvalid : lsu_ram_arvalid;
-    assign io_master_araddr  = (grant == IFU_GRANT) ? ifu_rom_araddr  : lsu_ram_araddr;
-
-    assign io_master_rready  = (grant == IFU_GRANT) ? ifu_rom_rready  : lsu_ram_rready;
-
-    assign io_master_awvalid = (grant == LSU_GRANT) ? lsu_ram_awvalid : 1'b0;
-    assign io_master_awaddr  = lsu_ram_awaddr;
-
-    assign io_master_wvalid  = lsu_ram_wvalid;
-    assign io_master_wdata   = lsu_ram_wdata;
-    assign io_master_wstrb   = lsu_ram_wstrb;
-
-    assign io_master_bready  = lsu_ram_bready;
-
-    // grant 状态机
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            grant <= IFU_GRANT;
-        end else begin
-            case (grant)
-                IFU_GRANT:
-                    // IFU 握手后检测 LSU 是否有请求
-                    if (handshake_ifu_r) begin
-                        if (lsu_ram_arvalid || lsu_ram_awvalid) grant <= LSU_GRANT;
-                    end
-                    else grant <= IFU_GRANT;
-
-                LSU_GRANT:
-                    // LSU 握手后直接切回 IFU
-                    if (handshake_lsu_r || handshake_lsu_b) begin
-                        grant <= IFU_GRANT;
-                    end
-                    else grant <= LSU_GRANT;
-                default: grant <= IFU_GRANT;
-            endcase
-        end
-    end
-
-    // ---------------
 
 endmodule
