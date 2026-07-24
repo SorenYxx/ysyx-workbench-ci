@@ -53,7 +53,7 @@ static long load_img(const char *filename) {
   Log("The image is %s, size = %ld", filename, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_host(0x80000000), size, 1, fp);
+  int ret = fread(guest_to_host(CONFIG_MROM_BASE), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);
@@ -74,6 +74,13 @@ static void init_img(int argc, char *argv[]) {
   }
 }
 
+static void reset_n_cycles(int n) {
+  for (int i = 0; i < n; i++) {
+    top->clock = 0; top->eval();
+    top->clock = 1; top->eval();
+  }
+}
+
 static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
@@ -82,8 +89,8 @@ static void init_verilator(int argc, char *argv[]) {
   tfp->open("wave.fst");
 
   top->reset = 1; top->clock = 0;
-  top->eval(); top->clock = 1;
-  top->eval(); top->reset = 0;
+  reset_n_cycles(10);       // 需保证 10 级同步器充分填满
+  top->reset = 0;
 }
 
 static void init_csr() {
@@ -101,14 +108,14 @@ static void welcome() {
 }
 
 void sim_init(int argc, char *argv[]) {
- /* Initialize the verilator */
-  init_verilator(argc, argv);
-
   /* Parse arguments. */
   parse_args(argc, argv);
-
+  
   /* Load the image to memory. */
   init_img(argc, argv);
+
+ /* Initialize the verilator */
+  init_verilator(argc, argv);
 
   /* Initialize CSRs */
   init_csr();

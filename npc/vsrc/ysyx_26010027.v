@@ -10,7 +10,7 @@ module ysyx_26010027 (
     input         clock,
     input         reset,
 
-    // MASTER
+    // ----- MASTER -----
     // AR
     input         io_master_arready,
     output        io_master_arvalid,
@@ -46,7 +46,7 @@ module ysyx_26010027 (
     input  [ 1:0] io_master_bresp,
     input  [ 3:0] io_master_bid,
 
-    // SLAVE
+    // ----- SLAVE -----
     // AR
     output        io_slave_arready,
     input         io_slave_arvalid,
@@ -112,21 +112,33 @@ module ysyx_26010027 (
     wire        arb_arvalid;
     wire        arb_arready;
     wire [31:0] arb_araddr;
+    wire [ 3:0] arb_arid;
+    wire [ 7:0] arb_arlen;
+    wire [ 2:0] arb_arsize;
+    wire [ 1:0] arb_arburst;
     wire        arb_rvalid;
     wire        arb_rready;
     wire [31:0] arb_rdata;
     wire [ 1:0] arb_rresp;
+    wire [ 3:0] arb_rid;
+    wire        arb_rlast;
 
     wire        arb_awvalid;
     wire        arb_awready;
     wire [31:0] arb_awaddr;
+    wire [ 3:0] arb_awid;
+    wire [ 7:0] arb_awlen;
+    wire [ 2:0] arb_awsize;
+    wire [ 1:0] arb_awburst;
     wire        arb_wvalid;
     wire        arb_wready;
     wire [31:0] arb_wdata;
     wire [ 3:0] arb_wstrb;
+    wire        arb_wlast;
     wire        arb_bvalid;
     wire        arb_bready;
     wire [ 1:0] arb_bresp;
+    wire [ 3:0] arb_bid;
 
     // CLINT 接口信号
     wire            io_clint_arready;
@@ -161,44 +173,47 @@ module ysyx_26010027 (
     wire io_clint_wvalid = 1'b0;
     wire io_clint_bready = 1'b0;
 
-    assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar;
+    // AR 通道输出 (IO pads) —— reset 期间关闭，防止 CPU 复位时误发 AXI 请求
+    assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar && !reset;
     assign io_master_araddr  = arb_araddr;
-
-    assign io_master_arid    = 4'h0;
-    assign io_master_arlen   = 8'h0;    // 单拍
-    assign io_master_arsize  = 3'b010;  // 4 字节
-    assign io_master_arburst = 2'b01;   // INCR
+    assign io_master_arid    = arb_arid;
+    assign io_master_arlen   = arb_arlen;
+    assign io_master_arsize  = arb_arsize;
+    assign io_master_arburst = arb_arburst;
 
     assign arb_arready = addr_is_clint_ar ? io_clint_arready : io_master_arready;
 
-    // --- R 响应方向 (用寄存版本，打断环路) ---
+    // R 响应方向
     assign arb_rvalid = addr_is_clint_r ? io_clint_rvalid : io_master_rvalid;
     assign arb_rdata  = addr_is_clint_r ? io_clint_rdata  : io_master_rdata;
     assign arb_rresp  = addr_is_clint_r ? io_clint_rresp  : io_master_rresp;
+    assign arb_rid    = addr_is_clint_r ? 4'h0             : io_master_rid;
+    assign arb_rlast  = addr_is_clint_r ? 1'b1             : io_master_rlast;
 
     assign io_master_rready = arb_rready && !addr_is_clint_r;
 
-    // AW
-    assign io_master_awvalid = arb_awvalid;
+    // AW 通道输出
+    assign io_master_awvalid = arb_awvalid && !reset;
     assign io_master_awaddr  = arb_awaddr;
-    assign io_master_awid    = 4'h0;
-    assign io_master_awlen   = 8'h0;
-    assign io_master_awsize  = 3'b010;
-    assign io_master_awburst = 2'b01;
+    assign io_master_awid    = arb_awid;
+    assign io_master_awlen   = arb_awlen;
+    assign io_master_awsize  = arb_awsize;
+    assign io_master_awburst = arb_awburst;
 
     assign arb_awready = io_master_awready;
 
-    // W
-    assign io_master_wvalid = arb_wvalid;
+    // W 通道输出
+    assign io_master_wvalid = arb_wvalid && !reset;
     assign io_master_wdata  = arb_wdata;
     assign io_master_wstrb  = arb_wstrb;
-    assign io_master_wlast  = 1'b1;     // 单拍，始终 last
+    assign io_master_wlast  = arb_wlast;
 
     assign arb_wready = io_master_wready;
 
-    // B
+    // B 通道
     assign arb_bvalid = io_master_bvalid;
     assign arb_bresp  = io_master_bresp;
+    assign arb_bid    = io_master_bid;
 
     assign io_master_bready = arb_bready;
 
@@ -217,6 +232,7 @@ module ysyx_26010027 (
 
     ysyx_26010027_GPR R (
         .clock  (clock),
+        .reset  (reset),
         .waddr (waddr),
         .wdata (wdata),
         .wen   (reg_w),
@@ -253,20 +269,28 @@ module ysyx_26010027 (
         .io_slave_bready(io_clint_bready)
     );
 
-    // ----- IFU (AXI-Lite) -----
+    // ----- IFU (AXI4) -----
     wire        ifu_cpu_arvalid;
     wire        cpu_ifu_arready;
     wire [31:0] ifu_cpu_araddr;
+    wire [ 3:0] ifu_cpu_arid;
+    wire [ 7:0] ifu_cpu_arlen;
+    wire [ 2:0] ifu_cpu_arsize;
+    wire [ 1:0] ifu_cpu_arburst;
 
     wire        cpu_ifu_rvalid;
     wire        ifu_cpu_rready;
     wire [31:0] cpu_ifu_rdata;
     wire [ 1:0] cpu_ifu_rresp;
+    wire [ 3:0] cpu_ifu_rid;
+    wire        cpu_ifu_rlast;
 
     assign cpu_ifu_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
     assign cpu_ifu_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
     assign cpu_ifu_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
     assign cpu_ifu_rresp   = (grant == IFU_GRANT) ? arb_rresp   : 2'b0;
+    assign cpu_ifu_rid     = (grant == IFU_GRANT) ? arb_rid     : 4'b0;
+    assign cpu_ifu_rlast   = (grant == IFU_GRANT) ? arb_rlast   : 1'b0;
 
     ysyx_26010027_IFU my_IFU (
         .clock    (clock),
@@ -278,11 +302,17 @@ module ysyx_26010027 (
         .cpu_ifu_arready(cpu_ifu_arready),
         .ifu_cpu_araddr (ifu_cpu_araddr),
         .ifu_cpu_arvalid(ifu_cpu_arvalid),
+        .ifu_cpu_arid   (ifu_cpu_arid),
+        .ifu_cpu_arlen  (ifu_cpu_arlen),
+        .ifu_cpu_arsize (ifu_cpu_arsize),
+        .ifu_cpu_arburst(ifu_cpu_arburst),
 
         .cpu_ifu_rvalid(cpu_ifu_rvalid),
         .ifu_cpu_rready(ifu_cpu_rready),
         .cpu_ifu_rdata (cpu_ifu_rdata),
         .cpu_ifu_rresp (cpu_ifu_rresp),
+        .cpu_ifu_rid   (cpu_ifu_rid),
+        .cpu_ifu_rlast (cpu_ifu_rlast),
 
         .ifu_stall (ifu_stall),
         .lsu_stall (lsu_stall)
@@ -322,67 +352,94 @@ module ysyx_26010027 (
         .res       (alu_result)
     );
 
-    // ----- LSU (AXI-Lite) -----
+    // ----- LSU (AXI4) -----
     wire        lsu_cpu_arvalid;
     wire        cpu_lsu_arready;
     wire [31:0] lsu_cpu_araddr;
+    wire [ 3:0] lsu_cpu_arid;
+    wire [ 7:0] lsu_cpu_arlen;
+    wire [ 2:0] lsu_cpu_arsize;
+    wire [ 1:0] lsu_cpu_arburst;
 
     wire        cpu_lsu_rvalid;
     wire        lsu_cpu_rready;
     wire [31:0] cpu_lsu_rdata;
     wire [ 1:0] cpu_lsu_rresp;
+    wire [ 3:0] cpu_lsu_rid;
+    wire        cpu_lsu_rlast;
 
     wire        lsu_cpu_awvalid;
     wire        cpu_lsu_awready;
     wire [31:0] lsu_cpu_awaddr;
+    wire [ 3:0] lsu_cpu_awid;
+    wire [ 7:0] lsu_cpu_awlen;
+    wire [ 2:0] lsu_cpu_awsize;
+    wire [ 1:0] lsu_cpu_awburst;
 
     wire        lsu_cpu_wvalid;
     wire        cpu_lsu_wready;
     wire [31:0] lsu_cpu_wdata;
     wire [ 3:0] lsu_cpu_wstrb;
+    wire        lsu_cpu_wlast;
 
     wire        cpu_lsu_bvalid;
     wire        lsu_cpu_bready;
     wire [ 1:0] cpu_lsu_bresp;
+    wire [ 3:0] cpu_lsu_bid;
 
     assign cpu_lsu_arready = (grant == LSU_GRANT) ? arb_arready : 1'b0;
     assign cpu_lsu_rvalid  = (grant == LSU_GRANT) ? arb_rvalid  : 1'b0;
     assign cpu_lsu_rdata   = (grant == LSU_GRANT) ? arb_rdata   : 32'b0;
     assign cpu_lsu_rresp   = (grant == LSU_GRANT) ? arb_rresp   : 2'b0;
+    assign cpu_lsu_rid     = (grant == LSU_GRANT) ? arb_rid     : 4'b0;
+    assign cpu_lsu_rlast   = (grant == LSU_GRANT) ? arb_rlast   : 1'b0;
     assign cpu_lsu_awready = (grant == LSU_GRANT) ? arb_awready : 1'b0;
     assign cpu_lsu_wready  = (grant == LSU_GRANT) ? arb_wready  : 1'b0;
     assign cpu_lsu_bvalid  = (grant == LSU_GRANT) ? arb_bvalid  : 1'b0;
     assign cpu_lsu_bresp   = (grant == LSU_GRANT) ? arb_bresp   : 2'b0;
+    assign cpu_lsu_bid     = (grant == LSU_GRANT) ? arb_bid     : 4'b0;
 
     ysyx_26010027_LSU my_LSU (
         .clock           (clock),
         .reset           (reset),
-        .mem_w          (mem_w),
-        .mem_r          (mem_r),
-        .addr           (alu_result),
-        .wdata          (rdata2),
+        .mem_w           (mem_w),
+        .mem_r           (mem_r),
+        .addr            (alu_result),
+        .wdata           (rdata2),
 
         .cpu_lsu_arready(cpu_lsu_arready),
         .lsu_cpu_araddr (lsu_cpu_araddr),
         .lsu_cpu_arvalid(lsu_cpu_arvalid),
+        .lsu_cpu_arid   (lsu_cpu_arid),
+        .lsu_cpu_arlen  (lsu_cpu_arlen),
+        .lsu_cpu_arsize (lsu_cpu_arsize),
+        .lsu_cpu_arburst(lsu_cpu_arburst),
 
         .lsu_cpu_rready (lsu_cpu_rready),
         .cpu_lsu_rvalid (cpu_lsu_rvalid),
         .cpu_lsu_rdata  (cpu_lsu_rdata),
         .cpu_lsu_rresp  (cpu_lsu_rresp),
+        .cpu_lsu_rid    (cpu_lsu_rid),
+        .cpu_lsu_rlast  (cpu_lsu_rlast),
 
         .cpu_lsu_awready(cpu_lsu_awready),
         .lsu_cpu_awaddr (lsu_cpu_awaddr),
         .lsu_cpu_awvalid(lsu_cpu_awvalid),
+        .lsu_cpu_awid   (lsu_cpu_awid),
+        .lsu_cpu_awlen  (lsu_cpu_awlen),
+        .lsu_cpu_awsize (lsu_cpu_awsize),
+        .lsu_cpu_awburst(lsu_cpu_awburst),
 
         .cpu_lsu_wready (cpu_lsu_wready),
         .lsu_cpu_wdata  (lsu_cpu_wdata),
         .lsu_cpu_wstrb  (lsu_cpu_wstrb),
         .lsu_cpu_wvalid (lsu_cpu_wvalid),
+        .lsu_cpu_wlast  (lsu_cpu_wlast),
 
         .cpu_lsu_bresp  (cpu_lsu_bresp),
         .cpu_lsu_bvalid (cpu_lsu_bvalid),
         .lsu_cpu_bready (lsu_cpu_bready),
+        .cpu_lsu_bid    (cpu_lsu_bid),
 
         .out_data       (mem_result),
         .lsu_stall      (lsu_stall),
@@ -433,16 +490,25 @@ module ysyx_26010027 (
     wire handshake_lsu_b = cpu_lsu_bvalid  && lsu_cpu_bready  && (cpu_lsu_bresp  == 2'b00);
 
     // arbiter -> 下游总线
-    assign arb_arvalid = (grant == IFU_GRANT) ? ifu_cpu_arvalid : lsu_cpu_arvalid;
-    assign arb_araddr  = (grant == IFU_GRANT) ? ifu_cpu_araddr  : lsu_cpu_araddr;
-    assign arb_rready  = (grant == IFU_GRANT) ? ifu_cpu_rready  : lsu_cpu_rready;
+    assign arb_arvalid  = (grant == IFU_GRANT) ? ifu_cpu_arvalid : lsu_cpu_arvalid;
+    assign arb_araddr   = (grant == IFU_GRANT) ? ifu_cpu_araddr  : lsu_cpu_araddr;
+    assign arb_arid     = (grant == IFU_GRANT) ? ifu_cpu_arid    : lsu_cpu_arid;
+    assign arb_arlen    = (grant == IFU_GRANT) ? ifu_cpu_arlen   : lsu_cpu_arlen;
+    assign arb_arsize   = (grant == IFU_GRANT) ? ifu_cpu_arsize  : lsu_cpu_arsize;
+    assign arb_arburst  = (grant == IFU_GRANT) ? ifu_cpu_arburst : lsu_cpu_arburst;
+    assign arb_rready   = (grant == IFU_GRANT) ? ifu_cpu_rready  : lsu_cpu_rready;
 
-    assign arb_awvalid = (grant == LSU_GRANT) ? lsu_cpu_awvalid : 1'b0;
-    assign arb_awaddr  = lsu_cpu_awaddr;
-    assign arb_wvalid  = lsu_cpu_wvalid;
-    assign arb_wdata   = lsu_cpu_wdata;
-    assign arb_wstrb   = lsu_cpu_wstrb;
-    assign arb_bready  = lsu_cpu_bready;
+    assign arb_awvalid  = (grant == LSU_GRANT) ? lsu_cpu_awvalid : 1'b0;
+    assign arb_awaddr   = lsu_cpu_awaddr;
+    assign arb_awid     = lsu_cpu_awid;
+    assign arb_awlen    = lsu_cpu_awlen;
+    assign arb_awsize   = lsu_cpu_awsize;
+    assign arb_awburst  = lsu_cpu_awburst;
+    assign arb_wvalid   = lsu_cpu_wvalid;
+    assign arb_wdata    = lsu_cpu_wdata;
+    assign arb_wstrb    = lsu_cpu_wstrb;
+    assign arb_wlast    = lsu_cpu_wlast;
+    assign arb_bready   = lsu_cpu_bready;
 
     always @(posedge clock, posedge reset) begin
         if (reset) begin
@@ -450,7 +516,6 @@ module ysyx_26010027 (
         end else begin
             case (grant)
                 IFU_GRANT:
-                    // IFU 握手后检测 LSU 相关信号 
                     if (handshake_ifu_r) begin
                         if (lsu_cpu_arvalid || lsu_cpu_awvalid)
                             grant <= LSU_GRANT;
@@ -458,7 +523,6 @@ module ysyx_26010027 (
                     else grant <= IFU_GRANT;
 
                 LSU_GRANT:
-                    // LSU 握手后直接切回 IFU
                     if (handshake_lsu_r || handshake_lsu_b)
                         grant <= IFU_GRANT;
                     else grant <= LSU_GRANT;
@@ -466,7 +530,6 @@ module ysyx_26010027 (
             endcase
         end
     end
-    // ---------------
 
     always @(posedge clock) begin
         if (j_type == 2'b01 && !ifu_stall) begin

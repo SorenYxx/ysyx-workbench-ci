@@ -3,6 +3,7 @@ module ysyx_26010027_GPR #(
     parameter DATA_WIDTH = 32
 ) (
     input                        clock,
+    input                        reset,
     input      [ADDR_WIDTH-1:0]  waddr,
     input      [DATA_WIDTH-1:0]  wdata,
     input                        wen,
@@ -14,8 +15,13 @@ module ysyx_26010027_GPR #(
 
     reg [DATA_WIDTH-1:0] rf [2**ADDR_WIDTH-1:0];
 
-    always @(posedge clock) begin
-        if (wen && (waddr != 0)) begin
+    integer i;
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            for (i = 0; i < 32; i = i + 1) begin
+                rf[i] <= 0;
+            end
+        end else if (wen && (waddr != 0)) begin
             rf[waddr] <= wdata;
             get_reg({27'b0, waddr}, wdata);
         end

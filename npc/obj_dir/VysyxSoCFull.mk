@@ -37,7 +37,7 @@ VM_PREFIX = VysyxSoCFull
 VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
-  -I/home/soren/ysyx-workbench/npc/include -DCONFIG_HAS_TIMER -DCONFIG_WATCHPOINT  -DCONFIG_HAS_SERIAL -DCONFIG_TRACE   -DCONFIG_DEVICE \
+  -I/home/soren/ysyx-workbench/npc/include -DCONFIG_HAS_TIMER   -DCONFIG_WATCHPOINT      -DCONFIG_HAS_SERIAL -DCONFIG_TRACE   -DCONFIG_BATCH_MODE  -DCONFIG_DEVICE  \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \

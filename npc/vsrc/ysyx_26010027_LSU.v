@@ -7,29 +7,40 @@ module ysyx_26010027_LSU (
     input      [31:0] wdata,
     output reg [31:0] out_data,
 
-    // ----------- AXI-Lite -----------
+    // ----------- AXI4 -----------
     input             cpu_lsu_arready,
     output     [31:0] lsu_cpu_araddr,
     output     reg    lsu_cpu_arvalid,
+    output     [ 3:0] lsu_cpu_arid,
+    output     [ 7:0] lsu_cpu_arlen,
+    output     [ 2:0] lsu_cpu_arsize,
+    output     [ 1:0] lsu_cpu_arburst,
 
     output            lsu_cpu_rready,
     input             cpu_lsu_rvalid,
     input      [31:0] cpu_lsu_rdata,
     input      [ 1:0] cpu_lsu_rresp,
+    input      [ 3:0] cpu_lsu_rid,
+    input             cpu_lsu_rlast,
 
     output     [31:0] lsu_cpu_awaddr,
     output            lsu_cpu_awvalid,
+    output     [ 3:0] lsu_cpu_awid,
+    output     [ 7:0] lsu_cpu_awlen,
+    output     [ 2:0] lsu_cpu_awsize,
+    output     [ 1:0] lsu_cpu_awburst,
     input             cpu_lsu_awready,
 
     output     [31:0] lsu_cpu_wdata,
     output     [ 3:0] lsu_cpu_wstrb,
     output            lsu_cpu_wvalid,
+    output            lsu_cpu_wlast,
     input             cpu_lsu_wready,
 
     input      [ 1:0] cpu_lsu_bresp,
     input             cpu_lsu_bvalid,
     output            lsu_cpu_bready,
-
+    input      [ 3:0] cpu_lsu_bid,
     // --------------------------------
 
     output     wire   lsu_stall,
@@ -57,13 +68,23 @@ module ysyx_26010027_LSU (
     assign lsu_stall = (ren && state_r == R_IDLE) || (wen && (state_w == W_IDLE || state_w == W_WAIT));
 
     // 访存相关数据
-    assign lsu_cpu_awaddr = addr;
-    assign lsu_cpu_araddr = addr;
-    assign lsu_cpu_wdata  = wdata_shifted;
-    assign lsu_cpu_wstrb  = (mem_w == 2'b00) ? 4'hF :
-                            (mem_w == 2'b01) ? (4'h1 << addr[1:0]) :
-                            (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
-                            4'h0;
+    assign lsu_cpu_awaddr  = addr;
+    assign lsu_cpu_araddr  = addr;
+    assign lsu_cpu_wdata   = wdata_shifted;
+    assign lsu_cpu_wstrb   = (mem_w == 2'b00) ? 4'hF :
+                             (mem_w == 2'b01) ? (4'h1 << addr[1:0]) :
+                             (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
+                             4'h0;
+    // AXI4 附加信号
+    assign lsu_cpu_awid    = 4'h0;
+    assign lsu_cpu_awlen   = 8'h0;
+    assign lsu_cpu_awsize  = 3'b010;
+    assign lsu_cpu_awburst = 2'b01;
+    assign lsu_cpu_wlast   = 1'b1;
+    assign lsu_cpu_arid    = 4'h0;
+    assign lsu_cpu_arlen   = 8'h0;
+    assign lsu_cpu_arsize  = 3'b010;
+    assign lsu_cpu_arburst = 2'b01;
 
     // load/store 访存请求与响应有效
     assign lsu_cpu_awvalid = (state_w == W_IDLE || state_w == W_WAIT) && wen;

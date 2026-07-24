@@ -5,16 +5,21 @@ module ysyx_26010027_IFU (
     output reg [31:0] pc,
     output     [31:0] inst,
 
-    // ----------- AXI-Lite -----------
+    // ----------- AXI4 -----------
     input             cpu_ifu_arready,
     output     [31:0] ifu_cpu_araddr,
     output            ifu_cpu_arvalid,
+    output     [ 3:0] ifu_cpu_arid,
+    output     [ 7:0] ifu_cpu_arlen,
+    output     [ 2:0] ifu_cpu_arsize,
+    output     [ 1:0] ifu_cpu_arburst,
 
     input             cpu_ifu_rvalid,
     output            ifu_cpu_rready,
     input      [31:0] cpu_ifu_rdata,
     input      [ 1:0] cpu_ifu_rresp,
-
+    input      [ 3:0] cpu_ifu_rid,
+    input             cpu_ifu_rlast,
     // --------------------------------
 
     output reg        ifu_stall,
@@ -26,11 +31,9 @@ module ysyx_26010027_IFU (
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
 
-    // 握手请求与响应信号
+    // 握手请求
     wire handshake_ifu_ar = ifu_cpu_arvalid && cpu_ifu_arready;
     wire handshake_ifu_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
-
-    assign ifu_cpu_rready = (state == WAIT);
 
     reg lsu_pending;
 
@@ -38,7 +41,7 @@ module ysyx_26010027_IFU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             state       <= IDLE;
-            pc          <= 32'h80000000;
+            pc          <= 32'h2000_0000;
             lsu_pending <= 1'b0;
         end else begin
             case (state)
@@ -95,6 +98,11 @@ module ysyx_26010027_IFU (
 
     assign ifu_cpu_araddr  = pc;
     assign ifu_cpu_arvalid = (state == IDLE); // 只有需要取指时才发起请求 避免盲目请求
+    assign ifu_cpu_rready  = (state == WAIT);
+    assign ifu_cpu_arid    = 4'h0;
+    assign ifu_cpu_arlen   = 8'h0;    // 单拍
+    assign ifu_cpu_arsize  = 3'b010;  // 4 字节
+    assign ifu_cpu_arburst = 2'b01;   // INCR
     assign ifu_stall       = (state == IDLE); // 请求时阻塞 CPU  统一执行周期
     assign inst            = (cpu_ifu_rvalid) ? cpu_ifu_rdata : inst_latch; // 避免仲裁 LSU 时 inst 丢失
 
