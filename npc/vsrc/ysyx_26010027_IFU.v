@@ -40,8 +40,8 @@ module ysyx_26010027_IFU (
     // IFU 状态机
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            state       <= IDLE;
             pc          <= 32'h2000_0000;
+            state       <= IDLE;
             lsu_pending <= 1'b0;
         end else begin
             case (state)

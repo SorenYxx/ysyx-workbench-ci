@@ -22,7 +22,7 @@ vluint64_t main_time = 0;
 
 // state
 NPCState npc_state = { .state = NPC_STOP };
-CPU_state cpu_n = { .pc = 0x80000000 };
+CPU_state cpu_n = { .pc = 0x20000000 };
 
 void is_illegal_inst() {
   Log("\033[1;31mAbort at PC = 0x%08x with illegal_inst = 0x%08x\033[0m", CPU_PC(), CPU_INST());

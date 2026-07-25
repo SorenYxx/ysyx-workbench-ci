@@ -531,12 +531,16 @@ module ysyx_26010027 (
         end
     end
 
+    wire access_fault = (cpu_ifu_rvalid && ifu_cpu_rready && cpu_ifu_rresp != 2'b00)
+                     || (cpu_lsu_rvalid && lsu_cpu_rready && cpu_lsu_rresp != 2'b00)
+                     || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
+
     always @(posedge clock) begin
         if (j_type == 2'b01 && !ifu_stall) begin
             ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
         end
 
-        if (ebreak_type && !ifu_stall) begin
+        if ((ebreak_type && !ifu_stall) || access_fault) begin
             ebreak();
             $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
         end

@@ -10,8 +10,9 @@
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"
 
-#define CPU_PC()   (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc)
-#define CPU_INST() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__inst)
+#define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc)
+#define CPU_INST()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__inst)
+#define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IDU__DOT__reg_w)
 #include "verilated_fst_c.h"
 
 //MEM -- defined via Kconfig (autoconf.h), fallback defaults for IDE
@@ -90,7 +91,7 @@ static inline const char* reg_name(int idx) {
 }
 
 //difftest
-void init_difftest(char *ref_so_file, long img_size);
+void init_difftest(const char *ref_so_file, long img_size);
 void check_difftest();
 void difftest_skip_ref();
 // void difftest_skip_dut(int nr_ref, int nr_dut);

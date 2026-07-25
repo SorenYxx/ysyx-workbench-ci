@@ -9,13 +9,14 @@ void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 static bool is_skip_ref = false;
 // static int skip_dut_nr_inst = 0;
+static bool is_stop_ref = CPU_REG_W();
 
 void difftest_skip_ref() {
   is_skip_ref = true;
   // skip_dut_nr_inst = 0;
 }
 
-void init_difftest(char *ref_so_file, long img_size) {
+void init_difftest(const char *ref_so_file, long img_size) {
     void *handle = dlopen(ref_so_file, RTLD_LAZY);
     assert(handle);
 
@@ -28,7 +29,7 @@ void init_difftest(char *ref_so_file, long img_size) {
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
       
-    ref_difftest_memcpy(CONFIG_PSRAM_BASE, guest_to_host(CONFIG_PSRAM_BASE), img_size, DIFFTEST_TO_REF);
+    ref_difftest_memcpy(CONFIG_MROM_BASE, guest_to_host(CONFIG_MROM_BASE), img_size, DIFFTEST_TO_REF);
     
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
 }
@@ -79,6 +80,10 @@ static void checkregs(CPU_state *ref, uint32_t pc) {
 
 void check_difftest() {
   CPU_state ref_regs;// use to check
+
+  if (!is_stop_ref) {
+    return;
+  }
 
   if (is_skip_ref) {
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);

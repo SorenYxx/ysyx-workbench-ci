@@ -11,3 +11,4 @@
 !.gitignore
 !README.md
 build/
+include/ref_so_file.h

@@ -33,7 +33,7 @@
 #define ANSI_FMT(str, fmt) fmt str ANSI_NONE
 
 #define Log(format, ...) \
-    printf(ANSI_FG_BLUE "[npc] " format ANSI_NONE "\n", ## __VA_ARGS__)
+    printf(ANSI_FG_BLUE "[ysyxSoC] " format ANSI_NONE "\n", ## __VA_ARGS__)
 
 #define Assert(cond, format, ...) \
   do { \

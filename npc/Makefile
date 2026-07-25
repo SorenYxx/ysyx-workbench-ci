@@ -18,7 +18,8 @@ include  $(NPC_HOME)/scripts/config.mk
 # Build CFLAGS from Kconfig
 NPC_CFLAGS = $(foreach v,$(filter CONFIG_%,$(.VARIABLES)),$(if $(filter y,$($(v))),-D$(v)))
 ifdef CONFIG_DIFFTEST
-NPC_CFLAGS += -DREF_SO_FILE="\"$(REF_SO)\""
+# Generate header with REF_SO_FILE path before each compile
+$(shell echo "#define REF_SO_FILE \"$(REF_SO)\"" > $(INC_PATH)/ref_so_file.h)
 endif
 
 # Auto-generate auto.conf from .config

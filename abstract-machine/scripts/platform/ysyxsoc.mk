@@ -1,16 +1,16 @@
 AM_SRCS = riscv/ysyxsoc/start.S \
 		  riscv/ysyxsoc/trm.c \
+# 		  riscv/ysyxsoc/trap.S \
 # 		  riscv/ysyxsoc/ioe.c \
 # 		  riscv/ysyxsoc/timer.c \
 # 		  riscv/ysyxsoc/input.c \
 # 		  riscv/ysyxsoc/cte.c \
-# 		  riscv/ysyxsoc/trap.S \
 # 		  platform/dummy/vme.c \
 # 		  platform/dummy/mpe.c
 
 CFLAGS	+= -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
-LDFLAGS	+= --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
+LDFLAGS	+= --defsym=_pmem_start=0x20000000 --defsym=_entry_offset=0x0
 LDFLAGS	+= --gc-sections -e _start
 YSYXSOCFLAGS  +=
 
@@ -30,7 +30,7 @@ image: image-dep
 
 run: insert-arg
 	@echo "Passing IMG = $(abspath $(IMAGE).bin) to YSYXSOC"
-	$(MAKE)	-C $(YSYXSOC_HOME) run ARGS="$(YSYXSOCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
+	$(MAKE)	-C $(NPC_HOME) run ARGS="$(YSYXSOCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
 
 wave:
 	gtkwave $(DUMP) &
