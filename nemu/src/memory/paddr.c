@@ -22,10 +22,20 @@
 static uint8_t *pmem = NULL;
 #else // CONFIG_PMEM_GARRAY
 static uint8_t pmem[CONFIG_MSIZE] PG_ALIGN = {};
+static uint8_t mrom[CONFIG_MROM_SIZE] PG_ALIGN = {};
+static uint8_t sram[CONFIG_SRAM_SIZE] PG_ALIGN = {};
 #endif
 
 uint8_t* guest_to_host(paddr_t paddr) { return pmem + paddr - CONFIG_MBASE; }
 paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
+
+// ---------- For ysyxSoC ----------
+uint8_t* guest_to_host_mrom(paddr_t paddr) { return mrom + paddr - CONFIG_MROM_BASE; }
+paddr_t host_to_guest_mrom(uint8_t *haddr) { return haddr - mrom + CONFIG_MROM_BASE; }
+
+uint8_t* guest_to_host_sram(paddr_t paddr) { return sram + paddr - CONFIG_SRAM_BASE; }
+paddr_t host_to_guest_sram(uint8_t *haddr) { return haddr - sram + CONFIG_SRAM_BASE; }
+// ---------------------------------
 
 static word_t pmem_read(paddr_t addr, int len) {
   word_t ret = host_read(guest_to_host(addr), len);
@@ -35,6 +45,22 @@ static word_t pmem_read(paddr_t addr, int len) {
 static void pmem_write(paddr_t addr, int len, word_t data) {
   host_write(guest_to_host(addr), len, data);
 }
+
+// ---------- For ysyxSoC ----------
+static word_t mrom_read(paddr_t addr, int len) {
+  word_t ret = host_read(guest_to_host_mrom(addr), len);
+  return ret;
+}
+
+static word_t sram_read(paddr_t addr, int len) {
+  word_t ret = host_read(guest_to_host_sram(addr), len);
+  return ret;
+}
+
+static void sram_write(paddr_t addr, int len, word_t data) {
+  host_write(guest_to_host_sram(addr), len, data);
+}
+// ---------------------------------
 
 static void out_of_bound(paddr_t addr) {
   panic("address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
@@ -51,6 +77,18 @@ void init_mem() {
 }
 
 word_t paddr_read(paddr_t addr, int len) {
+    if (likely(in_mrom(addr))) {
+#ifdef CONFIG_MTRACE
+    printf("[mrom]read          0x%08x from 0x%08x\n", mrom_read(addr, len), addr);
+#endif
+    return mrom_read(addr, len);
+  }
+  if (likely(in_sram(addr))) {
+#ifdef CONFIG_MTRACE
+    printf("[sram]read          0x%08x from 0x%08x\n", sram_read(addr, len), addr);
+#endif
+    return sram_read(addr, len);
+  }
   if (likely(in_pmem(addr))) {
 #ifdef CONFIG_MTRACE
     printf("read          0x%08x from 0x%08x\n", pmem_read(addr, len), addr);
@@ -69,6 +107,14 @@ word_t paddr_read(paddr_t addr, int len) {
 }
 
 void paddr_write(paddr_t addr, int len, word_t data) {
+  if (likely(in_sram(addr))) {
+#ifdef CONFIG_MTRACE
+    printf("[sram]write         0x%08x to   0x%08x\n", data, addr);
+#endif
+    sram_write(addr, len, data);
+    return;
+  }
+
   if (likely(in_pmem(addr))) { 
 #ifdef CONFIG_MTRACE 
     printf("write         0x%08x to   0x%08x\n", data, addr);
