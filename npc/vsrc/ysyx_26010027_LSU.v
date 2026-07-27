@@ -65,7 +65,7 @@ module ysyx_26010027_LSU (
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (addr[1:0] * 8);
 
     // load/store 阻塞
-    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && (state_w == W_IDLE || state_w == W_WAIT));
+    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && !handshake_b);
 
     // 访存相关数据
     assign lsu_cpu_awaddr  = addr;

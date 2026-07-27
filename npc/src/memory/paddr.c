@@ -29,6 +29,7 @@ uint8_t* guest_to_host(paddr_t addr) {
   return r ? pmem + r->offset + (addr - r->base) : NULL;
 }
 
+// ----- Read -----
 int pmem_read(int raddr) {
   uint32_t addr = (uint32_t)raddr & ~0x3u;
 
@@ -64,6 +65,9 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 
+// -----------------
+
+// ----- Write -----
 void pmem_write(int waddr, int wdata, int wmask) {
   uint32_t addr = (uint32_t)waddr & ~0x3u;
 
@@ -84,3 +88,4 @@ void pmem_write(int waddr, int wdata, int wmask) {
   return;
 #endif
 }
+// -----------------

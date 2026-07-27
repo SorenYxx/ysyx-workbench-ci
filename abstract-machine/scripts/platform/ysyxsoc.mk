@@ -1,12 +1,12 @@
 AM_SRCS = riscv/ysyxsoc/start.S \
 		  riscv/ysyxsoc/trm.c \
-# 		  riscv/ysyxsoc/trap.S \
-# 		  riscv/ysyxsoc/ioe.c \
-# 		  riscv/ysyxsoc/timer.c \
-# 		  riscv/ysyxsoc/input.c \
-# 		  riscv/ysyxsoc/cte.c \
-# 		  platform/dummy/vme.c \
-# 		  platform/dummy/mpe.c
+		  riscv/ysyxsoc/trap.S \
+		  riscv/ysyxsoc/ioe.c \
+		  riscv/ysyxsoc/timer.c \
+		  riscv/ysyxsoc/input.c \
+		  riscv/ysyxsoc/cte.c \
+		  platform/dummy/vme.c \
+		  platform/dummy/mpe.c
 
 CFLAGS	+= -fdata-sections -ffunction-sections
 LDSCRIPTS += $(AM_HOME)/scripts/linker.ld
@@ -26,7 +26,7 @@ insert-arg: image
 image: image-dep
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
-	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+	@$(OBJCOPY) -S -O binary $(IMAGE).elf $(IMAGE).bin
 
 run: insert-arg
 	@echo "Passing IMG = $(abspath $(IMAGE).bin) to YSYXSOC"

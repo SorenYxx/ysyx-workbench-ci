@@ -543,6 +543,7 @@ module ysyx_26010027 (
         if ((ebreak_type && !ifu_stall) || access_fault) begin
             ebreak();
             $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
+            if (access_fault) $display("![Access-FAULT]");
         end
     end
 

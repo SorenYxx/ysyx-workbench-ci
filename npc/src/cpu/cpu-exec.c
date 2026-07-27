@@ -3,13 +3,15 @@
 #include <sdb.h>
 
 // ebreak
-int is_end = 0;
-
 void ebreak() {
-  if (R[10] == 0) { is_end = 1; npc_state.halt_pc = CPU_PC(); Log("\033[1;32mHIT GOOD TRAP\033[0m"); }
+  npc_state.halt_pc = CPU_PC();
+  if (R[10] == 0) { 
+    Log("\033[1;32mHIT GOOD TRAP\033[0m"); 
+    npc_state.state = NPC_END;
+  }
   else {
     Log("\033[1;31mHIT BAD TRAP\033[0m");
-    // exit(0);
+    npc_state.state = NPC_ABORT;
   }
 }
 
@@ -31,7 +33,7 @@ void is_illegal_inst() {
 }
 
 int is_exit_status_bad() {
-  int good = (npc_state.state == NPC_END && R[0] == 0) || (npc_state.state == NPC_QUIT);
+  int good = (npc_state.state == NPC_END && R[10] == 0) || (npc_state.state == NPC_QUIT);
   return !good;
 }
 
@@ -62,14 +64,11 @@ void cpu_exec(uint64_t n) {
 
   for (uint64_t i = 0; i < n; i ++) {
     step_and_eval();
-    if (is_end) {
-      npc_state.state = NPC_END;
-      break;
-    }
+
 #ifdef CONFIG_TRACE
     itrace_record(CPU_PC(), CPU_INST());
 #endif
-    if (npc_state.state != NPC_RUNNING) break; 
+    if (npc_state.state == NPC_END || npc_state.state == NPC_ABORT) break; 
   }
   if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
 }
