@@ -20,11 +20,11 @@ void uart_init() {
   *(volatile uint8_t *) (UART_BASE + 0) = 0x1B; // DLL
   *(volatile uint8_t *) (UART_BASE + 1) = 0x00; // DLH
   *(volatile uint8_t *) (UART_BASE + 3) = 0x03; // DLAB = 0, 8N1
-  // *(volatile uint8_t *) (UART_BASE + 1) = 0x00; // 禁用中断
+  *(volatile uint8_t *) (UART_BASE + 1) = 0x00; // 禁用中断
 }
 
 void putch(char ch) {
-  // while (!(*(volatile uint8_t *) (UART_BASE + 5) & 0x20)); // 等待 TX FIFO empty
+  while (!(*(volatile uint8_t *) (UART_BASE + 5) & 0x20)); // 等待 TX FIFO empty
   *(volatile uint8_t *)UART_BASE = ch;
 }
 
@@ -44,7 +44,7 @@ void _trm_init() {
   for (char *p = &_bss_start; p < &_stack_top; p++) *p = 0;
   // ----------------------
 
-  // uart_init();  // 串口初始化
+  uart_init();  // 串口初始化
 
   int ret = main(mainargs);
   halt(ret);
