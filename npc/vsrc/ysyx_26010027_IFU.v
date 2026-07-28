@@ -32,21 +32,21 @@ module ysyx_26010027_IFU (
     localparam WAIT = 2'b01;
 
     // 握手请求
-    wire handshake_ifu_ar = ifu_cpu_arvalid && cpu_ifu_arready;
-    wire handshake_ifu_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
+    wire handshake_ar = ifu_cpu_arvalid && cpu_ifu_arready;
+    wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
     reg lsu_pending;
 
     // IFU 状态机
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            pc          <= 32'h2000_0000;
             state       <= IDLE;
+            pc          <= 32'h2000_0000;
             lsu_pending <= 1'b0;
         end else begin
             case (state)
                 IDLE: begin
-                    if (handshake_ifu_ar && !lsu_stall) begin
+                    if (handshake_ar && !lsu_stall) begin
                         pc    <= pc;
                         state <= WAIT;
                     end else begin
@@ -60,7 +60,7 @@ module ysyx_26010027_IFU (
                         pc    <= pc;
                         state <= WAIT; // 保持在 WAIT 状态，等待 LSU 完成
                         lsu_pending <= 1'b1; // 标记 LSU 正在处理
-                    end else if (handshake_ifu_r) begin
+                    end else if (handshake_r) begin
                         pc    <= n_pc;
                         state <= IDLE;
                         lsu_pending <= 1'b0; // 清除 LSU 处理标记

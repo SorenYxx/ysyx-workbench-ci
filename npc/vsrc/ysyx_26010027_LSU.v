@@ -53,7 +53,7 @@ module ysyx_26010027_LSU (
 
     localparam W_IDLE = 3'b000;
     localparam W_WAIT = 3'b001;
-    localparam B_WAIT = 3'b010;
+    localparam W_RESP = 3'b010;
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
@@ -65,7 +65,7 @@ module ysyx_26010027_LSU (
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (addr[1:0] * 8);
 
     // load/store 阻塞
-    assign lsu_stall = (ren && state_r == R_IDLE) || (wen && !handshake_b);
+    assign lsu_stall = (ren && !handshake_r) || (wen && !handshake_b);
 
     // 访存相关数据
     assign lsu_cpu_awaddr  = addr;
@@ -78,20 +78,22 @@ module ysyx_26010027_LSU (
     // AXI4 附加信号
     assign lsu_cpu_awid    = 4'h0;
     assign lsu_cpu_awlen   = 8'h0;
-    assign lsu_cpu_awsize  = 3'b010;
+    assign lsu_cpu_awsize  = (mem_w == 2'b00) ? 3'b010 :
+                             (mem_w == 2'b10) ? 3'b001 : 3'b000;
     assign lsu_cpu_awburst = 2'b01;
     assign lsu_cpu_wlast   = 1'b1;
     assign lsu_cpu_arid    = 4'h0;
     assign lsu_cpu_arlen   = 8'h0;
-    assign lsu_cpu_arsize  = 3'b010;
+    assign lsu_cpu_arsize  = (mem_r[1:0] == 2'b00) ? 3'b010 :
+                             (mem_r[1:0] == 2'b10) ? 3'b001 : 3'b000;
     assign lsu_cpu_arburst = 2'b01;
 
     // load/store 访存请求与响应有效
-    assign lsu_cpu_awvalid = (state_w == W_IDLE || state_w == W_WAIT) && wen;
+    assign lsu_cpu_awvalid = (state_w == W_IDLE) && wen;
     assign lsu_cpu_wvalid  = (state_w == W_WAIT) && wen;
     assign lsu_cpu_arvalid = (state_r == R_IDLE) && ren;
     assign lsu_cpu_rready  = (state_r == R_WAIT);
-    assign lsu_cpu_bready  = (state_w == B_WAIT);
+    assign lsu_cpu_bready  = (state_w == W_RESP);
 
     // 握手请求与响应信号
     wire handshake_aw = cpu_lsu_awready && lsu_cpu_awvalid;
@@ -111,12 +113,12 @@ module ysyx_26010027_LSU (
                     else state_w <= W_IDLE;
                 end
                 W_WAIT: begin
-                    if (handshake_w) state_w <= B_WAIT;
+                    if (handshake_w) state_w <= W_RESP;
                     else state_w <= W_WAIT;
                 end
-                B_WAIT: begin
+                W_RESP: begin
                     if (handshake_b) state_w <= W_IDLE;
-                    else state_w <= B_WAIT;
+                    else state_w <= W_RESP;
                 end
                 default: state_w <= W_IDLE;
             endcase
