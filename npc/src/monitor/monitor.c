@@ -54,10 +54,10 @@ static long load_img(const char *filename) {
   Log("The image is %s, size = %ld", filename, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_host(CONFIG_MROM_BASE), size, 1, fp);
+  int ret = fread(guest_to_flash(CONFIG_Flash_BASE), size, 1, fp);
   assert(ret == 1);
 
-  memcpy(guest_to_flash(CONFIG_Flash_BASE), guest_to_host(CONFIG_MROM_BASE), size);
+  // memcpy(guest_to_flash(CONFIG_Flash_BASE), guest_to_host(CONFIG_MROM_BASE), size);
   // FILE *fp_flash = fopen("char-test/char-test.bin", "rb");
   // fread(guest_to_flash(CONFIG_Flash_BASE), 36, 1, fp_flash);
   // fclose(fp_flash);

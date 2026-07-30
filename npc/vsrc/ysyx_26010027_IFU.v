@@ -39,7 +39,7 @@ module ysyx_26010027_IFU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             state       <= IDLE;
-            pc          <= 32'h2000_0000;
+            pc          <= 32'h3000_0000;
             lsu_pending <= 1'b0;
         end else begin
             case (state)
