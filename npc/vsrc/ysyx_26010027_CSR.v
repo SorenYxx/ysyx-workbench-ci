@@ -14,8 +14,8 @@ module ysyx_26010027_CSR (
     output     [31:0] out_mtvec
 );
 
-    wire [31:0] mvendorid = 32'h79737978;  // "ysyx"
-    wire [31:0] marchid   = 32'h26010027;
+    reg [31:0] mvendorid = 32'h79737978;  // "ysyx"
+    reg [31:0] marchid   = 32'h18CE1AB;   // "26010027"
 
     reg [31:0] mstatus;
     reg [31:0] mtvec;

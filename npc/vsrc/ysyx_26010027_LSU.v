@@ -57,15 +57,15 @@ module ysyx_26010027_LSU (
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire ren = (mem_r != 3'd5) && !ifu_stall;
-    wire wen = (mem_w != 2'b11) && !ifu_stall;
+    wire ren = (mem_r != 3'd5 && !handshake_r && !ifu_stall);
+    wire wen = (mem_w != 2'b11 && !handshake_b && !ifu_stall);
 
     // 数据移位信号 w/r
     wire [31:0] wdata_shifted = (mem_w != 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (addr[1:0] * 8);
 
     // load/store 阻塞
-    assign lsu_stall = (ren && !handshake_r) || (wen && !handshake_b);
+    assign lsu_stall = (ren) || (wen);
 
     // 访存相关数据
     assign lsu_cpu_awaddr  = addr;

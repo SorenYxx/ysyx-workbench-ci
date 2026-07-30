@@ -34,6 +34,7 @@ extern const mem_region_t mem_regions[];
 #define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
 
 uint8_t* guest_to_host(paddr_t paddr);
+uint8_t* guest_to_flash(paddr_t paddr);
 
 // paddr_t host_to_guest(uint8_t *haddr);
 #ifdef __cplusplus

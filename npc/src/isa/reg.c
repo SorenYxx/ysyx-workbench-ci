@@ -10,6 +10,8 @@ extern "C" void get_reg(int waddr, int data) {
 
 extern "C" void get_csr(int csr, int data) {
   switch (csr) {
+    case 0xF11: return;  // mvendorid
+    case 0xF12: return;  // marchid
     case 0x300: cpu_n.mstatus = data; return;
     case 0x305: cpu_n.mtvec = data; return;
     case 0x341: cpu_n.mepc = data; return;
