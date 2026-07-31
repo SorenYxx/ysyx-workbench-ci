@@ -5,11 +5,10 @@ VFLAGS    = $(shell find ./vsrc -name "*.v") $(shell find ../ysyxSoC/perip -name
 VINCS     = -I../ysyxSoC/perip/uart16550/rtl -I../ysyxSoC/perip/spi/rtl
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c")
 INC_PATH  = $(NPC_HOME)/include
-NEMU_HOME = $(abspath ../nemu)
-REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
+ELF    	  = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 DUMP      = wave.fst
 LIBS      += -lcapstone -lreadline -ldl
-NPCFLAGS  += #-f $(ELF) -e $(ELF)#--batch
+NPCFLAGS  += -e $(ELF)#--batch
 
 # Kconfig
 -include $(NPC_HOME)/include/config/auto.conf
@@ -17,10 +16,6 @@ include  $(NPC_HOME)/scripts/config.mk
 
 # Build CFLAGS from Kconfig
 NPC_CFLAGS = $(foreach v,$(filter CONFIG_%,$(.VARIABLES)),$(if $(filter y,$($(v))),-D$(v)))
-ifdef CONFIG_DIFFTEST
-# Generate header with REF_SO_FILE path before each compile
-$(shell echo "#define REF_SO_FILE \"$(REF_SO)\"" > $(INC_PATH)/ref_so_file.h)
-endif
 
 # Auto-generate auto.conf from .config
 CONFIG_MK := $(NPC_HOME)/include/config/auto.conf

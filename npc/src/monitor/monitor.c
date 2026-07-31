@@ -143,7 +143,7 @@ void sim_init(int argc, char *argv[]) {
 
   /* Initialize differential testing. */
 #ifdef CONFIG_DIFFTEST
-  init_difftest(REF_SO_FILE, img_size);
+  init_difftest(elf_file, img_size);
 #endif
 
   /* Initialize the simple debugger. */
