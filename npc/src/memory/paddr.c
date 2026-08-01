@@ -77,6 +77,18 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
   }
 }
 
+extern "C" void psram_read(int32_t addr, int32_t *data) {
+  uint32_t addr32 = ((uint32_t)addr & ~0x3u);
+
+  const mem_region_t *r = find_region(addr32);
+  if (r) {
+    *data = *(int *)(pmem + r->offset + (addr32 - r->base));
+#ifdef CONFIG_MTRACE
+    printf("[psram]read         0x%08x from 0x%08x\n", *data, addr32);
+#endif
+  }
+}
+
 // -----------------
 
 // ----- Write -----
@@ -99,5 +111,20 @@ void pmem_write(int waddr, int wdata, int wmask) {
   mmio_write(addr, 4, wdata);
   return;
 #endif
+}
+
+extern "C" void psram_write(int32_t addr, int32_t *data, int32_t *wmask) {
+  uint32_t addr32 = ((uint32_t)addr & ~0x3u);
+
+  const mem_region_t *r = find_region(addr32);
+  if (r) {
+    uint8_t *pt = pmem + r->offset + (addr32 - r->base);
+    for (int i = 0; i < 4; i++) {
+      if ((wmask[0] >> i) & 0x1) pt[i] = (uint8_t)((data[0] >> (i * 8)) & 0xFF);
+    }
+#ifdef CONFIG_MTRACE
+    printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32);
+#endif
+  }
 }
 // -----------------

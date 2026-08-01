@@ -3,7 +3,6 @@
 #include <paddr.h>
 #include <device/map.h>
 #include <getopt.h>
-#include "ref_so_file.h"
 
 // NO.
 uint32_t mvendorid = 0x79737978; // "ysyx"
