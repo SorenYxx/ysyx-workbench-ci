@@ -3,7 +3,6 @@
 #include <paddr.h>
 #include <device/map.h>
 #include <getopt.h>
-#include "ref_so_file.h"
 
 // NO.
 uint32_t mvendorid = 0x79737978; // "ysyx"
@@ -143,7 +142,7 @@ void sim_init(int argc, char *argv[]) {
 
   /* Initialize differential testing. */
 #ifdef CONFIG_DIFFTEST
-  init_difftest(REF_SO_FILE, img_size);
+  init_difftest(elf_file, img_size);
 #endif
 
   /* Initialize the simple debugger. */
