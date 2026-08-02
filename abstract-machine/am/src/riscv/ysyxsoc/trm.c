@@ -1,17 +1,17 @@
 #include <am.h>
 #include <klib-macros.h>
 #include <stdio.h>
-#include <string.h>
 
 extern char _heap_start;
 int main(const char *args);
 
 #define SRAM_BASE 0x0f000000
-#define SRAM_SIZE 0x2000
+#define SRAM_SIZE 0x01000000
+#define PSRAM_TOP 0x9fffffff
 #define SRAM_TOP  (SRAM_BASE + SRAM_SIZE)
 #define UART_BASE 0x10000000
 
-Area heap = RANGE(&_heap_start, SRAM_TOP);
+Area heap = RANGE(&_heap_start, PSRAM_TOP);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
 // 初始化 uart
@@ -34,15 +34,6 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  // ----- bootloader -----
-  extern char _data_lma, _data_vma, _data_end;
-  extern char _bss_start, _stack_top;
-  size_t data_size = &_data_end - &_data_vma;
-  memcpy(&_data_vma, &_data_lma, data_size);
-
-  for (char *p = &_bss_start; p < &_stack_top; p++) *p = 0;   // 清 .bss
-  // ----------------------
-
   uart_init();  // 串口初始化
 
   // ----- 打印 CPU ID -----

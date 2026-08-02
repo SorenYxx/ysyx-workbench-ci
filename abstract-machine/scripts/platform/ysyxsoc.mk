@@ -1,4 +1,5 @@
 AM_SRCS = riscv/ysyxsoc/start.S \
+			  riscv/ysyxsoc/start_ss.S \
 		  riscv/ysyxsoc/trm.c \
 		  riscv/ysyxsoc/trap.S \
 		  riscv/ysyxsoc/ioe.c \

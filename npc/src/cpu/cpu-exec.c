@@ -74,7 +74,9 @@ void cpu_exec(uint64_t n) {
 }
 
 void sim_exit() {
+#ifdef CONFIG_WAVE_DUMP
   tfp->close();
   delete tfp;
+#endif
   delete top;
 }

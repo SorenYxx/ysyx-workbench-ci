@@ -90,8 +90,10 @@ static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
 
+#ifdef CONFIG_WAVE_DUMP
   top->trace(tfp, 99);
   tfp->open("wave.fst");
+#endif
 
   top->reset = 1; top->clock = 0;
   reset_n_cycles(10);       // 需保证 10 级同步器充分填满
@@ -107,9 +109,10 @@ static void init_csr() {
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
+  Log("Waveform dump: %s", MUXDEF(CONFIG_WAVE_DUMP, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Build time: %s, %s", __TIME__, __DATE__);
-  printf("Welcome to %s-YSYXSOC!\n", ANSI_FMT(str(riscv32), ANSI_FG_YELLOW ANSI_BG_MAGENTA));
-  printf("For help, type \"help\"\n");
+  printf("== Welcome to %s-YSYXSOC! ==\n", ANSI_FMT(str(riscv32), ANSI_FG_YELLOW ANSI_BG_MAGENTA));
+  printf("== For help, type \"help\" ==\n");
 }
 
 void sim_init(int argc, char *argv[]) {
