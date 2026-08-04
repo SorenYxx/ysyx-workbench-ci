@@ -53,12 +53,12 @@ static long load_img(const char *filename) {
   Log("The image is %s, size = %ld", filename, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_flash(CONFIG_Flash_BASE), size, 1, fp);
+  int ret = fread(guest_to_flash(CONFIG_FLASH_BASE), size, 1, fp);
   assert(ret == 1);
 
-  // memcpy(guest_to_flash(CONFIG_Flash_BASE), guest_to_host(CONFIG_MROM_BASE), size);
+  // memcpy(guest_to_flash(CONFIG_FLASH_BASE), guest_to_host(CONFIG_MROM_BASE), size);
   // FILE *fp_flash = fopen("char-test/char-test.bin", "rb");
-  // fread(guest_to_flash(CONFIG_Flash_BASE), 36, 1, fp_flash);
+  // fread(guest_to_flash(CONFIG_FLASH_BASE), 36, 1, fp_flash);
   // fclose(fp_flash);
 
   fclose(fp);
@@ -96,7 +96,7 @@ static void init_verilator(int argc, char *argv[]) {
 #endif
 
   top->reset = 1; top->clock = 0;
-  reset_n_cycles(10);       // 需保证 10 级同步器充分填满
+  reset_n_cycles(10); // 需保证 10 级同步器充分填满
   top->reset = 0;
 }
 

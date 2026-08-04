@@ -5,13 +5,15 @@
 extern char _heap_start;
 int main(const char *args);
 
-#define SRAM_BASE 0x0f000000
-#define SRAM_SIZE 0x01000000
+// #define SRAM_BASE 0x0f000000
+// #define SRAM_SIZE 0x01000000
+// #define SRAM_TOP  (SRAM_BASE + SRAM_SIZE)
+
 #define PSRAM_TOP 0x9fffffff
-#define SRAM_TOP  (SRAM_BASE + SRAM_SIZE)
+#define SDRAM_TOP 0xbfffffff
 #define UART_BASE 0x10000000
 
-Area heap = RANGE(&_heap_start, PSRAM_TOP);
+Area heap = RANGE(&_heap_start, SDRAM_TOP);
 static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); // defined in CFLAGS
 
 // 初始化 uart

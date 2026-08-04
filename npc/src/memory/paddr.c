@@ -8,7 +8,7 @@
   (CONFIG_PSRAM_SIZE + CONFIG_MROM_SIZE + CONFIG_SRAM_SIZE + CONFIG_SDRAM_SIZE)
 
 uint8_t pmem[PMEM_TOTAL_SIZE] = {};
-uint8_t flash[CONFIG_Flash_SIZE] = {};
+uint8_t flash[CONFIG_FLASH_SIZE] = {};
 
 const mem_region_t mem_regions[MEM_REGION_NUM] = {
   { .base = CONFIG_PSRAM_BASE, .size = CONFIG_PSRAM_SIZE, .offset = 0 },
@@ -30,7 +30,7 @@ uint8_t* guest_to_host(paddr_t addr) {
   return r ? pmem + r->offset + (addr - r->base) : NULL;
 }
 
-uint8_t* guest_to_flash(paddr_t addr) { return flash + (addr - CONFIG_Flash_BASE); }
+uint8_t* guest_to_flash(paddr_t addr) { return flash + (addr - CONFIG_FLASH_BASE); }
 
 // ----- Read -----
 int pmem_read(int raddr) {
@@ -69,7 +69,7 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
 extern "C" void flash_read(int32_t addr, int32_t *data) {
   uint32_t addr32 = ((uint32_t)addr & ~0x3u);
 
-  if (addr32 < CONFIG_Flash_SIZE) {
+  if (addr32 < CONFIG_FLASH_SIZE) {
     *data = *(int32_t *)(flash + addr32);
 #ifdef CONFIG_MTRACE
     printf("[flash]read         0x%08x from 0x%08x\n", *data, addr32);
