@@ -6,6 +6,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include <nvboard.h>
 #include "verilated.h"
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"

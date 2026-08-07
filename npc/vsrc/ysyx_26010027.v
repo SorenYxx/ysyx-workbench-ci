@@ -6,6 +6,8 @@ import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
 
+`define RTC_BASE 32'h0200_0000
+`define RTC_END  32'h0200_ffff
 module ysyx_26010027 (
     input         clock,
     input         reset,
@@ -151,7 +153,7 @@ module ysyx_26010027 (
     wire     [ 1:0] io_clint_bresp;
 
     // 地址译码
-    wire addr_is_clint_ar = (arb_araddr >= 32'h1000_0048) && (arb_araddr <= 32'h1000_004f);
+    wire addr_is_clint_ar = (arb_araddr >= `RTC_BASE) && (arb_araddr <= `RTC_END);
 
     reg  addr_is_clint_r;
     always @(posedge clock, posedge reset) begin

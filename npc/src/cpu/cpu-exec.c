@@ -43,8 +43,11 @@ void step_and_eval() {
   top->clock = 0; top->eval();
   top->clock = 1; top->eval();
 
+#ifdef CONFIG_WAVE_DUMP
   tfp->dump(main_time); 
+#endif
   main_time ++;
+  nvboard_update();
 
   cpu_n.pc = CPU_PC();
 
@@ -78,5 +81,6 @@ void sim_exit() {
   tfp->close();
   delete tfp;
 #endif
+  nvboard_quit();
   delete top;
 }

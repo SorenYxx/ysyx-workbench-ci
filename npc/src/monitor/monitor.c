@@ -86,6 +86,12 @@ static void reset_n_cycles(int n) {
   }
 }
 
+void nvboard_bind_all_pins(VysyxSoCFull *top);
+static void init_nvboard() {
+  nvboard_bind_all_pins(top);
+  nvboard_init();
+}
+
 static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
@@ -147,6 +153,9 @@ void sim_init(int argc, char *argv[]) {
 #ifdef CONFIG_DIFFTEST
   init_difftest(elf_file, img_size);
 #endif
+
+  /* Initialize NVBoard */
+  init_nvboard();
 
   /* Initialize the simple debugger. */
   init_sdb();
