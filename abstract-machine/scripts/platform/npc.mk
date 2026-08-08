@@ -30,7 +30,7 @@ image: image-dep
 
 run: insert-arg
 	@echo "Passing IMG = $(abspath $(IMAGE).bin) to NPC"
-	$(MAKE)	-C $(NPC_HOME) run ARGS="$(NPCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
+	$(MAKE)	-C $(NPC_HOME) run CONFIG_SOC=n ARGS="$(NPCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
 
 wave:
 	gtkwave $(DUMP) &

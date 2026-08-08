@@ -4,13 +4,15 @@
 #include <device/map.h>
 #include <getopt.h>
 
+#define RESET_TIME MUXDEF(CONFIG_SOC, 10, 1) // 需保证 10 级同步器充分填满
+
 // NO.
 uint32_t mvendorid = 0x79737978; // "ysyx"
 uint32_t marchid   = 0x26010027; // "26010027"
 
 static char *elf_file = NULL;
 
-void init_ftrace(const char *elf_sile);
+IFDEF(CONFIG_FTRACE, void init_ftrace(const char *elf_sile));
 void sdb_set_batch_mode();
 
 static int parse_args(int argc, char *argv[]) {
@@ -53,7 +55,7 @@ static long load_img(const char *filename) {
   Log("The image is %s, size = %ld", filename, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_flash(CONFIG_FLASH_BASE), size, 1, fp);
+  int ret = fread(MUXDEF(CONFIG_SOC, guest_to_flash(PC_START), guest_to_host(PC_START)), size, 1, fp);
   assert(ret == 1);
 
   // memcpy(guest_to_flash(CONFIG_FLASH_BASE), guest_to_host(CONFIG_MROM_BASE), size);
@@ -86,11 +88,13 @@ static void reset_n_cycles(int n) {
   }
 }
 
+#ifdef CONFIG_NVBOARD
 void nvboard_bind_all_pins(VysyxSoCFull *top);
 static void init_nvboard() {
   nvboard_bind_all_pins(top);
   nvboard_init();
 }
+#endif
 
 static void init_verilator(int argc, char *argv[]) {
   Verilated::commandArgs(argc, argv);
@@ -101,8 +105,8 @@ static void init_verilator(int argc, char *argv[]) {
   tfp->open("wave.fst");
 #endif
 
-  top->reset = 1; top->clock = 0;
-  reset_n_cycles(10); // 需保证 10 级同步器充分填满
+  top->reset = 1;
+  reset_n_cycles(RESET_TIME); // 需保证 10 级同步器充分填满
   top->reset = 0;
 }
 
@@ -135,27 +139,19 @@ void sim_init(int argc, char *argv[]) {
   init_csr();
 
   /* Initialize batch mode */
-#ifdef CONFIG_BATCH_MODE
-  sdb_set_batch_mode();
-#endif
+  IFDEF(CONFIG_BATCH_MODE, sdb_set_batch_mode());
 
   /* Initialize footrace */
-#ifdef CONFIG_FTRACE
-  if (elf_file != NULL) init_ftrace(elf_file);
-#endif
+  IFDEF(CONFIG_FTRACE, if (elf_file != NULL) init_ftrace(elf_file));
 
   /* Initialize devices. */
-#ifdef CONFIG_DEVICE
-  init_device();
-#endif
+  IFDEF(CONFIG_DEVICE, init_device());
 
   /* Initialize differential testing. */
-#ifdef CONFIG_DIFFTEST
-  init_difftest(elf_file, img_size);
-#endif
+  IFDEF(CONFIG_DIFFTEST, init_difftest(elf_file, img_size));
 
   /* Initialize NVBoard */
-  init_nvboard();
+  IFDEF(CONFIG_NVBOARD, init_nvboard());
 
   /* Initialize the simple debugger. */
   init_sdb();

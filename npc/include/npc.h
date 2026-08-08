@@ -8,13 +8,26 @@
 #include <cstdlib>
 #include <nvboard.h>
 #include "verilated.h"
+
+#ifdef CONFIG_SOC
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"
-
 #define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc)
 #define CPU_INST()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__inst)
 #define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IDU__DOT__reg_w)
+#define CPU_VALID() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__cpu_ifu_rvalid)
+#else
+#include "Vysyx_26010027.h"
+#include "Vysyx_26010027___024root.h"
+#define CPU_PC()    (top->rootp->ysyx_26010027__DOT__pc)
+#define CPU_INST()  (top->rootp->ysyx_26010027__DOT__my_IFU__DOT__inst)
+#define CPU_REG_W() (top->rootp->ysyx_26010027__DOT__my_IDU__DOT__reg_w)
+#define CPU_VALID() (top->rootp->ysyx_26010027__DOT__my_IFU__DOT__cpu_ifu_rvalid)
+#endif
+
 #include "verilated_fst_c.h"
+
+#define PC_START MUXDEF(CONFIG_SOC, 0x30000000, 0x80000000)
 
 //state
 enum { NPC_RUNNING, NPC_STOP, NPC_END, NPC_ABORT , NPC_QUIT };
@@ -45,7 +58,12 @@ int is_exit_status_bad();
 
 //verilator
 extern VerilatedFstC* tfp;
+
+#ifdef CONFIG_SOC
 extern VysyxSoCFull* top;
+#else
+extern Vysyx_26010027* top;
+#endif
 
 void itrace_record(int pc, int inst);
 

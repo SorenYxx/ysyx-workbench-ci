@@ -32,7 +32,7 @@ image: image-dep
 
 run: insert-arg
 	@echo "Passing IMG = $(abspath $(IMAGE).bin) to YSYXSOC"
-	$(MAKE)	-C $(NPC_HOME) run ARGS="$(YSYXSOCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
+	$(MAKE)	-C $(NPC_HOME) run CONFIG_SOC=y ARGS="$(YSYXSOCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
 
 wave:
 	gtkwave $(DUMP) &

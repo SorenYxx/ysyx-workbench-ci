@@ -101,9 +101,7 @@ void pmem_write(int waddr, int wdata, int wmask) {
     for (int i = 0; i < 4; i++) {
       if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
     }
-#ifdef CONFIG_MTRACE
-    printf("write         0x%08x to   0x%08x\n", wdata, addr);
-#endif
+    IFDEF(CONFIG_MTRACE, printf("write         0x%08x to   0x%08x\n", wdata, addr));
     return;
   }
 
@@ -122,9 +120,7 @@ extern "C" void psram_write(int32_t addr, int32_t *data, int32_t *wmask) {
     for (int i = 0; i < 4; i++) {
       if ((wmask[0] >> i) & 0x1) pt[i] = (uint8_t)((data[0] >> (i * 8)) & 0xFF);
     }
-#ifdef CONFIG_MTRACE
-    printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32);
-#endif
+    IFDEF(CONFIG_MTRACE, printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32));
   }
 }
 // -----------------

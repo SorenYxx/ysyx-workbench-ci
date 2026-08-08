@@ -1,3 +1,9 @@
+`ifdef TOP_SOC
+  `define PC_START 32'h3000_0000;
+`else
+  `define PC_START 32'h8000_0000;
+`endif
+
 module ysyx_26010027_IFU (
     input             clock,
     input             reset,
@@ -39,7 +45,7 @@ module ysyx_26010027_IFU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             state       <= IDLE;
-            pc          <= 32'h3000_0000;
+            pc          <= `PC_START;
             lsu_pending <= 1'b0;
         end else begin
             case (state)

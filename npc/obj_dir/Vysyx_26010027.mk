@@ -2,9 +2,9 @@
 # DESCRIPTION: Verilator output: Makefile for building Verilated archive or executable
 #
 # Execute this makefile from the object directory:
-#    make -f VysyxSoCFull.mk
+#    make -f Vysyx_26010027.mk
 
-default: VysyxSoCFull
+default: Vysyx_26010027
 
 ### Constants...
 # Perl executable (from $PERL, defaults to 'perl' if not set)
@@ -32,9 +32,9 @@ VM_SC_TARGET_ARCH = linux
 
 ### Vars...
 # Design prefix (from --prefix)
-VM_PREFIX = VysyxSoCFull
+VM_PREFIX = Vysyx_26010027
 # Module prefix (from --prefix)
-VM_MODPREFIX = VysyxSoCFull
+VM_MODPREFIX = Vysyx_26010027
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
   -MMD \
@@ -43,9 +43,8 @@ VM_USER_CFLAGS = \
   -D_REENTRANT \
   -I/home/soren/ysyx-workbench/npc/include \
   -I/home/soren/ysyx-workbench/nvboard/usr/include \
-  -DTOP_NAME="VysyxSoCFull" \
+  -DTOP_NAME="Vysyx_26010027" \
   -DCONFIG_HAS_TIMER \
-  -DCONFIG_SOC \
   -DCONFIG_WATCHPOINT \
   -DCONFIG_HAS_SERIAL \
   -DCONFIG_BATCH_MODE \
@@ -98,7 +97,7 @@ VM_USER_DIR = \
 
 ### Default rules...
 # Include list of all generated classes
-include VysyxSoCFull_classes.mk
+include Vysyx_26010027_classes.mk
 # Include global rules
 include $(VERILATOR_ROOT)/include/verilated.mk
 
@@ -141,7 +140,7 @@ auto_bind.o: /home/soren/ysyx-workbench/npc/obj_dir/auto_bind.cpp
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 
 ### Link rules... (from --exe)
-VysyxSoCFull: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a
+Vysyx_26010027: $(VK_USER_OBJS) $(VK_GLOBAL_OBJS) $(VM_PREFIX)__ALL.a
 	$(LINK) $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) $(LIBS) $(SC_LIBS) -o $@
 
 # Verilated -*- Makefile -*-

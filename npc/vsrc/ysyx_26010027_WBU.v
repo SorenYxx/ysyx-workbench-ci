@@ -28,12 +28,9 @@ module ysyx_26010027_WBU (
             wdata = 0;
         end
 
-        if (j_type == 2'b10)
-            n_pc = mtvec;  // ecall
-        else if (j_type == 2'b11)
-            n_pc = mepc;   // mret
-        else
-            n_pc = (j_type != 2'b00 || b_type != 3'd6) ? alu_result : pc + 4;
+        n_pc = (j_type == 2'b10) ? mtvec :
+               (j_type == 2'b11) ? mepc  :
+               (j_type != 2'b00 || b_type != 3'd6) ? alu_result : pc + 4;
     end
 
 endmodule

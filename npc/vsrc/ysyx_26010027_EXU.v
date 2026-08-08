@@ -11,7 +11,7 @@ module ysyx_26010027_EXU (
 
     reg [31:0] rs1, rs2;
     reg [31:0] result;
-    wire [31:0] dnpc = pc + 4;
+    wire [31:0] snpc = pc + 4;
 
     always @(*) begin
         rs1    = alu_arc1 ? pc : src1;
@@ -23,12 +23,12 @@ module ysyx_26010027_EXU (
             4'd1: begin  // sub & branch
                 result = rs1 - rs2;
                 case (b_type)
-                    3'd0:     res = (result != 0)                ? pc + imm : dnpc;
-                    3'd1:     res = (result == 0)                ? pc + imm : dnpc;
-                    3'd2:     res = ($signed(rs1) < $signed(rs2))  ? pc + imm : dnpc;
-                    3'd3:     res = ($signed(rs1) >= $signed(rs2)) ? pc + imm : dnpc;
-                    3'd4:     res = (rs1 < rs2)                   ? pc + imm : dnpc;
-                    3'd5:     res = ($unsigned(rs1) >= $unsigned(rs2)) ? pc + imm : dnpc;
+                    3'd0:     res = (result != 0)                ? pc + imm : snpc;
+                    3'd1:     res = (result == 0)                ? pc + imm : snpc;
+                    3'd2:     res = ($signed(rs1) < $signed(rs2))  ? pc + imm : snpc;
+                    3'd3:     res = ($signed(rs1) >= $signed(rs2)) ? pc + imm : snpc;
+                    3'd4:     res = (rs1 < rs2)                   ? pc + imm : snpc;
+                    3'd5:     res = ($unsigned(rs1) >= $unsigned(rs2)) ? pc + imm : snpc;
                     default:  res = result;
                 endcase
             end

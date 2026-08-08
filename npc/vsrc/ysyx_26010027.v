@@ -5,6 +5,7 @@ import "DPI-C" function void pmem_write(input int waddr, input int wdata, input 
 import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
+import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch);
 
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
@@ -12,6 +13,7 @@ module ysyx_26010027 (
     input         clock,
     input         reset,
 
+`ifdef TOP_SOC
     // ----- MASTER -----
     // AR
     input         io_master_arready,
@@ -85,6 +87,10 @@ module ysyx_26010027 (
     output [ 3:0] io_slave_bid,
 
     input         io_interrupt
+    
+`else
+    output        nothing
+`endif
 );
 
     // 内部信号
@@ -142,6 +148,7 @@ module ysyx_26010027 (
     wire [ 1:0] arb_bresp;
     wire [ 3:0] arb_bid;
 
+`ifdef TOP_SOC
     // CLINT 接口信号
     wire            io_clint_arready;
     wire            io_clint_rvalid;
@@ -232,17 +239,6 @@ module ysyx_26010027 (
     assign io_slave_bresp   = 2'b0;
     assign io_slave_bid     = 4'b0;
 
-    ysyx_26010027_GPR R (
-        .clock  (clock),
-        .reset  (reset),
-        .waddr (waddr),
-        .wdata (wdata),
-        .wen   (reg_w),
-        .raddr1(rs1),
-        .raddr2(rs2),
-        .rdata1(rdata1),
-        .rdata2(rdata2)
-    );
 
     ysyx_26010027_CLINT my_CLINT (
         .clock     (clock),
@@ -269,6 +265,59 @@ module ysyx_26010027 (
         .io_slave_bresp (io_clint_bresp),
         .io_slave_bvalid(io_clint_bvalid),
         .io_slave_bready(io_clint_bready)
+    );
+
+`else
+    reg [31:0] pmem_read_data;
+    reg [31:0] pmem_write_data;
+    reg        pmem_rvalid;
+    reg        pmem_wready;
+    reg        pmem_bvalid;
+    reg [ 1:0] pmem_bresp;
+
+    assign arb_arready = arb_arvalid;
+    assign arb_awready = arb_awvalid;
+    assign arb_rdata   = pmem_read_data;
+    assign arb_rvalid  = pmem_rvalid;
+    assign arb_wready  = pmem_wready;
+    assign arb_bvalid  = pmem_bvalid;
+    assign arb_bresp   = pmem_bresp;
+
+    always @(posedge clock) begin
+        if (reset) begin
+            pmem_rvalid    <= 1'b0;
+            pmem_wready    <= 1'b0;
+            pmem_bvalid    <= 1'b0;
+        end else begin
+            if (arb_rvalid && arb_rready) pmem_rvalid <= 1'b0;
+            if (arb_wvalid && arb_wready) pmem_wready <= 1'b0;
+            if (arb_bvalid && arb_bready) pmem_bvalid <= 1'b0;
+
+            if (arb_arvalid && !pmem_rvalid) begin
+                pmem_read_data <= pmem_read(arb_araddr);
+                pmem_rvalid    <= 1'b1;
+            end
+            else if (arb_awvalid && !pmem_wready) begin
+                pmem_write(arb_awaddr, arb_wdata, {{28{1'b0}}, arb_wstrb});
+                pmem_wready <= 1'b1;
+                pmem_bvalid <= 1'b1;
+                pmem_bresp  <= 2'b0;
+            end
+        end
+    end
+
+`endif
+
+    ysyx_26010027_GPR R (
+        .clock  (clock),
+        .reset  (reset),
+        .waddr (waddr),
+        .wdata (wdata),
+        .wen   (reg_w),
+        .raddr1(rs1),
+        .raddr2(rs2),
+        .rdata1(rdata1),
+        .rdata2(rdata2)
     );
 
     // ----- IFU (AXI4) -----
@@ -488,8 +537,8 @@ module ysyx_26010027 (
 
     // 事务完成时握手信号
     wire handshake_ifu_r = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
-    wire handshake_lsu_r = cpu_lsu_rvalid  && lsu_cpu_rready  && (cpu_lsu_rresp  == 2'b00);
-    wire handshake_lsu_b = cpu_lsu_bvalid  && lsu_cpu_bready  && (cpu_lsu_bresp  == 2'b00);
+    wire handshake_lsu_r = cpu_lsu_rvalid && lsu_cpu_rready && (cpu_lsu_rresp == 2'b00);
+    wire handshake_lsu_b = cpu_lsu_bvalid && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
 
     // arbiter -> 下游总线
     assign arb_arvalid  = (grant == IFU_GRANT) ? ifu_cpu_arvalid : lsu_cpu_arvalid;
@@ -538,6 +587,7 @@ module ysyx_26010027 (
                      || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
 
     always @(posedge clock) begin
+        if (!reset) get_cpu_state({{31{1'b0}}, handshake_lsu_r}, {{31{1'b0}}, handshake_lsu_b}, {{31{1'b0}}, ifu_stall}, {{31{1'b0}}, alu_op != 4'd0}, {{31{1'b0}}, csr_we}, {{31{1'b0}}, j_type != 2'b00}, {{31{1'b0}}, b_type != 3'd6});
         if (j_type == 2'b01 && !ifu_stall) begin
             ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
         end
