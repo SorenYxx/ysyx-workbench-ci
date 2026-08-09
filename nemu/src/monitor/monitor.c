@@ -49,17 +49,14 @@ static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 static long load_img() {
-  printf("1\n");
   if (img_file == NULL) {
     Log("No image is given. Use the default build-in image.");
     return 4096; // built-in image size
   }
 
-  printf("1\n");
   FILE *fp = fopen(img_file, "rb");
   Assert(fp, "Can not open '%s'", img_file);
 
-  printf("1\n");
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
 
