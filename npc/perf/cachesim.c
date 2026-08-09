@@ -125,3 +125,10 @@ if (argc != 2) {
 	return 0;
 }
 	
+
+// Binary trace reader: reads 4-byte uint32_t PCs in little-endian
+static uint32_t next_pc_bin(FILE *fp) {
+  uint32_t pc;
+  if (fread(&pc, 4, 1, fp) == 1) return pc;
+  return 0xffffffff; // EOF marker
+}
