@@ -36,9 +36,7 @@ static void restart() {
 
 void init_isa() {
   /* Load built-in image. */
-  printf("1\n");
-  memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
-  printf("1\n");
+  memcpy(guest_to_host_flash(RESET_VECTOR), img, sizeof(img));
 
   /* Initialize this virtual computer system. */
   restart();
