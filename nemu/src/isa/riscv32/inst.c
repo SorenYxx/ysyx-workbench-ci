@@ -83,17 +83,25 @@ static bool find_call(int rd, int rs1) {
 
 //csr
 word_t csr_read(word_t addr) {
+  addr &= 0xfff;  // mask to 12-bit CSR address
   switch (addr) {
+    case 0xf11: return 0x79737978; // mvendorid "ysyx"
+    case 0xf12: return 0x018CE1AB; // marchid
     case 0x300: return cpu.mstatus;
     case 0x305: return cpu.mtvec;
     case 0x341: return cpu.mepc;
     case 0x342: return cpu.mcause;
+    case 0xb00: return 0;  // mcycle (not needed for itrace)
+    // case 0xb80: return cpu.mcycle >> 32;
     default: panic("read unsupported csr addr = 0x%03x", addr);
   }
 }
 
 void csr_write(word_t addr, word_t data) {
+  addr &= 0xfff;
   switch (addr) {
+    case 0xf11: ; // mvendorid "ysyx"
+    case 0xf12: ; // marchid
     case 0x300: cpu.mstatus = data; return;
     case 0x305: cpu.mtvec = data; return;
     case 0x341: cpu.mepc = data; return;
