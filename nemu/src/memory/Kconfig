@@ -48,3 +48,19 @@ config MEM_RANDOM
     This may help to find undefined behaviors.
 
 endmenu #MEMORY
+
+config FLASH_BASE
+  hex "Flash base address"
+  default 0x30000000
+
+config FLASH_SIZE
+  hex "Flash size"
+  default 0x1000000
+
+config SDRAM_BASE
+  hex "SDRAM base address"
+  default 0xa0000000
+
+config SDRAM_SIZE
+  hex "SDRAM size"
+  default 0x2000000
