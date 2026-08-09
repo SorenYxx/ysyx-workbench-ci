@@ -86,7 +86,7 @@ word_t csr_read(word_t addr) {
   addr &= 0xfff;  // mask to 12-bit CSR address
   switch (addr) {
     case 0xf11: return 0x79737978; // mvendorid "ysyx"
-    case 0xf12: return 0x26010027; // marchid
+    case 0xf12: return 0x018CE1AB; // marchid
     case 0x300: return cpu.mstatus;
     case 0x305: return cpu.mtvec;
     case 0x341: return cpu.mepc;
