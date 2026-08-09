@@ -43,7 +43,7 @@ config RTC_PORT
 
 config RTC_MMIO
   hex "MMIO address of the timer"
-  default 0x10000048
+  default 0x020000000
 endif # HAS_TIMER
 
 menuconfig HAS_KEYBOARD
