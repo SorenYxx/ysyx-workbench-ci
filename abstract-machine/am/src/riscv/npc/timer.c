@@ -2,10 +2,6 @@
 
 #define RTC_ADDR 0x10000048
 
-// CLINT 模块的时钟频率 (Hz)
-// 在 Verilator 仿真环境中没有主频概念，此值应设为仿真的有效频率（每秒周期数）
-// 在真实 FPGA/ASIC 上，此值应设为实际时钟频率
-// 可通过编译选项覆盖：-DCPU_FREQ_HZ=50000000
 #ifndef CPU_FREQ_HZ
 #define CPU_FREQ_HZ 100000  // 默认 100kHz（Verilator 仿真）
 #endif

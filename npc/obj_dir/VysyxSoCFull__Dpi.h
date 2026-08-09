@@ -22,6 +22,8 @@ extern "C" {
     extern void flash_read(int addr, int* data);
     // DPI import at vsrc/ysyx_26010027.v:2:30
     extern void ftrace_print(int pc, int target, int rd, int rs1);
+    // DPI import at vsrc/ysyx_26010027.v:8:30
+    extern void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch, int icache_hit, int icache_miss, int icache_miss_latency);
     // DPI import at vsrc/ysyx_26010027.v:7:30
     extern void get_csr(int csr, int data);
     // DPI import at vsrc/ysyx_26010027.v:6:30

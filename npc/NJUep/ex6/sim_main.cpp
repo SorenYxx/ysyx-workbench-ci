@@ -30,6 +30,6 @@ int main() {
 	btn = dut.o;
     }
 
-    nvboard_quit;
+    nvboard_quit();
     return 0;
 }
