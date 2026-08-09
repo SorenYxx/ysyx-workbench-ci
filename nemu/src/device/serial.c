@@ -37,7 +37,7 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
     if (offset == UART_TX) serial_putc(serial_base[0]);
     // ignore writes to other registers (LCR, DLL, DLM, IER, etc.)
   } else {
-    if (offset == UART_LSR) serial_base[0] = 0x60; // THR empty + TX empty
+    if (offset == UART_LSR) serial_base[offset] = 0x60; // THR empty + TX empty
     // other reads return whatever was last written (usually 0)
   }
 }
