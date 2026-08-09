@@ -31,12 +31,15 @@ static void serial_putc(char ch) {
 static void serial_io_handler(uint32_t offset, int len, bool is_write) {
   assert(len == 1);
   switch (offset) {
-    /* We bind the serial port with the host stderr in NEMU. */
-    case CH_OFFSET:
+    case 0: // RBR/THR
       if (is_write) serial_putc(serial_base[0]);
-      else panic("do not support read");
       break;
-    default: panic("do not support offset = %d", offset);
+    case 5: // LSR: always report TX FIFO empty + transmitter empty
+      if (!is_write) serial_base[5] = 0x60;
+      break;
+    default: // LCR/DLL/DLM/etc.: silently accept writes, return 0 for reads
+      if (!is_write) serial_base[offset] = 0;
+      break;
   }
 }
 
