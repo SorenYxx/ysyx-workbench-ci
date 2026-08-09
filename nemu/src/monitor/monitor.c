@@ -124,10 +124,8 @@ void init_monitor(int argc, char *argv[]) {
   /* Perform ISA dependent initialization. */
   init_isa();
 
-  printf("1\n");
   /* Load the image to memory. This will overwrite the built-in image. */
   long img_size = load_img();
-  printf("1\n");
 
   /* Initialize ftrace */
 #ifdef CONFIG_FTRACE
