@@ -28,15 +28,17 @@ static void serial_putc(char ch) {
   MUXDEF(CONFIG_TARGET_AM, putch(ch), putc(ch, stderr));
 }
 
+#define UART_TX   0  // Transmit Holding Buffer (write)
+#define UART_LSR  5  // Line Status Register (read)
+
 static void serial_io_handler(uint32_t offset, int len, bool is_write) {
   assert(len == 1);
-  switch (offset) {
-    /* We bind the serial port with the host stderr in NEMU. */
-    case CH_OFFSET:
-      if (is_write) serial_putc(serial_base[0]);
-      else panic("do not support read");
-      break;
-    default: panic("do not support offset = %d", offset);
+  if (is_write) {
+    if (offset == UART_TX) serial_putc(serial_base[0]);
+    // ignore writes to other registers (LCR, DLL, DLM, IER, etc.)
+  } else {
+    if (offset == UART_LSR) serial_base[offset] = 0x60; // THR empty + TX empty
+    // other reads return whatever was last written (usually 0)
   }
 }
 

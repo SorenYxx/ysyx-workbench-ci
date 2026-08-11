@@ -15,14 +15,14 @@
 #define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__pc)
 #define CPU_INST()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__inst)
 #define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IDU__DOT__reg_w)
-#define CPU_VALID() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_IFU__DOT__cpu_ifu_rvalid)
+#define CPU_VALID() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_icache__DOT__rvalid_o)
 #else
 #include "Vysyx_26010027.h"
 #include "Vysyx_26010027___024root.h"
 #define CPU_PC()    (top->rootp->ysyx_26010027__DOT__pc)
 #define CPU_INST()  (top->rootp->ysyx_26010027__DOT__my_IFU__DOT__inst)
 #define CPU_REG_W() (top->rootp->ysyx_26010027__DOT__my_IDU__DOT__reg_w)
-#define CPU_VALID() (top->rootp->ysyx_26010027__DOT__my_IFU__DOT__cpu_ifu_rvalid)
+#define CPU_VALID() (top->rootp->ysyx_26010027__DOT__my_icache__DOT__rvalid_o)
 #endif
 
 #include "verilated_fst_c.h"

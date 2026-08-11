@@ -90,7 +90,7 @@ module ysyx_26010027_LSU (
 
     // load/store 访存请求与响应有效
     assign lsu_cpu_awvalid = (state_w == W_IDLE) && wen;
-    assign lsu_cpu_wvalid  = (state_w == W_WAIT) && wen;
+    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT) && wen;
     assign lsu_cpu_arvalid = (state_r == R_IDLE) && ren;
     assign lsu_cpu_rready  = (state_r == R_WAIT);
     assign lsu_cpu_bready  = (state_w == W_RESP);
@@ -109,7 +109,8 @@ module ysyx_26010027_LSU (
         end else begin
             case (state_w)
                 W_IDLE: begin
-                    if (handshake_aw) state_w <= W_WAIT;
+                    if (handshake_aw && handshake_w) state_w <= W_RESP;
+                    else if (handshake_aw) state_w <= W_WAIT;
                     else state_w <= W_IDLE;
                 end
                 W_WAIT: begin

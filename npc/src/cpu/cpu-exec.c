@@ -28,9 +28,12 @@ uint32_t alu_counter;
 uint32_t csr_counter;
 uint32_t jump_counter;
 uint32_t branch_counter;
+uint32_t icache_hit_counter;
+uint32_t icache_miss_counter;
+uint32_t icache_miss_latency;
 
 // get cpu state
-extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch) {
+extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch, int icache_hit, int icache_miss, int miss_lat) {
   lsu_r_valid = lsu_get_data;
   lsu_w_valid = lsu_w_data;
   exu_valid   = exu_done;
@@ -38,6 +41,9 @@ extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, in
   csr_valid   = csr_we;
   jump        = cpu_jump;
   branch      = cpu_branch;
+  icache_hit_counter  = icache_hit;
+  icache_miss_counter = icache_miss;
+  icache_miss_latency = miss_lat;
 }
 
 // state
@@ -56,6 +62,12 @@ int is_exit_status_bad() {
 }
 
 static void statistics() {
+  uint32_t total_access = icache_hit_counter + icache_miss_counter;
+  double amat = total_access > 0 ?
+    (double)(icache_hit_counter * 1 + icache_miss_latency) / total_access : 0;
+  double miss_rate = total_access > 0 ?
+    (double)icache_miss_counter / total_access * 100 : 0;
+
   Log("Total cycles = %ld", main_time);
   Log("Total insts = %ld", total_inst);
   Log("- Load and Store insts = %ld, with %ld loads and %ld stores", lsu_r_counter + lsu_w_counter, lsu_r_counter, lsu_w_counter);
@@ -64,6 +76,8 @@ static void statistics() {
   Log("- CSR insts = %ld", csr_counter);
   Log("- Jump insts = %ld", jump_counter);
   Log("- Branch insts = %ld", branch_counter);
+  Log("ICache: hit=%ld miss=%ld miss_rate=%.1f%% miss_latency=%ld AMAT=%.2f",
+      icache_hit_counter, icache_miss_counter, miss_rate, icache_miss_latency, amat);
   Log("Simulation IPC of npc = %.8f", (double)total_inst / main_time);
 }
 
@@ -79,7 +93,7 @@ void step_and_eval() {
 
   cpu_n.pc = CPU_PC();
 
-  get_cpu_state(lsu_r_valid, lsu_w_valid, exu_valid, alu_valid, csr_valid, jump, branch);
+  get_cpu_state(lsu_r_valid, lsu_w_valid, exu_valid, alu_valid, csr_valid, jump, branch, icache_hit_counter, icache_miss_counter, icache_miss_latency);
 
   if (en[0] && lsu_r_valid) { lsu_r_counter++;  en[0] = 0; }
   if (en[1] && lsu_w_valid) { lsu_w_counter++;  en[1] = 0; }

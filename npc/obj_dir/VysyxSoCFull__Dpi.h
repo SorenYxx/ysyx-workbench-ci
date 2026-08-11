@@ -23,14 +23,14 @@ extern "C" {
     // DPI import at vsrc/ysyx_26010027.v:2:30
     extern void ftrace_print(int pc, int target, int rd, int rs1);
     // DPI import at vsrc/ysyx_26010027.v:8:30
-    extern void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch);
+    extern void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch, int icache_hit, int icache_miss, int icache_miss_latency);
     // DPI import at vsrc/ysyx_26010027.v:7:30
     extern void get_csr(int csr, int data);
     // DPI import at vsrc/ysyx_26010027.v:6:30
     extern void get_reg(int waddr, int r);
     // DPI import at vsrc/ysyx_26010027.v:5:30
     extern void is_illegal_inst();
-    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:5402:30
+    // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:6723:30
     extern void mrom_read(int raddr, int* rdata);
     // DPI import at vsrc/ysyx_26010027.v:3:30
     extern int pmem_read(int raddr);

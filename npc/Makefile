@@ -88,10 +88,10 @@ perf: compile
 	@echo "commit: $$(git rev-parse --short HEAD)"
 	@echo "date:   $$(date '+%Y-%m-%d %H:%M:%S')"
 	@echo "---"
-	@$(MAKE) -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train
+	@$(MAKE) -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train insert-arg
 	@./obj_dir/V$(TOP) --img $(PERF_IMG) $(NPCFLAGS) --batch 2>&1 | tee perf.log
 	@echo "---"
-	@echo "Copy the line below to your performance spreadsheet:"
+	@echo "[perf]Copy the line below to your performance spreadsheet:"
 	@grep -oP '(?<=Total cycles = )\d+' perf.log | tr '\n' ' '
 	@grep -oP '(?<=Total insts = )\d+' perf.log | tr '\n' ' '
 	@grep -oP '(?<=Simulation IPC of npc = )[\d.]+' perf.log | tr '\n' ' '

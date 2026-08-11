@@ -5,7 +5,7 @@ import "DPI-C" function void pmem_write(input int waddr, input int wdata, input 
 import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
-import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch);
+import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch, input int icache_hit, input int icache_miss, input int icache_miss_latency);
 
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
@@ -308,7 +308,50 @@ module ysyx_26010027 (
 
 `endif
 
-    ysyx_26010027_GPR R (
+    wire        icache_arvalid;
+    wire        icache_arready;
+    wire [31:0] icache_araddr;
+    wire [ 7:0] icache_arlen;
+    wire [ 3:0] icache_arid;
+    wire [ 2:0] icache_arsize;
+    wire [ 1:0] icache_arburst = 2'b01; // 硬编码 INCR
+    wire        icache_rvalid;
+    wire        icache_rready;
+    wire [31:0] icache_rdata;
+    wire [ 1:0] icache_rresp;
+    wire        icache_rlast;
+    wire [ 3:0] icache_rid;
+
+    wire [31:0] hit_count;
+    wire [31:0] miss_count;
+    wire [31:0] miss_latency;
+
+    ysyx_26010027_icache my_icache (
+        .clock       (clock),
+        .reset       (reset),
+
+        .ifu_araddr  (ifu_cpu_araddr),
+        .ifu_arvalid (ifu_cpu_arvalid),
+        .ifu_arready (cpu_ifu_arready),
+        .ifu_rdata   (cpu_ifu_rdata),
+        .ifu_rvalid  (cpu_ifu_rvalid),
+        .ifu_rready  (ifu_cpu_rready),
+
+        .arb_araddr  (icache_araddr),
+        .arb_arvalid (icache_arvalid),
+        .arb_arready (icache_arready),
+        .arb_rdata   (icache_rdata),
+        .arb_rvalid  (icache_rvalid),
+        .arb_rready  (icache_rready),
+        .arb_arlen   (icache_arlen),
+        .arb_arsize  (icache_arsize),
+
+        .hit_count   (hit_count),
+        .miss_count  (miss_count),
+        .miss_latency(miss_latency)
+    );
+
+    ysyx_26010027_GPR my_R (
         .clock  (clock),
         .reset  (reset),
         .waddr (waddr),
@@ -336,12 +379,13 @@ module ysyx_26010027 (
     wire [ 3:0] cpu_ifu_rid;
     wire        cpu_ifu_rlast;
 
-    assign cpu_ifu_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
-    assign cpu_ifu_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
-    assign cpu_ifu_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
-    assign cpu_ifu_rresp   = (grant == IFU_GRANT) ? arb_rresp   : 2'b0;
-    assign cpu_ifu_rid     = (grant == IFU_GRANT) ? arb_rid     : 4'b0;
-    assign cpu_ifu_rlast   = (grant == IFU_GRANT) ? arb_rlast   : 1'b0;
+    assign icache_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
+    assign icache_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
+    assign icache_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
+
+    assign cpu_ifu_rresp   = 2'b0;
+    assign cpu_ifu_rid     = 4'b0;
+    assign cpu_ifu_rlast   = 1'b1;
 
     ysyx_26010027_IFU my_IFU (
         .clock    (clock),
@@ -541,13 +585,13 @@ module ysyx_26010027 (
     wire handshake_lsu_b = cpu_lsu_bvalid && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
 
     // arbiter -> 下游总线
-    assign arb_arvalid  = (grant == IFU_GRANT) ? ifu_cpu_arvalid : lsu_cpu_arvalid;
-    assign arb_araddr   = (grant == IFU_GRANT) ? ifu_cpu_araddr  : lsu_cpu_araddr;
-    assign arb_arid     = (grant == IFU_GRANT) ? ifu_cpu_arid    : lsu_cpu_arid;
-    assign arb_arlen    = (grant == IFU_GRANT) ? ifu_cpu_arlen   : lsu_cpu_arlen;
-    assign arb_arsize   = (grant == IFU_GRANT) ? ifu_cpu_arsize  : lsu_cpu_arsize;
-    assign arb_arburst  = (grant == IFU_GRANT) ? ifu_cpu_arburst : lsu_cpu_arburst;
-    assign arb_rready   = (grant == IFU_GRANT) ? ifu_cpu_rready  : lsu_cpu_rready;
+    assign arb_arvalid  = (grant == IFU_GRANT) ? icache_arvalid : lsu_cpu_arvalid;
+    assign arb_araddr   = (grant == IFU_GRANT) ? icache_araddr  : lsu_cpu_araddr;
+    assign arb_arid     = (grant == IFU_GRANT) ? icache_arid    : lsu_cpu_arid;
+    assign arb_arlen    = (grant == IFU_GRANT) ? icache_arlen   : lsu_cpu_arlen;
+    assign arb_arsize   = (grant == IFU_GRANT) ? icache_arsize  : lsu_cpu_arsize;
+    assign arb_arburst  = (grant == IFU_GRANT) ? icache_arburst : lsu_cpu_arburst;
+    assign arb_rready   = (grant == IFU_GRANT) ? icache_rready  : lsu_cpu_rready;
 
     assign arb_awvalid  = (grant == LSU_GRANT) ? lsu_cpu_awvalid : 1'b0;
     assign arb_awaddr   = lsu_cpu_awaddr;
@@ -587,7 +631,7 @@ module ysyx_26010027 (
                      || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
 
     always @(posedge clock) begin
-        if (!reset) get_cpu_state({{31{1'b0}}, handshake_lsu_r}, {{31{1'b0}}, handshake_lsu_b}, {{31{1'b0}}, ifu_stall}, {{31{1'b0}}, alu_op != 4'd0}, {{31{1'b0}}, csr_we}, {{31{1'b0}}, j_type != 2'b00}, {{31{1'b0}}, b_type != 3'd6});
+        if (!reset) get_cpu_state({{31{1'b0}}, handshake_lsu_r}, {{31{1'b0}}, handshake_lsu_b}, {{31{1'b0}}, ifu_stall}, {{31{1'b0}}, alu_op != 4'd0}, {{31{1'b0}}, csr_we}, {{31{1'b0}}, j_type != 2'b00}, {{31{1'b0}}, b_type != 3'd6}, hit_count, miss_count, miss_latency);
         if (j_type == 2'b01 && !ifu_stall) begin
             ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
         end

@@ -86,9 +86,9 @@ void Vysyx_26010027___024unit____Vdpiimwrap_get_csr_TOP____024unit(IData/*31:0*/
     get_csr(csr__Vcvt, data__Vcvt);
 }
 
-extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch);
+extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, int alu_we, int csr_we, int cpu_jump, int cpu_branch, int icache_hit, int icache_miss, int icache_miss_latency);
 
-void Vysyx_26010027___024unit____Vdpiimwrap_get_cpu_state_TOP____024unit(IData/*31:0*/ lsu_get_data, IData/*31:0*/ lsu_w_data, IData/*31:0*/ exu_done, IData/*31:0*/ alu_we, IData/*31:0*/ csr_we, IData/*31:0*/ cpu_jump, IData/*31:0*/ cpu_branch) {
+void Vysyx_26010027___024unit____Vdpiimwrap_get_cpu_state_TOP____024unit(IData/*31:0*/ lsu_get_data, IData/*31:0*/ lsu_w_data, IData/*31:0*/ exu_done, IData/*31:0*/ alu_we, IData/*31:0*/ csr_we, IData/*31:0*/ cpu_jump, IData/*31:0*/ cpu_branch, IData/*31:0*/ icache_hit, IData/*31:0*/ icache_miss, IData/*31:0*/ icache_miss_latency) {
     VL_DEBUG_IF(VL_DBG_MSGF("+        Vysyx_26010027___024unit____Vdpiimwrap_get_cpu_state_TOP____024unit\n"); );
     // Body
     int lsu_get_data__Vcvt;
@@ -105,5 +105,11 @@ void Vysyx_26010027___024unit____Vdpiimwrap_get_cpu_state_TOP____024unit(IData/*
     cpu_jump__Vcvt = cpu_jump;
     int cpu_branch__Vcvt;
     cpu_branch__Vcvt = cpu_branch;
-    get_cpu_state(lsu_get_data__Vcvt, lsu_w_data__Vcvt, exu_done__Vcvt, alu_we__Vcvt, csr_we__Vcvt, cpu_jump__Vcvt, cpu_branch__Vcvt);
+    int icache_hit__Vcvt;
+    icache_hit__Vcvt = icache_hit;
+    int icache_miss__Vcvt;
+    icache_miss__Vcvt = icache_miss;
+    int icache_miss_latency__Vcvt;
+    icache_miss_latency__Vcvt = icache_miss_latency;
+    get_cpu_state(lsu_get_data__Vcvt, lsu_w_data__Vcvt, exu_done__Vcvt, alu_we__Vcvt, csr_we__Vcvt, cpu_jump__Vcvt, cpu_branch__Vcvt, icache_hit__Vcvt, icache_miss__Vcvt, icache_miss_latency__Vcvt);
 }
