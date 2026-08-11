@@ -1,6 +1,7 @@
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
+    input             flush_i,     // fence.i 清空 cache
 
     // ----- IFU -----
     input         ifu_arvalid,
@@ -28,15 +29,20 @@ module ysyx_26010027_icache (
 
     // ----- cache parameters -----
     parameter BLOCK_SIZE = 16; // 块大小 16B
-    parameter BLOCK_NUMS = 16; // cache 块数
-    parameter WAYS       = 4;  // 组内的 cache 数
-    parameter SET_NUMS   = BLOCK_NUMS / WAYS; // 组数
+    parameter BLOCK_NUMS = 128; // cache 块数
+    parameter WAYS       = 4;  // 组内的相联度
 
-    parameter INDEX_W    = $clog2(SET_NUMS); // cache 序号
-    parameter BLK_OFF_W  = $clog2(BLOCK_SIZE); // 块内偏移位宽, 16B→4bit
-    parameter TAG_W      = 32 - INDEX_W - BLK_OFF_W; // tag 位宽
-    // burst
-    parameter BEATS      = BLOCK_SIZE / 4; // 16B ÷ 4B/beat = 4 拍
+    parameter SET_NUMS   = BLOCK_NUMS / WAYS; // 组数
+    parameter INDEX_W    = $clog2(SET_NUMS);
+    parameter BLK_OFF_W  = $clog2(BLOCK_SIZE);
+    parameter TAG_W      = 32 - INDEX_W - BLK_OFF_W;
+    parameter BEATS      = BLOCK_SIZE / 4; // burst 拍数
+    // 自适应位宽
+    localparam BURST_W   = (BEATS == 1) ? 1 : $clog2(BEATS);
+    localparam WAY_W     = (WAYS  == 1) ? 1 : $clog2(WAYS);
+    localparam WORD_W    = (BEATS == 1) ? 1 : BLK_OFF_W - 2;
+    localparam LAST_BEAT = BEATS - 1;   // 末拍拍号
+    localparam [7:0] BURST_LEN = BEATS - 1; // arlen 用, 8bit 避免 lint
 
     // ----- cache regs -----
     reg                    valid [SET_NUMS-1:0][WAYS-1:0];
@@ -84,8 +90,8 @@ module ysyx_26010027_icache (
     assign arb_arlen   = arlen_o;
     assign arb_arsize  = arsize_o;
 
-    reg [1:0] burst_count;
-    reg [1:0] repl_cnt [SET_NUMS-1:0];  // 每set RR 替换指针
+    reg [BURST_W-1:0] burst_count;
+    reg [WAY_W-1:0]   repl_cnt [SET_NUMS-1:0];  //  RR 替换
 
     // ----- out to IFU -----
     reg [31:0] rdata_o;
@@ -96,7 +102,7 @@ module ysyx_26010027_icache (
 
     wire handshake_ar = arb_arvalid && arb_arready;
     wire handshake_r  = arb_rvalid  && arb_rready;
-    wire [1:0] word_sel = ifu_araddr[BLK_OFF_W-1 : 2]; // addr[3:2], 块内第几个字
+    wire [WORD_W-1:0] word_sel = ifu_araddr[BLK_OFF_W-1 : 2]; // 块内字选择
 
     // AMAT 统计
     reg [31:0] miss_cycle;
@@ -119,11 +125,17 @@ module ysyx_26010027_icache (
                     valid[i][j] <= 1'b0;
                     tag  [i][j] <= {TAG_W{1'b0}};
                     data [i][j] <= {BLOCK_SIZE*8{1'b0}};
-                repl_cnt[i] <= 2'd0;
+                repl_cnt[i] <= {WAY_W{1'b0}};
                 end
             end
         end else begin
             if (rvalid_o && ifu_rready) rvalid_o <= 1'b0;
+            // fence.i 清空 cache
+            if (flush_i) begin
+                for (i = 0; i < SET_NUMS; i = i + 1)
+                    for (j = 0; j < WAYS; j = j + 1)
+                        valid[i][j] <= 1'b0;
+            end
             case (state)
                 IDLE: begin
                     if (ifu_arvalid) begin
@@ -137,13 +149,13 @@ module ysyx_26010027_icache (
                             araddr_o   <= {ifu_araddr[31:BLK_OFF_W], {BLK_OFF_W{1'b0}}}; // 突发地址对齐
                             arvalid_o  <= 1'b1;
                             rready_o   <= 1'b1;
-                            arlen_o    <= 8'd3; // BEATS-1 = 3
+                            arlen_o    <= BURST_LEN; // BEATS-1
                             arsize_o   <= 3'd2;
 
                             state       <= WAIT;
                             miss_count  <= miss_count + 1;
                             miss_cycle  <= 32'b0;
-                            burst_count <= 2'd0;
+                            burst_count <= {BURST_W{1'b0}};
                         end
                     end
                 end
@@ -164,7 +176,7 @@ module ysyx_26010027_icache (
                             rdata_o  <= arb_rdata;
                         end
                         // 最后一拍: 填 tag/valid, 记录延迟, 返回 IDLE
-                        if (burst_count == 2'd3) begin
+                        if (burst_count == LAST_BEAT) begin
                             tag[index_q][miss_way]   <= tag_q;
                             /*verilator lint_off WIDTHTRUNC*/                             
                             repl_cnt[index_q] <= miss_way + 1;

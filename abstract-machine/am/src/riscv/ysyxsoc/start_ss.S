@@ -20,6 +20,8 @@ _start_ss:
   addi a0, a0, 4
   bltu a0, a1, 1b
 
+  fence.i
+
   la sp, _stack_pointer
   la t0, _trm_init
   jalr zero, t0, 0

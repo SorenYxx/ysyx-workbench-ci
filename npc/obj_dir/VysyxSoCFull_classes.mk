@@ -28,6 +28,7 @@ VM_CLASSES_FAST += \
   VysyxSoCFull \
   VysyxSoCFull___024root__0 \
   VysyxSoCFull___024root__1 \
+  VysyxSoCFull___024root__2 \
   VysyxSoCFull___024unit__0 \
 
 # Generated module classes, non-fast-path, compile with low/medium optimization

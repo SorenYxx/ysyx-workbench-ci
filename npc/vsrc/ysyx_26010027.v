@@ -113,6 +113,7 @@ module ysyx_26010027 (
     wire [ 2:0] b_type;
     wire [31:0] wdata;
     wire        ebreak_type;
+    wire        fence_i;
     wire        ifu_stall;
     wire        lsu_stall;
 
@@ -329,6 +330,7 @@ module ysyx_26010027 (
     ysyx_26010027_icache my_icache (
         .clock       (clock),
         .reset       (reset),
+        .flush_i     (fence_i),
 
         .ifu_araddr  (ifu_cpu_araddr),
         .ifu_arvalid (ifu_cpu_arvalid),
@@ -431,7 +433,8 @@ module ysyx_26010027 (
         .alu_arc2   (alu_arc2),
         .j_type     (j_type),
         .b_type     (b_type),
-        .ebreak_type(ebreak_type)
+        .ebreak_type(ebreak_type),
+        .fence_i    (fence_i)
     );
 
     ysyx_26010027_EXU my_EXU (

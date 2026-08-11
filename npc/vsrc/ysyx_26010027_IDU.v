@@ -15,7 +15,8 @@ module ysyx_26010027_IDU (
     output            alu_arc2,
     output     [ 1:0] j_type,
     output     [ 2:0] b_type,
-    output            ebreak_type
+    output            ebreak_type,
+    output            fence_i       // fence.i 指令
 );
 
     wire [6:0] opcode = inst[6:0];
@@ -104,7 +105,7 @@ module ysyx_26010027_IDU (
 
     // Illegal instruction detection
     wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
-                     lui || auipc || jal || csr_inst || ebreak_type);
+                     lui || auipc || jal || csr_inst || ebreak_type || fence_i);
 
     // Control signals
     assign j_type = (jal || jalr) ? 2'b01 :
@@ -160,6 +161,7 @@ module ysyx_26010027_IDU (
                    3'd5;
 
     assign ebreak_type = (inst == 32'h00100073);
+    assign fence_i     = (inst == 32'h0000100F);
 
     // Immediate generation
     always @(*) begin
