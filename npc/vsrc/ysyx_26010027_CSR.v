@@ -1,17 +1,15 @@
 module ysyx_26010027_CSR (
-    input             clock,
-    input             reset,
-    input      [ 1:0] j_type,
-    input      [11:0] csr_addr,
-    input      [31:0] csr_wdata,
-    input      [31:0] pc,
-    input             csr_we,
+    input              clock,
+    input              reset,
+    input              csr_ecall,
+    input              csr_mret,
+    input       [11:0] csr_raddr,
+    input       [11:0] csr_waddr,
+    input       [31:0] csr_wdata,
+    output reg  [31:0] csr_rdata,
+    input       [31:0] pc,
+    input  wire        csr_we
 
-    input             ifu_stall,
-
-    output reg [31:0] csr_rdata,
-    output     [31:0] out_mepc,
-    output     [31:0] out_mtvec
 );
 
     reg [31:0] mvendorid = 32'h79737978;  // "ysyx"
@@ -35,42 +33,34 @@ module ysyx_26010027_CSR (
             mepc    <= 0;
             mcause  <= 0;
         end else begin
-            mc <= ifu_stall ? mc : mc + 1;
+            mc <= mc + 1;
 
-            if (j_type == 2'b10 && !ifu_stall) begin  // ecall
+            if (csr_ecall) begin  // ecall
                 mepc   <= pc;
                 mcause <= 32'd11;  // M-mode
                 get_csr({20'b0, 12'h341}, pc);
                 get_csr({20'b0, 12'h342}, 32'd11);
-            end else if (csr_we && j_type == 2'b00 && !ifu_stall) begin
-                get_csr({20'b0, csr_addr}, csr_wdata);
-                case (csr_addr)
+            end else if (csr_we) begin
+                get_csr({20'b0, csr_waddr}, csr_wdata);
+                case (csr_waddr)
                     12'h300: mstatus <= csr_wdata;
                     12'h305: mtvec   <= csr_wdata;
                     12'h341: mepc    <= csr_wdata;
                     12'h342: mcause  <= csr_wdata;
-                    default: ;
+                    default: $display("Warning: Write to unknown CSR address %h", csr_waddr);
                 endcase
             end
         end
     end
 
     // Read
-    always @(*) begin
-        case (csr_addr)
-            12'hf11: csr_rdata = mvendorid;
-            12'hf12: csr_rdata = marchid;
-            12'hB00: csr_rdata = mcycle;
-            12'hB80: csr_rdata = mcycleh;
-            12'h300: csr_rdata = mstatus;
-            12'h305: csr_rdata = mtvec;
-            12'h341: csr_rdata = mepc;
-            12'h342: csr_rdata = mcause;
-            default: csr_rdata = 0;
-        endcase
-    end
-
-    assign out_mepc  = mepc;
-    assign out_mtvec = mtvec;
+    assign csr_rdata = (csr_raddr == 12'hf11) ? mvendorid :
+                       (csr_raddr == 12'hf12) ? marchid :
+                       (csr_raddr == 12'hB00) ? mcycle :
+                       (csr_raddr == 12'hB80) ? mcycleh :
+                       (csr_raddr == 12'h300) ? mstatus :
+                       (csr_raddr == 12'h305 && csr_ecall) ? mtvec :
+                       (csr_raddr == 12'h341 && csr_mret) ? mepc :
+                       (csr_raddr == 12'h342) ? mcause : 0;
 
 endmodule

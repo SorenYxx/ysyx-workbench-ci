@@ -17,7 +17,7 @@ extern "C" {
 
     // DPI IMPORTS
     // DPI import at vsrc/ysyx_26010027.v:1:30
-    extern void ebreak();
+    extern void finish_sim();
     // DPI import at vsrc/ysyx_26010027.v:2:30
     extern void ftrace_print(int pc, int target, int rd, int rs1);
     // DPI import at vsrc/ysyx_26010027.v:8:30

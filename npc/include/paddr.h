@@ -43,7 +43,7 @@ void pmem_write(int waddr, int wdata, int wmask);
 
 void is_illegal_inst();
 
-void ebreak();
+void finish_sim();
 
 void ftrace_print(uint32_t pc, uint32_t target, int rd, int rs1);
 

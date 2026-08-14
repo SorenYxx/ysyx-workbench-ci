@@ -1,36 +1,68 @@
 module ysyx_26010027_WBU (
-    input [31:0] pc,
-    input [ 4:0] rd,
-    input [ 1:0] rf_res,
-    input [ 1:0] j_type,
-    input [ 2:0] b_type,
-    input [31:0] alu_result, mem_result, csr_result,
-    input [31:0] mepc, mtvec,
-    input        reg_w,
+    input             clock,
+    input             reset,
 
-    output reg [ 4:0] waddr,
-    output reg [31:0] wdata,
-    output reg [31:0] n_pc
+    input      [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2, 
+    input      [ 1:0] lsu_wbu_rf_res, // reg 的 wdata 选择
+
+    output     [31:0] wbu_exu_rdata1,
+    output     [31:0] wbu_exu_rdata2,
+
+    input             lsu_wbu_valid,
+    output            wbu_lsu_ready,
+    input      [31:0] lsu_wbu_pc,
+    input      [31:0] lsu_wbu_inst,
+    input             lsu_wbu_reg_w,
+    input      [ 4:0] lsu_wbu_waddr,
+    input      [31:0] lsu_wbu_alu_result,
+    input      [31:0] lsu_wbu_mem_result,
+
+    input      [11:0] csr_raddr,
+    input      [11:0] csr_waddr,
+    input      [31:0] csr_wdata,
+    input             csr_we,
+    input             csr_ecall,
+    input             csr_mret
+
 );
 
-    always @(*) begin
-        if (reg_w) begin
-            waddr = rd;
-            case (rf_res)
-                2'b00: wdata = alu_result;
-                2'b01: wdata = mem_result;
-                2'b10: wdata = csr_result;
-                2'b11: wdata = pc + 4;
-                default: wdata = 0;
-            endcase
-        end else begin
-            waddr = 0;
-            wdata = 0;
-        end
+    wire [31:0] wdata;
+    wire [ 4:0] waddr;
+    reg  [31:0] csr_rdata = 0;
 
-        n_pc = (j_type == 2'b10) ? mtvec :
-               (j_type == 2'b11) ? mepc  :
-               (j_type != 2'b00 || b_type != 3'd6) ? alu_result : pc + 4;
-    end
+    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00) ? lsu_wbu_alu_result :
+                   (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result :
+                   (lsu_wbu_rf_res == 2'b10) ? csr_rdata : lsu_wbu_pc + 4) : 0;
+    assign waddr = (lsu_wbu_reg_w) ? lsu_wbu_waddr : 0;
+    assign wbu_lsu_ready = lsu_wbu_valid;
+
+    ysyx_26010027_GPR my_gpr (
+        .clock (clock),
+        .reset (reset),
+        .waddr (waddr),
+        .wdata (wdata),
+        .wen   (lsu_wbu_reg_w),
+
+        .raddr1(idu_wbu_raddr1),
+        .raddr2(idu_wbu_raddr2),
+        .rdata1(wbu_exu_rdata1),
+        .rdata2(wbu_exu_rdata2)
+    );
+
+    // ysyx_26010027_CSR my_csr (
+    //     .clock       (clock),
+    //     .reset       (reset),
+    //     .csr_ecall   (csr_ecall),
+    //     .csr_mret    (csr_mret),
+    //     .csr_raddr    (csr_raddr),
+    //     .csr_waddr   (csr_waddr),
+    //     .csr_wdata   (csr_wdata),
+    //     .csr_rdata   (csr_rdata),
+    //     .pc          (lsu_wbu_pc),
+    //     .csr_we      (csr_we),
+
+    //     .ifu_stall   (1'b0)
+
+    // );
 
 endmodule

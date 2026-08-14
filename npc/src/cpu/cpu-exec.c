@@ -144,7 +144,7 @@ void sim_exit() {
 }
 
 // ebreak
-void ebreak() {
+void finish_sim() {
   npc_state.halt_pc = CPU_PC();
   statistics();
   if (R[10] == 0) { 
