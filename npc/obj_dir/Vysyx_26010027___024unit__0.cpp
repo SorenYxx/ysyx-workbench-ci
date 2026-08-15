@@ -4,12 +4,12 @@
 
 #include "Vysyx_26010027__pch.h"
 
-extern "C" void ebreak();
+extern "C" void finish_sim();
 
-void Vysyx_26010027___024unit____Vdpiimwrap_ebreak_TOP____024unit() {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        Vysyx_26010027___024unit____Vdpiimwrap_ebreak_TOP____024unit\n"); );
+void Vysyx_26010027___024unit____Vdpiimwrap_finish_sim_TOP____024unit() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        Vysyx_26010027___024unit____Vdpiimwrap_finish_sim_TOP____024unit\n"); );
     // Body
-    ebreak();
+    finish_sim();
 }
 
 extern "C" void ftrace_print(int pc, int target, int rd, int rs1);

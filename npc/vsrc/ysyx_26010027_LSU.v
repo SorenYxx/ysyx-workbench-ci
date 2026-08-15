@@ -1,16 +1,40 @@
 module ysyx_26010027_LSU (
     input             clock,
     input             reset,
-    input      [ 1:0] mem_w,
-    input      [ 2:0] mem_r,
-    input      [31:0] addr,
-    input      [31:0] wdata,
-    output reg [31:0] out_data,
+
+    input      [ 1:0] exu_lsu_mem_w,
+    input      [ 2:0] exu_lsu_mem_r,
+    input      [31:0] exu_lsu_mem_addr,
+    input      [31:0] exu_lsu_wdata,
+
+    // EXU - LSU
+    input             exu_lsu_valid,
+    output wire       lsu_exu_ready,
+    input      [31:0] exu_lsu_pc,
+    input      [31:0] exu_lsu_inst,
+    input             exu_lsu_reg_w,
+    input      [ 1:0] exu_lsu_rf_res,
+    input      [ 4:0] exu_lsu_waddr,
+    input      [31:0] exu_lsu_alu_result,
+
+    // LSU - WBU
+    input             wbu_lsu_ready,
+    output wire       lsu_wbu_valid,
+    output reg [31:0] lsu_wbu_pc,
+    output reg [31:0] lsu_wbu_inst,
+    output reg        lsu_wbu_reg_w,
+    output reg [ 1:0] lsu_wbu_rf_res,
+    output reg [ 4:0] lsu_wbu_waddr,
+    output reg [31:0] lsu_wbu_alu_result,
+    output reg [31:0] lsu_wbu_mem_result,
+
+    // 前递/停顿: LSU 中正在访存、数据未回的 load
+    output wire       lsu_load_inflight,
 
     // ----------- AXI4 -----------
     input             cpu_lsu_arready,
     output     [31:0] lsu_cpu_araddr,
-    output     reg    lsu_cpu_arvalid,
+    output            lsu_cpu_arvalid,
     output     [ 3:0] lsu_cpu_arid,
     output     [ 7:0] lsu_cpu_arlen,
     output     [ 2:0] lsu_cpu_arsize,
@@ -40,120 +64,155 @@ module ysyx_26010027_LSU (
     input      [ 1:0] cpu_lsu_bresp,
     input             cpu_lsu_bvalid,
     output            lsu_cpu_bready,
-    input      [ 3:0] cpu_lsu_bid,
-    // --------------------------------
-
-    output     wire   lsu_stall,
-    input             ifu_stall
-
+    input      [ 3:0] cpu_lsu_bid
 );
 
+    // ----- 锁存 -----
+    reg        l_busy;     // 被占用且可能未完成的访存事务
+    reg [ 1:0] l_mem_w;
+    reg [ 2:0] l_mem_r;
+    reg [31:0] l_mem_addr;
+    reg [31:0] l_wdata;
+    reg        mem_done;    // 访存事务完成
+
+    wire is_load  = (l_mem_r != 3'd5);
+    wire is_store = (l_mem_w != 2'b11);
+    wire mem_op   = is_load || is_store;
+
+    // ----- state -----
     reg [2:0] state_w;
     reg [1:0] state_r;
-
     localparam W_IDLE = 3'b000;
     localparam W_WAIT = 3'b001;
     localparam W_RESP = 3'b010;
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire ren = (mem_r != 3'd5 && !handshake_r && !ifu_stall);
-    wire wen = (mem_w != 2'b11 && !handshake_b && !ifu_stall);
+    wire load_q  = l_busy && is_load  && !mem_done;
+    wire store_q = l_busy && is_store && !mem_done;
 
+    // ----- 访存相关数据 -----
     // 数据移位信号 w/r
-    wire [31:0] wdata_shifted = (mem_w != 2'b00) ? (wdata << (addr[1:0] * 8)) : wdata;
-    wire [31:0] rdata_shifted = cpu_lsu_rdata >> (addr[1:0] * 8);
+    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8));
+    wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
 
-    // load/store 阻塞
-    assign lsu_stall = (ren) || (wen);
-
-    // 访存相关数据
-    assign lsu_cpu_awaddr  = addr;
-    assign lsu_cpu_araddr  = addr;
+    assign lsu_cpu_awaddr  = l_mem_addr;
+    assign lsu_cpu_araddr  = l_mem_addr;
     assign lsu_cpu_wdata   = wdata_shifted;
-    assign lsu_cpu_wstrb   = (mem_w == 2'b00) ? 4'hF :
-                             (mem_w == 2'b01) ? (4'h1 << addr[1:0]) :
-                             (mem_w == 2'b10) ? (4'h3 << addr[1:0]) :
-                             4'h0;
-    // AXI4 附加信号
+    assign lsu_cpu_wstrb   = (l_mem_w == 2'b00) ? 4'hF :
+                             (l_mem_w == 2'b01) ? (4'h1 << l_mem_addr[1:0]) :
+                             (l_mem_w == 2'b10) ? (4'h3 << l_mem_addr[1:0]) : 4'h0;
+    assign lsu_cpu_awsize  = (l_mem_w == 2'b00) ? 3'b010 :
+                             (l_mem_w == 2'b10) ? 3'b001 : 3'b000;
+    assign lsu_cpu_arsize  = (l_mem_r == 3'd0) ? 3'b010 :
+                             (l_mem_r == 3'd2 || l_mem_r == 3'd4) ? 3'b001 : 3'b000;
+
     assign lsu_cpu_awid    = 4'h0;
     assign lsu_cpu_awlen   = 8'h0;
-    assign lsu_cpu_awsize  = (mem_w == 2'b00) ? 3'b010 :
-                             (mem_w == 2'b10) ? 3'b001 : 3'b000;
     assign lsu_cpu_awburst = 2'b01;
     assign lsu_cpu_wlast   = 1'b1;
     assign lsu_cpu_arid    = 4'h0;
     assign lsu_cpu_arlen   = 8'h0;
-    assign lsu_cpu_arsize  = (mem_r[1:0] == 2'b00) ? 3'b010 :
-                             (mem_r[1:0] == 2'b10) ? 3'b001 : 3'b000;
     assign lsu_cpu_arburst = 2'b01;
 
-    // load/store 访存请求与响应有效
-    assign lsu_cpu_awvalid = (state_w == W_IDLE) && wen;
-    assign lsu_cpu_wvalid  = (state_w == W_WAIT) && wen;
-    assign lsu_cpu_arvalid = (state_r == R_IDLE) && ren;
+    assign lsu_cpu_awvalid = (state_w == W_IDLE) && store_q;
+    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT) && store_q;
+    assign lsu_cpu_arvalid = (state_r == R_IDLE) && load_q;
     assign lsu_cpu_rready  = (state_r == R_WAIT);
     assign lsu_cpu_bready  = (state_w == W_RESP);
 
     // 握手请求与响应信号
     wire handshake_aw = cpu_lsu_awready && lsu_cpu_awvalid;
-    wire handshake_w  = cpu_lsu_wready && lsu_cpu_wvalid;
+    wire handshake_w  = cpu_lsu_wready  && lsu_cpu_wvalid;
     wire handshake_ar = cpu_lsu_arready && lsu_cpu_arvalid;
-    wire handshake_r  = lsu_cpu_rready && cpu_lsu_rvalid && (cpu_lsu_rresp == 2'b00);
-    wire handshake_b  = cpu_lsu_bvalid && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
+    wire handshake_r  = lsu_cpu_rready  && cpu_lsu_rvalid && (cpu_lsu_rresp == 2'b00);
+    wire handshake_b  = cpu_lsu_bvalid  && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
 
-    // LSU W状态机
+    // ----- W 状态机 -----
     always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            state_w <= W_IDLE;
-        end else begin
-            case (state_w)
-                W_IDLE: begin
-                    if (handshake_aw) state_w <= W_WAIT;
-                    else state_w <= W_IDLE;
-                end
-                W_WAIT: begin
-                    if (handshake_w) state_w <= W_RESP;
-                    else state_w <= W_WAIT;
-                end
-                W_RESP: begin
-                    if (handshake_b) state_w <= W_IDLE;
-                    else state_w <= W_RESP;
-                end
-                default: state_w <= W_IDLE;
-            endcase
-        end
-    end
-
-    // LSU R状态机
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            state_r <= R_IDLE;
-        end else begin
-            case (state_r)
-                R_IDLE: begin
-                    if (handshake_ar) state_r <= R_WAIT;
-                    else state_r <= R_IDLE;
-                end
-                R_WAIT: begin
-                    if (handshake_r) state_r <= R_IDLE;
-                    else state_r <= R_WAIT;
-                end
-                default: state_r <= R_IDLE;
-            endcase
-        end
-    end
-
-    // Load 数据处理
-    always @(*) begin
-        case (mem_r)
-            3'd0: out_data = rdata_shifted;
-            3'd1: out_data = {{24{rdata_shifted[7]}}, rdata_shifted[7:0]};
-            3'd2: out_data = {{16{rdata_shifted[15]}}, rdata_shifted[15:0]};
-            3'd3: out_data = {24'b0, rdata_shifted[7:0]};
-            3'd4: out_data = {16'b0, rdata_shifted[15:0]};
-            default: out_data = 32'b0;
+        if (reset) state_w <= W_IDLE;
+        else case (state_w)
+            W_IDLE: if (handshake_aw && handshake_w) state_w <= W_RESP;
+                    else if (handshake_aw)          state_w <= W_WAIT;
+            W_WAIT: if (handshake_w)                state_w <= W_RESP;
+            W_RESP: if (handshake_b)                state_w <= W_IDLE;
+            default: state_w <= W_IDLE;
         endcase
+    end
+
+    // ----- R 状态机 -----
+    always @(posedge clock, posedge reset) begin
+        if (reset) state_r <= R_IDLE;
+        else case (state_r)
+            R_IDLE: if (handshake_ar) state_r <= R_WAIT;
+            R_WAIT: if (handshake_r)  state_r <= R_IDLE;
+            default: state_r <= R_IDLE;
+        endcase
+    end
+
+    // ----- Load 数据处理 -----
+    wire [31:0] out_data = (l_mem_r == 3'd0) ? rdata_shifted :
+                           (l_mem_r == 3'd1) ? {{24{rdata_shifted[7]}}, rdata_shifted[7:0]} :
+                           (l_mem_r == 3'd2) ? {{16{rdata_shifted[15]}}, rdata_shifted[15:0]} :
+                           (l_mem_r == 3'd3) ? {24'b0, rdata_shifted[7:0]} :
+                           (l_mem_r == 3'd4) ? {16'b0, rdata_shifted[15:0]} : 32'b0;
+
+    // ----- 访存占用 -----
+    always @(posedge clock, posedge reset) begin
+        if (reset)
+            l_busy <= 1'b0;
+        else if (exu_lsu_valid && lsu_exu_ready)
+            l_busy <= 1'b1;
+        else if (lsu_wbu_valid && wbu_lsu_ready)
+            l_busy <= 1'b0;
+    end
+
+    // ----- 访存完成标志 -----
+    always @(posedge clock, posedge reset) begin
+        if (reset)
+            mem_done <= 1'b0;
+        else if (exu_lsu_valid && lsu_exu_ready)
+            mem_done <= 1'b0;
+        else if (handshake_r || handshake_b)
+            mem_done <= 1'b1;
+    end
+    
+    assign lsu_exu_ready     = !l_busy;
+    assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 有效 & (非访存或访存完成)
+    assign lsu_load_inflight = l_busy && (is_load) && !mem_done;
+
+    // ----- 锁存 -----
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            lsu_wbu_pc         <= 32'b0;
+            lsu_wbu_inst       <= 32'b0;
+            lsu_wbu_reg_w      <= 1'b0;
+            lsu_wbu_rf_res     <= 2'b0;
+            lsu_wbu_waddr      <= 5'b0;
+            lsu_wbu_alu_result <= 32'b0;
+            lsu_wbu_mem_result <= 32'b0;
+            l_mem_w            <= 2'b11;
+            l_mem_r            <= 3'd5;
+            l_mem_addr         <= 32'b0;
+            l_wdata            <= 32'b0;
+        end else begin
+            if (exu_lsu_valid && lsu_exu_ready) begin
+                // 非访存相关数据透传
+                lsu_wbu_pc         <= exu_lsu_pc;
+                lsu_wbu_inst       <= exu_lsu_inst;
+                lsu_wbu_reg_w      <= exu_lsu_reg_w;
+                lsu_wbu_rf_res     <= exu_lsu_rf_res;
+                lsu_wbu_waddr      <= exu_lsu_waddr;
+                lsu_wbu_alu_result <= exu_lsu_alu_result;
+                // 访存相关锁存
+                l_mem_w            <= exu_lsu_mem_w;
+                l_mem_r            <= exu_lsu_mem_r;
+                l_mem_addr         <= exu_lsu_mem_addr;
+                l_wdata            <= exu_lsu_wdata;
+            end
+            if (handshake_r)
+                lsu_wbu_mem_result <= out_data;
+        end
     end
 
 endmodule

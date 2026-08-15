@@ -82,6 +82,13 @@ static void statistics() {
 }
 
 // eval
+struct stop_loop
+{
+  uint32_t pc;
+  uint32_t loop_time;
+};
+stop_loop *lp = new stop_loop{ .pc = PC_START, .loop_time = 0 };
+
 void step_and_eval() {
   top->clock = 0; top->eval();
   top->clock = 1; top->eval();
@@ -89,6 +96,14 @@ void step_and_eval() {
   IFDEF(CONFIG_WAVE_DUMP, tfp->dump(main_time));
 
   main_time ++;
+
+  lp->loop_time ++;
+  if (lp->loop_time > 10000) {
+    Log("\033[1;31mAbort at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, lp->loop_time);
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = lp->pc;
+  }
+
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
   cpu_n.pc = CPU_PC();
@@ -111,6 +126,9 @@ static void debug() {
     IFDEF(CONFIG_DIFFTEST, check_difftest);
     total_inst ++;
     for (int i = 0; i < COUNTER; i++) en[i] = 1;
+
+    lp->pc = CPU_PC();
+    lp->loop_time = 0;
   }
 }
 
@@ -144,7 +162,7 @@ void sim_exit() {
 }
 
 // ebreak
-void ebreak() {
+void finish_sim() {
   npc_state.halt_pc = CPU_PC();
   statistics();
   if (R[10] == 0) { 

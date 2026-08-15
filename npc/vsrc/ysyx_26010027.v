@@ -1,4 +1,4 @@
-import "DPI-C" function void ebreak();
+import "DPI-C" function void finish_sim();
 import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
 import "DPI-C" function int  pmem_read(input int raddr);
 import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
@@ -92,31 +92,11 @@ module ysyx_26010027 (
     output        nothing
 `endif
 );
+    wire [31:0] pc   = lsu_wbu_pc;
+    wire [31:0] inst = lsu_wbu_inst;
+    wire [31:0] n_pc = ifu_idu_pc;
 
-    // 内部信号
-    wire [31:0] inst;
-    wire [31:0] pc, n_pc;
-
-    wire [31:0] imm;
-    wire [31:0] rdata1, rdata2;
-    wire [31:0] alu_result, mem_result, csr_result;
-    wire [31:0] out_mepc, out_mtvec;
-    wire [ 4:0] rs1, rs2, rd, waddr;
-    wire [ 1:0] rf_res;
-    wire [ 3:0] alu_op;
-    wire [ 1:0] mem_w;
-    wire [ 2:0] mem_r;
-    wire        csr_we;
-    wire        reg_w;
-    wire        alu_arc1, alu_arc2;
-    wire [ 1:0] j_type;
-    wire [ 2:0] b_type;
-    wire [31:0] wdata;
-    wire        ebreak_type;
-    wire        ifu_stall;
-    wire        lsu_stall;
-
-    // Arbiter相关信号
+    // Arbiter 相关信号
     wire        arb_arvalid;
     wire        arb_arready;
     wire [31:0] arb_araddr;
@@ -149,7 +129,8 @@ module ysyx_26010027 (
     wire [ 3:0] arb_bid;
 
 `ifdef TOP_SOC
-    // CLINT 接口信号
+
+    // CLINT 接口信号与地址译码
     wire            io_clint_arready;
     wire            io_clint_rvalid;
     wire     [31:0] io_clint_rdata;
@@ -268,6 +249,8 @@ module ysyx_26010027 (
     );
 
 `else
+
+    // pmem (访问模拟内存)
     reg [31:0] pmem_read_data;
     reg [31:0] pmem_write_data;
     reg        pmem_rvalid;
@@ -308,13 +291,36 @@ module ysyx_26010027 (
 
 `endif
 
+    // ----- IFU -----
+    // IFU -> IDU
+    wire        ifu_idu_valid;
+    wire        idu_ifu_ready;
+    wire [31:0] ifu_idu_pc;
+    wire [31:0] ifu_idu_inst;
+
+    // IFU 侧 AXI（连接 icache）
+    wire        cpu_ifu_arready;
+    wire [31:0] ifu_cpu_araddr;
+    wire        ifu_cpu_arvalid;
+    wire [ 3:0] ifu_cpu_arid;
+    wire [ 7:0] ifu_cpu_arlen;
+    wire [ 2:0] ifu_cpu_arsize;
+    wire [ 1:0] ifu_cpu_arburst;
+    wire        cpu_ifu_rvalid;
+    wire        ifu_cpu_rready;
+    wire [31:0] cpu_ifu_rdata;
+    wire [ 1:0] cpu_ifu_rresp;
+    wire [ 3:0] cpu_ifu_rid;
+    wire        cpu_ifu_rlast;
+
+    // icache -> arbiter
     wire        icache_arvalid;
     wire        icache_arready;
     wire [31:0] icache_araddr;
     wire [ 7:0] icache_arlen;
     wire [ 3:0] icache_arid;
     wire [ 2:0] icache_arsize;
-    wire [ 1:0] icache_arburst;
+    wire [ 1:0] icache_arburst = 2'b01; // 硬编码 INCR
     wire        icache_rvalid;
     wire        icache_rready;
     wire [31:0] icache_rdata;
@@ -329,6 +335,7 @@ module ysyx_26010027 (
     ysyx_26010027_icache my_icache (
         .clock       (clock),
         .reset       (reset),
+        .flush_i     (fence_i),
 
         .ifu_araddr  (ifu_cpu_araddr),
         .ifu_arvalid (ifu_cpu_arvalid),
@@ -343,54 +350,25 @@ module ysyx_26010027 (
         .arb_rdata   (icache_rdata),
         .arb_rvalid  (icache_rvalid),
         .arb_rready  (icache_rready),
+        .arb_arlen   (icache_arlen),
+        .arb_arsize  (icache_arsize),
 
         .hit_count   (hit_count),
         .miss_count  (miss_count),
         .miss_latency(miss_latency)
     );
 
-    ysyx_26010027_GPR my_R (
-        .clock  (clock),
-        .reset  (reset),
-        .waddr (waddr),
-        .wdata (wdata),
-        .wen   (reg_w),
-        .raddr1(rs1),
-        .raddr2(rs2),
-        .rdata1(rdata1),
-        .rdata2(rdata2)
-    );
-
-    // ----- IFU (AXI4) -----
-    wire        ifu_cpu_arvalid;
-    wire        cpu_ifu_arready;
-    wire [31:0] ifu_cpu_araddr;
-    wire [ 3:0] ifu_cpu_arid;
-    wire [ 7:0] ifu_cpu_arlen;
-    wire [ 2:0] ifu_cpu_arsize;
-    wire [ 1:0] ifu_cpu_arburst;
-
-    wire        cpu_ifu_rvalid;
-    wire        ifu_cpu_rready;
-    wire [31:0] cpu_ifu_rdata;
-    wire [ 1:0] cpu_ifu_rresp;
-    wire [ 3:0] cpu_ifu_rid;
-    wire        cpu_ifu_rlast;
-
-    assign icache_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
-    assign icache_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
-    assign icache_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
-
-    assign cpu_ifu_rresp   = 2'b0;
-    assign cpu_ifu_rid     = 4'b0;
-    assign cpu_ifu_rlast   = 1'b1;
-
     ysyx_26010027_IFU my_IFU (
-        .clock    (clock),
-        .reset    (reset),
-        .n_pc     (n_pc),
-        .pc       (pc),
-        .inst     (inst),
+        .clock          (clock),
+        .reset          (reset),
+
+        .ifu_idu_valid  (ifu_idu_valid),
+        .idu_ifu_ready  (idu_ifu_ready),
+        .ifu_idu_pc     (ifu_idu_pc),
+        .ifu_idu_inst   (ifu_idu_inst),
+
+        .exu_flush      (exu_flush),
+        .exu_flush_pc   (exu_flush_pc),
 
         .cpu_ifu_arready(cpu_ifu_arready),
         .ifu_cpu_araddr (ifu_cpu_araddr),
@@ -400,55 +378,161 @@ module ysyx_26010027 (
         .ifu_cpu_arsize (ifu_cpu_arsize),
         .ifu_cpu_arburst(ifu_cpu_arburst),
 
-        .cpu_ifu_rvalid(cpu_ifu_rvalid),
-        .ifu_cpu_rready(ifu_cpu_rready),
-        .cpu_ifu_rdata (cpu_ifu_rdata),
-        .cpu_ifu_rresp (cpu_ifu_rresp),
-        .cpu_ifu_rid   (cpu_ifu_rid),
-        .cpu_ifu_rlast (cpu_ifu_rlast),
-
-        .ifu_stall (ifu_stall),
-        .lsu_stall (lsu_stall)
+        .cpu_ifu_rvalid (cpu_ifu_rvalid),
+        .ifu_cpu_rready (ifu_cpu_rready),
+        .cpu_ifu_rdata  (cpu_ifu_rdata),
+        .cpu_ifu_rresp  (cpu_ifu_rresp),
+        .cpu_ifu_rid    (cpu_ifu_rid),
+        .cpu_ifu_rlast  (cpu_ifu_rlast)
     );
+
+
+    // ----- IDU -----
+
+    // IDU -> EXU
+    wire        exu_idu_ready;
+    wire        idu_exu_valid;
+    wire [31:0] idu_exu_pc;
+    wire [31:0] idu_exu_inst;
+    wire [31:0] idu_exu_imm;
+    wire [ 3:0] idu_exu_alu_op;
+    wire [ 1:0] idu_exu_mem_w;
+    wire [ 2:0] idu_exu_mem_r;
+    wire        idu_exu_alu_arc1;
+    wire        idu_exu_alu_arc2;
+    wire        idu_exu_reg_w;
+    wire [ 1:0] idu_exu_rf_res;
+    wire [ 4:0] idu_exu_waddr;
+    wire [ 1:0] idu_exu_jump;
+    wire [ 2:0] idu_exu_branch;
+
+    // IDU -> WBU（寄存器读地址，供前递/读寄存器堆）
+    wire [ 4:0] idu_wbu_raddr1;
+    wire [ 4:0] idu_wbu_raddr2;
+
+    wire        fence_i;
 
     ysyx_26010027_IDU my_IDU (
-        .inst       (inst),
-        .ifu_stall  (ifu_stall),
-        .lsu_stall  (lsu_stall),
-        .imm        (imm),
-        .rs1        (rs1),
-        .rs2        (rs2),
-        .rd         (rd),
-        .reg_w      (reg_w),
-        .mem_w      (mem_w),
-        .mem_r      (mem_r),
-        .rf_res     (rf_res),
-        .alu_op     (alu_op),
-        .csr_we     (csr_we),
-        .alu_arc1   (alu_arc1),
-        .alu_arc2   (alu_arc2),
-        .j_type     (j_type),
-        .b_type     (b_type),
-        .ebreak_type(ebreak_type)
+        .clock      (clock),
+        .reset      (reset),
+
+        .ifu_idu_valid (ifu_idu_valid),
+        .idu_ifu_ready (idu_ifu_ready),
+        .ifu_idu_pc    (ifu_idu_pc),
+        .ifu_idu_inst  (ifu_idu_inst),
+
+        .exu_idu_ready (exu_idu_ready),
+        .idu_exu_valid (idu_exu_valid),
+        .idu_exu_pc    (idu_exu_pc),
+        .idu_exu_inst  (idu_exu_inst),
+        .idu_exu_imm   (idu_exu_imm),
+        .idu_exu_alu_op(idu_exu_alu_op),
+        .idu_exu_mem_w (idu_exu_mem_w),
+        .idu_exu_mem_r (idu_exu_mem_r),
+        .idu_exu_alu_arc1 (idu_exu_alu_arc1),
+        .idu_exu_alu_arc2 (idu_exu_alu_arc2),
+        .idu_exu_reg_w (idu_exu_reg_w),
+        .idu_exu_rf_res(idu_exu_rf_res),
+        .idu_exu_waddr (idu_exu_waddr),
+        .idu_exu_jump  (idu_exu_jump),
+        .idu_exu_branch(idu_exu_branch),
+
+        .exu_flush     (exu_flush),
+
+        .idu_wbu_raddr1(idu_wbu_raddr1),
+        .idu_wbu_raddr2(idu_wbu_raddr2),
+        .fence_i       (fence_i)
     );
+
+
+    // ----- EXU -----
+
+    // EXU -> LSU
+    wire        lsu_exu_ready;
+    wire        exu_lsu_valid;
+    wire [31:0] exu_lsu_pc;
+    wire [31:0] exu_lsu_inst;
+    wire [ 1:0] exu_lsu_mem_w;
+    wire [ 2:0] exu_lsu_mem_r;
+    wire [31:0] exu_lsu_mem_addr;
+    wire [31:0] exu_lsu_wdata;
+    wire        exu_lsu_reg_w;
+    wire [ 1:0] exu_lsu_rf_res;
+    wire [ 4:0] exu_lsu_waddr;
+    wire [31:0] exu_lsu_alu_result;
+
+    // flush
+    wire        exu_flush;
+    wire [31:0] exu_flush_pc;
 
     ysyx_26010027_EXU my_EXU (
-        .pc        (pc),
-        .alu_op    (alu_op),
-        .b_type    (b_type),
-        .alu_arc1  (alu_arc1),
-        .alu_arc2  (alu_arc2),
-        .src1      (rdata1),
-        .src2      (rdata2),
-        .imm       (imm),
-        .csr_result(csr_result),
-        .res       (alu_result)
+        .clock  (clock),
+        .reset  (reset),
+
+        .idu_exu_valid   (idu_exu_valid),
+        .exu_idu_ready   (exu_idu_ready),
+        .idu_exu_pc      (idu_exu_pc),
+        .idu_exu_inst    (idu_exu_inst),
+        .idu_exu_imm     (idu_exu_imm),
+        .idu_exu_alu_op  (idu_exu_alu_op),
+        .idu_exu_mem_w   (idu_exu_mem_w),
+        .idu_exu_mem_r   (idu_exu_mem_r),
+        .idu_exu_alu_arc1(idu_exu_alu_arc1),
+        .idu_exu_alu_arc2(idu_exu_alu_arc2),
+        .idu_exu_reg_w   (idu_exu_reg_w),
+        .idu_exu_rf_res  (idu_exu_rf_res),
+        .idu_exu_waddr   (idu_exu_waddr),
+        .idu_exu_jump    (idu_exu_jump),
+        .idu_exu_branch  (idu_exu_branch),
+
+        .lsu_exu_ready   (lsu_exu_ready),
+        .exu_lsu_valid   (exu_lsu_valid),
+        .exu_lsu_pc      (exu_lsu_pc),
+        .exu_lsu_inst    (exu_lsu_inst),
+        .exu_lsu_mem_w   (exu_lsu_mem_w),
+        .exu_lsu_mem_r   (exu_lsu_mem_r),
+        .exu_lsu_mem_addr(exu_lsu_mem_addr),
+        .exu_lsu_wdata   (exu_lsu_wdata),
+        .exu_lsu_reg_w   (exu_lsu_reg_w),
+        .exu_lsu_rf_res  (exu_lsu_rf_res),
+        .exu_lsu_waddr   (exu_lsu_waddr),
+        .exu_lsu_alu_result(exu_lsu_alu_result),
+
+        .exu_flush       (exu_flush),
+        .exu_flush_pc    (exu_flush_pc),
+
+        .lsu_wbu_valid   (lsu_wbu_valid),
+        .lsu_wbu_reg_w   (lsu_wbu_reg_w),
+        .lsu_wbu_rf_res  (lsu_wbu_rf_res),
+        .idu_wbu_raddr1  (idu_wbu_raddr1),
+        .idu_wbu_raddr2  (idu_wbu_raddr2),
+        .lsu_wbu_waddr   (lsu_wbu_waddr),
+        .lsu_wbu_alu_result(lsu_wbu_alu_result),
+        .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_load_inflight(lsu_load_inflight),
+        .wbu_exu_rdata1  (wbu_exu_rdata1),
+        .wbu_exu_rdata2  (wbu_exu_rdata2)
     );
 
-    // ----- LSU (AXI4) -----
-    wire        lsu_cpu_arvalid;
+
+    // ----- LSU -----
+
+    // LSU -> WBU
+    wire        wbu_lsu_ready;
+    wire        lsu_wbu_valid;
+    wire [31:0] lsu_wbu_pc;
+    wire [31:0] lsu_wbu_inst;
+    wire        lsu_wbu_reg_w;
+    wire [ 1:0] lsu_wbu_rf_res;
+    wire [ 4:0] lsu_wbu_waddr;
+    wire [31:0] lsu_wbu_alu_result;
+    wire [31:0] lsu_wbu_mem_result;
+    wire        lsu_load_inflight;
+
+    // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
     wire [31:0] lsu_cpu_araddr;
+    wire        lsu_cpu_arvalid;
     wire [ 3:0] lsu_cpu_arid;
     wire [ 7:0] lsu_cpu_arlen;
     wire [ 2:0] lsu_cpu_arsize;
@@ -461,24 +545,136 @@ module ysyx_26010027 (
     wire [ 3:0] cpu_lsu_rid;
     wire        cpu_lsu_rlast;
 
-    wire        lsu_cpu_awvalid;
     wire        cpu_lsu_awready;
     wire [31:0] lsu_cpu_awaddr;
+    wire        lsu_cpu_awvalid;
     wire [ 3:0] lsu_cpu_awid;
     wire [ 7:0] lsu_cpu_awlen;
     wire [ 2:0] lsu_cpu_awsize;
     wire [ 1:0] lsu_cpu_awburst;
 
-    wire        lsu_cpu_wvalid;
     wire        cpu_lsu_wready;
     wire [31:0] lsu_cpu_wdata;
     wire [ 3:0] lsu_cpu_wstrb;
+    wire        lsu_cpu_wvalid;
     wire        lsu_cpu_wlast;
 
     wire        cpu_lsu_bvalid;
     wire        lsu_cpu_bready;
     wire [ 1:0] cpu_lsu_bresp;
     wire [ 3:0] cpu_lsu_bid;
+
+    ysyx_26010027_LSU my_LSU (
+        .clock           (clock),
+        .reset           (reset),
+
+        .exu_lsu_mem_w   (exu_lsu_mem_w),
+        .exu_lsu_mem_r   (exu_lsu_mem_r),
+        .exu_lsu_mem_addr(exu_lsu_mem_addr),
+        .exu_lsu_wdata   (exu_lsu_wdata),
+
+        .exu_lsu_valid   (exu_lsu_valid),
+        .lsu_exu_ready   (lsu_exu_ready),
+        .exu_lsu_pc      (exu_lsu_pc),
+        .exu_lsu_inst    (exu_lsu_inst),
+        .exu_lsu_reg_w   (exu_lsu_reg_w),
+        .exu_lsu_rf_res  (exu_lsu_rf_res),
+        .exu_lsu_waddr   (exu_lsu_waddr),
+        .exu_lsu_alu_result(exu_lsu_alu_result),
+
+        .wbu_lsu_ready   (wbu_lsu_ready),
+        .lsu_wbu_valid   (lsu_wbu_valid),
+        .lsu_wbu_pc      (lsu_wbu_pc),
+        .lsu_wbu_inst    (lsu_wbu_inst),
+        .lsu_wbu_reg_w   (lsu_wbu_reg_w),
+        .lsu_wbu_rf_res  (lsu_wbu_rf_res),
+        .lsu_wbu_waddr   (lsu_wbu_waddr),
+        .lsu_wbu_alu_result(lsu_wbu_alu_result),
+        .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_load_inflight(lsu_load_inflight),
+
+        // AXI
+        .cpu_lsu_arready (cpu_lsu_arready),
+        .lsu_cpu_araddr  (lsu_cpu_araddr),
+        .lsu_cpu_arvalid (lsu_cpu_arvalid),
+        .lsu_cpu_arid    (lsu_cpu_arid),
+        .lsu_cpu_arlen   (lsu_cpu_arlen),
+        .lsu_cpu_arsize  (lsu_cpu_arsize),
+        .lsu_cpu_arburst (lsu_cpu_arburst),
+
+        .lsu_cpu_rready  (lsu_cpu_rready),
+        .cpu_lsu_rvalid  (cpu_lsu_rvalid),
+        .cpu_lsu_rdata   (cpu_lsu_rdata),
+        .cpu_lsu_rresp   (cpu_lsu_rresp),
+        .cpu_lsu_rid     (cpu_lsu_rid),
+        .cpu_lsu_rlast   (cpu_lsu_rlast),
+
+        .cpu_lsu_awready (cpu_lsu_awready),
+        .lsu_cpu_awaddr  (lsu_cpu_awaddr),
+        .lsu_cpu_awvalid (lsu_cpu_awvalid),
+        .lsu_cpu_awid    (lsu_cpu_awid),
+        .lsu_cpu_awlen   (lsu_cpu_awlen),
+        .lsu_cpu_awsize  (lsu_cpu_awsize),
+        .lsu_cpu_awburst (lsu_cpu_awburst),
+
+        .cpu_lsu_wready  (cpu_lsu_wready),
+        .lsu_cpu_wdata   (lsu_cpu_wdata),
+        .lsu_cpu_wstrb   (lsu_cpu_wstrb),
+        .lsu_cpu_wvalid  (lsu_cpu_wvalid),
+        .lsu_cpu_wlast   (lsu_cpu_wlast),
+
+        .cpu_lsu_bresp   (cpu_lsu_bresp),
+        .cpu_lsu_bvalid  (cpu_lsu_bvalid),
+        .lsu_cpu_bready  (lsu_cpu_bready),
+        .cpu_lsu_bid     (cpu_lsu_bid)
+    );
+
+
+    // ----- WBU -----
+
+    wire [31:0] wbu_exu_rdata1;
+    wire [31:0] wbu_exu_rdata2;
+
+    ysyx_26010027_WBU my_WBU (
+        .clock  (clock),
+        .reset  (reset),
+
+        .idu_wbu_raddr1 (idu_wbu_raddr1),
+        .idu_wbu_raddr2 (idu_wbu_raddr2),
+        .lsu_wbu_rf_res (lsu_wbu_rf_res),
+
+        .wbu_exu_rdata1 (wbu_exu_rdata1),
+        .wbu_exu_rdata2 (wbu_exu_rdata2),
+
+        .lsu_wbu_valid  (lsu_wbu_valid),
+        .wbu_lsu_ready  (wbu_lsu_ready),
+        .lsu_wbu_pc     (lsu_wbu_pc),
+        .lsu_wbu_inst   (lsu_wbu_inst),
+        .lsu_wbu_reg_w  (lsu_wbu_reg_w),
+        .lsu_wbu_waddr  (lsu_wbu_waddr),
+        .lsu_wbu_alu_result(lsu_wbu_alu_result),
+        .lsu_wbu_mem_result(lsu_wbu_mem_result),
+
+        .csr_raddr (12'b0),
+        .csr_waddr (12'b0),
+        .csr_wdata (32'b0),
+        .csr_we    (1'b0),
+        .csr_ecall (1'b0),
+        .csr_mret  (1'b0)
+    );
+
+
+    // ----- Arbiter -----
+
+    reg [1:0] grant;
+
+    localparam IFU_GRANT = 2'b01;
+    localparam LSU_GRANT = 2'b10;
+
+    // icache 与 LSU 共享总线访问权
+    assign icache_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
+    assign icache_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
+    assign icache_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
 
     assign cpu_lsu_arready = (grant == LSU_GRANT) ? arb_arready : 1'b0;
     assign cpu_lsu_rvalid  = (grant == LSU_GRANT) ? arb_rvalid  : 1'b0;
@@ -491,91 +687,6 @@ module ysyx_26010027 (
     assign cpu_lsu_bvalid  = (grant == LSU_GRANT) ? arb_bvalid  : 1'b0;
     assign cpu_lsu_bresp   = (grant == LSU_GRANT) ? arb_bresp   : 2'b0;
     assign cpu_lsu_bid     = (grant == LSU_GRANT) ? arb_bid     : 4'b0;
-
-    ysyx_26010027_LSU my_LSU (
-        .clock           (clock),
-        .reset           (reset),
-        .mem_w           (mem_w),
-        .mem_r           (mem_r),
-        .addr            (alu_result),
-        .wdata           (rdata2),
-
-        .cpu_lsu_arready(cpu_lsu_arready),
-        .lsu_cpu_araddr (lsu_cpu_araddr),
-        .lsu_cpu_arvalid(lsu_cpu_arvalid),
-        .lsu_cpu_arid   (lsu_cpu_arid),
-        .lsu_cpu_arlen  (lsu_cpu_arlen),
-        .lsu_cpu_arsize (lsu_cpu_arsize),
-        .lsu_cpu_arburst(lsu_cpu_arburst),
-
-        .lsu_cpu_rready (lsu_cpu_rready),
-        .cpu_lsu_rvalid (cpu_lsu_rvalid),
-        .cpu_lsu_rdata  (cpu_lsu_rdata),
-        .cpu_lsu_rresp  (cpu_lsu_rresp),
-        .cpu_lsu_rid    (cpu_lsu_rid),
-        .cpu_lsu_rlast  (cpu_lsu_rlast),
-
-        .cpu_lsu_awready(cpu_lsu_awready),
-        .lsu_cpu_awaddr (lsu_cpu_awaddr),
-        .lsu_cpu_awvalid(lsu_cpu_awvalid),
-        .lsu_cpu_awid   (lsu_cpu_awid),
-        .lsu_cpu_awlen  (lsu_cpu_awlen),
-        .lsu_cpu_awsize (lsu_cpu_awsize),
-        .lsu_cpu_awburst(lsu_cpu_awburst),
-
-        .cpu_lsu_wready (cpu_lsu_wready),
-        .lsu_cpu_wdata  (lsu_cpu_wdata),
-        .lsu_cpu_wstrb  (lsu_cpu_wstrb),
-        .lsu_cpu_wvalid (lsu_cpu_wvalid),
-        .lsu_cpu_wlast  (lsu_cpu_wlast),
-
-        .cpu_lsu_bresp  (cpu_lsu_bresp),
-        .cpu_lsu_bvalid (cpu_lsu_bvalid),
-        .lsu_cpu_bready (lsu_cpu_bready),
-        .cpu_lsu_bid    (cpu_lsu_bid),
-
-        .out_data       (mem_result),
-        .lsu_stall      (lsu_stall),
-        .ifu_stall      (ifu_stall)
-    );
-
-    ysyx_26010027_WBU my_WBU (
-        .pc        (pc),
-        .rd        (rd),
-        .rf_res    (rf_res),
-        .j_type    (j_type),
-        .b_type    (b_type),
-        .alu_result(alu_result),
-        .mem_result(mem_result),
-        .csr_result(csr_result),
-        .mepc      (out_mepc),
-        .mtvec     (out_mtvec),
-        .reg_w     (reg_w),
-        .waddr     (waddr),
-        .wdata     (wdata),
-        .n_pc      (n_pc)
-    );
-
-    ysyx_26010027_CSR my_CSR (
-        .clock       (clock),
-        .reset       (reset),
-        .j_type     (j_type),
-        .csr_addr   (imm[11:0]),
-        .csr_wdata  (alu_result),
-        .csr_rdata  (csr_result),
-        .pc         (pc),
-        .csr_we     (csr_we),
-        .out_mepc   (out_mepc),
-        .out_mtvec  (out_mtvec),
-
-        .ifu_stall  (ifu_stall)
-    );
-
-    // ----- Arbiter -----
-    reg [1:0] grant;
-
-    localparam IFU_GRANT = 2'b01;
-    localparam LSU_GRANT = 2'b10;
 
     // 事务完成时握手信号
     wire handshake_ifu_r = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
@@ -624,20 +735,44 @@ module ysyx_26010027 (
         end
     end
 
+
+    // 提交阶段（WBU）调试与统计
+
     wire access_fault = (cpu_ifu_rvalid && ifu_cpu_rready && cpu_ifu_rresp != 2'b00)
                      || (cpu_lsu_rvalid && lsu_cpu_rready && cpu_lsu_rresp != 2'b00)
                      || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
 
-    always @(posedge clock) begin
-        if (!reset) get_cpu_state({{31{1'b0}}, handshake_lsu_r}, {{31{1'b0}}, handshake_lsu_b}, {{31{1'b0}}, ifu_stall}, {{31{1'b0}}, alu_op != 4'd0}, {{31{1'b0}}, csr_we}, {{31{1'b0}}, j_type != 2'b00}, {{31{1'b0}}, b_type != 3'd6}, hit_count, miss_count, miss_latency);
-        if (j_type == 2'b01 && !ifu_stall) begin
-            ftrace_print(pc, n_pc, {27'b0, rd}, {27'b0, rs1});
-        end
+    // 提交指令类型（统计用）
+    wire [6:0] wbu_opcode = lsu_wbu_inst[6:0];
+    wire wbu_load   = (wbu_opcode == 7'b0000011);
+    wire wbu_store  = (wbu_opcode == 7'b0100011);
+    wire wbu_csr    = (wbu_opcode == 7'b1110011);
+    wire wbu_jump   = (wbu_opcode == 7'b1101111) || (wbu_opcode == 7'b1100111);
+    wire wbu_branch = (wbu_opcode == 7'b1100011);
+    wire wbu_alu    = (wbu_opcode == 7'b0110011) || (wbu_opcode == 7'b0010011) ||
+                      (wbu_opcode == 7'b0010111) || (wbu_opcode == 7'b0110111);
 
-        if ((ebreak_type && !ifu_stall) || access_fault) begin
-            ebreak();
-            $display("ebreak at PC = 0x%h Inst = 0x%h", pc, inst);
-            if (access_fault) $display("![Access-FAULT]");
+    always @(posedge clock) begin
+        if (!reset) begin
+            get_cpu_state({{31{1'b0}}, lsu_wbu_valid && wbu_load},
+                          {{31{1'b0}}, lsu_wbu_valid && wbu_store},
+                          {{31{1'b0}}, lsu_wbu_valid},
+                          {{31{1'b0}}, lsu_wbu_valid && wbu_alu},
+                          {{31{1'b0}}, lsu_wbu_valid && wbu_csr},
+                          {{31{1'b0}}, lsu_wbu_valid && wbu_jump},
+                          {{31{1'b0}}, lsu_wbu_valid && wbu_branch},
+                          hit_count, miss_count, miss_latency);
+
+            // ftrace
+            if (idu_exu_valid && exu_idu_ready && idu_exu_jump == 2'b01) begin
+                ftrace_print(idu_exu_pc, exu_flush_pc, {27'b0, idu_exu_waddr}, {27'b0, idu_exu_inst[19:15]});
+            end
+
+            if ((lsu_wbu_inst == 32'h00100073) || access_fault) begin
+                finish_sim();
+                $display("ebreak at PC = 0x%h Inst = 0x%h", lsu_wbu_pc, lsu_wbu_inst);
+                if (access_fault) $display("![Access-FAULT]");
+            end
         end
     end
 

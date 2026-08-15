@@ -4,12 +4,12 @@
 
 #include "VysyxSoCFull__pch.h"
 
-extern "C" void ebreak();
+extern "C" void finish_sim();
 
-void VysyxSoCFull___024unit____Vdpiimwrap_ebreak_TOP____024unit() {
-    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_ebreak_TOP____024unit\n"); );
+void VysyxSoCFull___024unit____Vdpiimwrap_finish_sim_TOP____024unit() {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_finish_sim_TOP____024unit\n"); );
     // Body
-    ebreak();
+    finish_sim();
 }
 
 extern "C" void ftrace_print(int pc, int target, int rd, int rs1);

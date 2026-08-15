@@ -1,26 +1,48 @@
 module ysyx_26010027_IDU (
-    input  [31:0] inst,
-    input         ifu_stall,
-    input         lsu_stall,
+    input             clock,
+    input             reset,
 
-    output reg [31:0] imm,
-    output reg [ 4:0] rs1, rs2, rd,
-    output            reg_w,
-    output     [ 1:0] rf_res,
-    output     [ 3:0] alu_op,
-    output            csr_we,
-    output reg [ 1:0] mem_w,
-    output reg [ 2:0] mem_r,
-    output            alu_arc1,
-    output            alu_arc2,
-    output     [ 1:0] j_type,
-    output     [ 2:0] b_type,
-    output            ebreak_type
+    input             ifu_idu_valid,
+    output reg        idu_ifu_ready,
+    input  [31:0]     ifu_idu_pc,
+    input  [31:0]     ifu_idu_inst,
+
+    // IDU - EXU
+    input             exu_idu_ready,
+    output reg        idu_exu_valid,
+    output reg [31:0] idu_exu_pc,
+    output reg [31:0] idu_exu_inst,
+
+    output reg [31:0] idu_exu_imm,
+    output reg [ 3:0] idu_exu_alu_op,
+    output reg [ 1:0] idu_exu_mem_w,
+    output reg [ 2:0] idu_exu_mem_r,
+    output reg        idu_exu_alu_arc1,
+    output reg        idu_exu_alu_arc2,
+    output reg        idu_exu_reg_w,
+    output reg [ 1:0] idu_exu_rf_res,
+    output reg [ 4:0] idu_exu_waddr,
+
+    output reg [ 1:0] idu_exu_jump,
+    output reg [ 2:0] idu_exu_branch,
+    input             exu_flush,
+
+    // IDU - WBU
+    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2,
+    // output     [11:0] csr_raddr,
+    // output     [31:0] csr_wdata, // from EXU
+    // output            csr_we,
+    // output            csr_ecall,
+    // output            csr_mret,
+
+    output            fence_i       // fence.i 指令
 );
 
-    wire [6:0] opcode = inst[6:0];
-    wire [2:0] funct3 = inst[14:12];
-    wire [6:0] funct7 = inst[31:25];
+    // ----- Instruction decoding -----
+    wire [31:0] inst  = ifu_idu_inst;
+    wire [ 6:0] opcode = inst[6:0];
+    wire [ 2:0] funct3 = inst[14:12];
+    wire [ 6:0] funct7 = inst[31:25];
 
     // Instruction type
     wire inst_I = (opcode == 7'b0010011) || (opcode == 7'b0000011) ||
@@ -98,88 +120,163 @@ module ysyx_26010027_IDU (
     wire csrrw    = I_c && (funct3 == 3'b001);
     wire csrrs    = I_c && (funct3 == 3'b010);
     wire csrrc    = I_c && (funct3 == 3'b011);
-    wire ecall    = (inst == 32'h00000073);
-    wire mret     = (inst == 32'h30200073);
-    wire csr_inst = csrrw || csrrs || csrrc || ecall || mret;
+    wire csr_inst = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
+    wire csr_ecall = (inst == 32'h00000073);
+    wire csr_mret  = (inst == 32'h30200073);
+    wire [11:0] csr_addr  = imm[11:0];
+
+    // --------------------------
 
     // Illegal instruction detection
     wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
-                     lui || auipc || jal || csr_inst || ebreak_type);
+                     lui || auipc || jal || csr_inst || ebreak || fence_i);
 
     // Control signals
-    assign j_type = (jal || jalr) ? 2'b01 :
-                    ecall         ? 2'b10 :
-                    mret          ? 2'b11 :
-                    2'b00;
+    wire [1:0] jump = (jal || jalr) ? 2'b01 :
+                      csr_ecall ? 2'b10 :
+                      csr_mret  ? 2'b11 :
+                      2'b00;
 
-    assign b_type = bne  ? 3'd0 :
-                    beq  ? 3'd1 :
-                    blt  ? 3'd2 :
-                    bge  ? 3'd3 :
-                    bltu ? 3'd4 :
-                    bgeu ? 3'd5 :
-                    3'd6;
+    wire [2:0] branch = bne  ? 3'd0 :
+                        beq  ? 3'd1 :
+                        blt  ? 3'd2 :
+                        bge  ? 3'd3 :
+                        bltu ? 3'd4 :
+                        bgeu ? 3'd5 :
+                        3'd6;
 
-    assign rf_res = ld_type                  ? 2'b01 :  // memory
-                    (csrrw || csrrs || csrrc) ? 2'b10 :  // CSR
-                    (jal || jalr)             ? 2'b11 :  // PC+4
-                    2'b00;                                // ALU
+    wire [1:0] rf_res = ld_type               ? 2'b01 :  // memory
+                        (csrrw || csrrs || csrrc) ? 2'b10 :  // CSR
+                        (jal || jalr)             ? 2'b11 :  // PC+4
+                        2'b00;                                // ALU
 
-    assign alu_op = (add || addi || ld_type || (j_type == 2'b01)) ? 4'd0  :
-                    (sub || inst_B)    ? 4'd1  :
-                    lui                ? 4'd2  :
-                    (sll || slli)      ? 4'd3  :
-                    (srl || srli)      ? 4'd4  :
-                    (sra || srai)      ? 4'd5  :
-                    (slt || slti)      ? 4'd6  :
-                    sltiu              ? 4'd7  :
-                    sltu               ? 4'd8  :
-                    (r_xor || xori)    ? 4'd9  :
-                    (r_and || andi)    ? 4'd10 :
-                    (r_or || ori)      ? 4'd11 :
-                    csrrw              ? 4'd12 :
-                    csrrs              ? 4'd13 :
-                    4'd0;
+    wire [3:0] alu_op = (add || addi || ld_type || (jump == 2'b01)) ? 4'd0  :
+                        (sub || inst_B)    ? 4'd1  :
+                        lui                ? 4'd2  :
+                        (sll || slli)      ? 4'd3  :
+                        (srl || srli)      ? 4'd4  :
+                        (sra || srai)      ? 4'd5  :
+                        (slt || slti)      ? 4'd6  :
+                        sltiu              ? 4'd7  :
+                        sltu               ? 4'd8  :
+                        (r_xor || xori)    ? 4'd9  :
+                        (r_and || andi)    ? 4'd10 :
+                        (r_or || ori)      ? 4'd11 :
+                        csrrw              ? 4'd12 :
+                        csrrs              ? 4'd13 :
+                        4'd0;
 
-    assign alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
-    assign alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
+    wire alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
+    wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
-    assign reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we) && !ifu_stall && !lsu_stall;
-    assign csr_we = csrrw || csrrs || csrrc;
+    wire reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we);
+    wire csr_we = csrrw || csrrs || csrrc;
 
-    assign mem_w = sw ? 2'b00 :
-                   sb ? 2'b01 :
-                   sh ? 2'b10 :
-                   2'b11;
+    wire [1:0] mem_w = sw ? 2'b00 :
+                       sb ? 2'b01 :
+                       sh ? 2'b10 :
+                       2'b11;
 
-    assign mem_r = lw  ? 3'd0 :
-                   lb  ? 3'd1 :
-                   lh  ? 3'd2 :
-                   lbu ? 3'd3 :
-                   lhu ? 3'd4 :
-                   3'd5;
+    wire [2:0] mem_r = lw  ? 3'd0 :
+                       lb  ? 3'd1 :
+                       lh  ? 3'd2 :
+                       lbu ? 3'd3 :
+                       lhu ? 3'd4 :
+                       3'd5;
 
-    assign ebreak_type = (inst == 32'h00100073);
+    wire [4:0] waddr = inst[11:7];
+
+    assign fence_i = (inst == 32'h0000100F);
+    wire ebreak = (inst == 32'h00100073);
 
     // Immediate generation
-    always @(*) begin
-        rs1 = inst[19:15];
-        rs2 = inst[24:20];
-        rd  = inst[11:7];
-        imm = 32'b0;
+    wire [31:0] imm = (inst_I) ? {{20{inst[31]}}, inst[31:20]} :
+                (inst_S) ? {{20{inst[31]}}, inst[31:25], inst[11:7]} :
+                (inst_B) ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} :
+                (inst_U) ? {inst[31:12], 12'b0} :
+                (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
+                32'b0;
 
-        case (1'b1)
-            inst_I: imm = {{20{inst[31]}}, inst[31:20]};
-            inst_S: imm = {{20{inst[31]}}, inst[31:25], inst[11:7]};
-            inst_B: imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
-            inst_U: imm = {inst[31:12], 12'b0};
-            inst_J: imm = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
-            default: imm = 32'b0;
-        endcase
+    wire [4:0] raddr1 = inst[19:15];
+    wire [4:0] raddr2 = inst[24:20];
 
-        if (illegal && (inst != 32'b0)) begin
+    always @(*)
+        if (illegal && (inst != 32'b0))
             is_illegal_inst();
-        end
+
+    assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
+    always @(posedge clock or posedge reset) begin
+      if (reset) begin
+        idu_exu_valid <= 1'b0;
+      end 
+      else if (exu_flush) begin
+        idu_exu_valid <= 1'b0;
+      end 
+      else if (ifu_idu_valid & idu_ifu_ready) begin
+        idu_exu_valid <= 1'b1;
+      end 
+      else if (exu_idu_ready) begin
+        idu_exu_valid <= 1'b0;
+      end
+    end
+
+    always @(posedge clock or posedge reset) begin
+      if (reset) begin
+        idu_exu_pc       <= 32'd0;
+        idu_exu_inst     <= 32'd0;
+        idu_exu_imm      <= 32'd0;
+        idu_exu_alu_op   <= 4'd0;
+        idu_exu_mem_w    <= 2'd0;
+        idu_exu_mem_r    <= 3'd0;
+        idu_exu_alu_arc1 <= 1'd0;
+        idu_exu_alu_arc2 <= 1'd0;
+        idu_exu_reg_w    <= 1'd0;
+        idu_exu_rf_res   <= 2'd0;
+        idu_exu_waddr    <= 5'd0;
+        idu_exu_jump     <= 2'd0;
+        idu_exu_branch   <= 3'd6;
+
+        idu_wbu_raddr1 <= 5'd0;
+        idu_wbu_raddr2 <= 5'd0;
+
+      end 
+      else if (ifu_idu_valid && idu_ifu_ready) begin
+        idu_exu_pc       <= ifu_idu_pc;
+        idu_exu_inst     <= ifu_idu_inst;
+        idu_exu_imm      <= imm;
+        idu_exu_alu_op   <= alu_op;
+        idu_exu_mem_w    <= mem_w;
+        idu_exu_mem_r    <= mem_r;
+        idu_exu_alu_arc1 <= alu_arc1;
+        idu_exu_alu_arc2 <= alu_arc2;
+        idu_exu_reg_w    <= reg_w;
+        idu_exu_rf_res   <= rf_res;
+        idu_exu_waddr    <= waddr;
+        idu_exu_jump     <= jump;
+        idu_exu_branch   <= branch;
+
+        idu_wbu_raddr1 <= raddr1;
+        idu_wbu_raddr2 <= raddr2;
+      end
+      else begin
+        idu_exu_pc       <= idu_exu_pc;
+        idu_exu_inst     <= idu_exu_inst;
+        idu_exu_imm      <= idu_exu_imm;
+        idu_exu_alu_op   <= idu_exu_alu_op;
+        idu_exu_mem_w    <= idu_exu_mem_w;
+        idu_exu_mem_r    <= idu_exu_mem_r;
+        idu_exu_alu_arc1 <= idu_exu_alu_arc1;
+        idu_exu_alu_arc2 <= idu_exu_alu_arc2;
+        idu_exu_reg_w    <= idu_exu_reg_w;
+        idu_exu_rf_res   <= idu_exu_rf_res;
+        idu_exu_waddr    <= idu_exu_waddr;
+        idu_exu_jump     <= idu_exu_jump;
+        idu_exu_branch   <= idu_exu_branch;
+
+        idu_wbu_raddr1 <= idu_wbu_raddr1;
+        idu_wbu_raddr2 <= idu_wbu_raddr2;
+
+      end
     end
 
 endmodule

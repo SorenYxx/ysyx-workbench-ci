@@ -1,6 +1,7 @@
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
+    input             flush_i,     // fence.i 清空 cache
 
     // ----- IFU -----
     input         ifu_arvalid,
@@ -17,6 +18,8 @@ module ysyx_26010027_icache (
     input         arb_rvalid,
     output        arb_rready,
     input  [31:0] arb_rdata,
+    output [ 7:0] arb_arlen,
+    output [ 2:0] arb_arsize,
 
     // --------------------
     output reg [31:0] hit_count,
@@ -24,49 +27,90 @@ module ysyx_26010027_icache (
     output reg [31:0] miss_latency
 );
 
+`ifdef ICACHE
     // ----- cache parameters -----
-    parameter BLOCK_SIZE = 4; // 4B 大小
-    parameter NUM_BLOCKS = 16; // cache 行数
-    parameter INDEX_W    = 4; // cache 序号
-    parameter OFFSET_W   = 2;  // 低两位 offset
-    parameter TAG_W      = 32 - INDEX_W - OFFSET_W; // tag 判断命中
+    parameter BLOCK_SIZE = 16; // 块大小 16B
+    parameter BLOCK_NUMS = 128; // cache 块数
+    parameter WAYS       = 4;  // 组内的相联度
+
+    parameter SET_NUMS   = BLOCK_NUMS / WAYS; // 组数
+    parameter INDEX_W    = $clog2(SET_NUMS);
+    parameter BLK_OFF_W  = $clog2(BLOCK_SIZE);
+    parameter TAG_W      = 32 - INDEX_W - BLK_OFF_W;
+    parameter BEATS      = BLOCK_SIZE / 4; // burst 拍数
+    // 自适应位宽
+    localparam BURST_W   = (BEATS == 1) ? 1 : $clog2(BEATS);
+    localparam WAY_W     = (WAYS  == 1) ? 1 : $clog2(WAYS);
+    localparam WORD_W    = (BEATS == 1) ? 1 : BLK_OFF_W - 2;
+    localparam LAST_BEAT = BEATS - 1;   // 末拍拍号
+    localparam [7:0] BURST_LEN = BEATS - 1; // arlen 用, 8bit 避免 lint
 
     // ----- cache regs -----
-    reg                    valid [NUM_BLOCKS-1:0];
-    reg [TAG_W-1:0]        tag   [NUM_BLOCKS-1:0];
-    reg [BLOCK_SIZE*8-1:0] data  [NUM_BLOCKS-1:0];
+    reg                    valid [SET_NUMS-1:0][WAYS-1:0];
+    reg [TAG_W-1:0]        tag   [SET_NUMS-1:0][WAYS-1:0];
+    reg [BLOCK_SIZE*8-1:0] data  [SET_NUMS-1:0][WAYS-1:0];
 
     // ----- state -----
     reg [1:0] state;
-    localparam IDLE = 2'b00;
-    localparam WAIT = 2'b10;
+    localparam IDLE  = 2'b00;
+    localparam WAIT  = 2'b01;
+    localparam BURST = 2'b10;
 
-    wire [INDEX_W-1:0] index_q = ifu_araddr[OFFSET_W + INDEX_W - 1: OFFSET_W]; // addr[5:2]
-    wire [TAG_W-1:0]   tag_q   = ifu_araddr[31:INDEX_W + OFFSET_W]; // addr[31:6]
-    wire hit = valid[index_q] && (tag[index_q] == tag_q);
+    wire [INDEX_W-1:0] index_q = ifu_araddr[BLK_OFF_W + INDEX_W - 1 : BLK_OFF_W]; // addr[7:4]
+    wire [TAG_W-1:0]   tag_q   = ifu_araddr[31 : BLK_OFF_W + INDEX_W]; // addr[31:8]
+
+    // ----- 组相联 -----
+    reg     hit;
+    integer hit_way;   // 记录命中的 way
+    integer miss_way;  // 记录替换的 way (RR 替换)
+    integer nway;      // 中间变量
+    always @(*) begin
+        hit      = 1'b0;
+        hit_way  = 0;
+        /*verilator lint_off WIDTHEXPAND*/ 
+        miss_way = repl_cnt[index_q];
+        for (nway = 0; nway < WAYS; nway++) begin
+            if (valid[index_q][nway] && (tag[index_q][nway] == tag_q)) begin
+                hit = 1'b1;
+                hit_way = nway;
+            end else if (!valid[index_q][nway]) begin
+                miss_way = nway;
+            end
+        end
+    end
 
     // ----- out to Arb -----
     reg [31:0] araddr_o;
     reg        arvalid_o;
     reg        rready_o;
+    reg [ 7:0] arlen_o;
+    reg [ 2:0] arsize_o;
     assign arb_araddr  = araddr_o;
     assign arb_arvalid = arvalid_o;
     assign arb_rready  = rready_o;
+    assign arb_arlen   = arlen_o;
+    assign arb_arsize  = arsize_o;
+
+    reg [BURST_W-1:0] burst_count;
+    reg [WAY_W-1:0]   repl_cnt [SET_NUMS-1:0];  //  RR 替换
 
     // ----- out to IFU -----
     reg [31:0] rdata_o;
     reg        rvalid_o;
     assign ifu_rvalid = rvalid_o;
     assign ifu_rdata  = rdata_o;
-    assign ifu_arready = (state == IDLE) && ifu_arvalid; // 避免重复答应 IFU 请求
+    assign ifu_arready = (state == IDLE) && ifu_arvalid;
 
     wire handshake_ar = arb_arvalid && arb_arready;
     wire handshake_r  = arb_rvalid  && arb_rready;
+    wire [WORD_W-1:0] word_sel = ifu_araddr[BLK_OFF_W-1 : 2]; // 块内字选择
 
     // AMAT 统计
-    reg [31:0] miss_cycle;        // 当前 miss 已等待周期
+    reg [31:0] miss_cycle;
     integer    i;
+    integer    j;
 
+    // ----- FSM -----
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             state       <= IDLE;
@@ -77,49 +121,93 @@ module ysyx_26010027_icache (
             miss_count  <= 32'b0;
             miss_latency <= 32'b0;
             miss_cycle  <= 32'b0;
-            for (i = 0; i < NUM_BLOCKS; i++) begin
-                valid[i] <= 1'b0;
-                tag[i]   <= {TAG_W{1'b0}};
-                data[i]  <= {BLOCK_SIZE*8{1'b0}};
+            for (i = 0; i < SET_NUMS; i++) begin
+                for (j = 0; j < WAYS; j++) begin
+                    valid[i][j] <= 1'b0;
+                    tag  [i][j] <= {TAG_W{1'b0}};
+                    data [i][j] <= {BLOCK_SIZE*8{1'b0}};
+                repl_cnt[i] <= {WAY_W{1'b0}};
+                end
             end
         end else begin
             if (rvalid_o && ifu_rready) rvalid_o <= 1'b0;
+            // fence.i 清空 cache
+            if (flush_i) begin
+                for (i = 0; i < SET_NUMS; i = i + 1)
+                    for (j = 0; j < WAYS; j = j + 1)
+                        valid[i][j] <= 1'b0;
+            end
             case (state)
                 IDLE: begin
                     if (ifu_arvalid) begin
                         if (hit) begin
                             // HIT
                             rvalid_o  <= 1'b1;
-                            rdata_o   <= data[index_q];
+                            rdata_o   <= data[index_q][hit_way][word_sel*32 +: 32];
                             hit_count <= hit_count + 1;
                         end else begin
                             // MISS
-                            araddr_o  <= ifu_araddr;
-                            arvalid_o <= 1'b1;
-                            rready_o  <= 1'b1;
-                            state     <= WAIT;
-                            miss_count <= miss_count + 1;
-                            miss_cycle <= 32'b0;
+                            araddr_o   <= {ifu_araddr[31:BLK_OFF_W], {BLK_OFF_W{1'b0}}}; // 突发地址对齐
+                            arvalid_o  <= 1'b1;
+                            rready_o   <= 1'b1;
+                            arlen_o    <= BURST_LEN; // BEATS-1
+                            arsize_o   <= 3'd2;
+
+                            state       <= WAIT;
+                            miss_count  <= miss_count + 1;
+                            miss_cycle  <= 32'b0;
+                            burst_count <= {BURST_W{1'b0}};
                         end
                     end
                 end
                 WAIT: begin
                     miss_cycle <= miss_cycle + 1;
-                    if (handshake_ar) arvalid_o <= 1'b0;
-                    if (handshake_r) begin
-                        data[index_q]  <= arb_rdata;
-                        tag[index_q]   <= ifu_araddr[OFFSET_W + INDEX_W +: TAG_W];
-                        valid[index_q] <= 1'b1;
-                        rdata_o        <= arb_rdata;
-                        rvalid_o       <= 1'b1;
-                        state          <= IDLE;
-                        miss_latency   <= miss_latency + miss_cycle;
+                    if (handshake_ar) begin
+                        arvalid_o <= 1'b0;
+                        state     <= BURST;
                     end
-                    else state <= WAIT;
+                end
+                BURST: begin
+                    miss_cycle <= miss_cycle + 1;
+                    if (handshake_r) begin
+                        // 每拍数据写入 cache line 对应位置
+                        data[index_q][miss_way][burst_count*32 +: 32] <= arb_rdata;
+                        // 返回 IFU 所需字数据
+                        if (burst_count == word_sel) begin
+                            rdata_o  <= arb_rdata;
+                        end
+                        // 最后一拍: 填 tag/valid, 记录延迟, 返回 IDLE
+                        if (burst_count == LAST_BEAT) begin
+                            tag[index_q][miss_way]   <= tag_q;
+                            /*verilator lint_off WIDTHTRUNC*/                             
+                            repl_cnt[index_q] <= miss_way + 1;
+
+                            valid[index_q][miss_way] <= 1'b1;
+                            miss_latency <= miss_latency + miss_cycle;
+                            rvalid_o <= 1'b1;
+                            state <= IDLE;
+                        end else begin
+                            burst_count <= burst_count + 1;
+                        end
+                    end
                 end
                 default: state <= IDLE;
             endcase
         end
     end
+`else
+    assign arb_arvalid = ifu_arvalid;
+    assign arb_araddr  = ifu_araddr;
+    assign arb_arlen   = 8'd0;
+    assign arb_arsize  = 3'd2;
+    assign arb_rready  = ifu_rready;
+    assign ifu_arready = arb_arready;
+    assign ifu_rvalid  = arb_rvalid;
+    assign ifu_rdata   = arb_rdata;
+
+    assign hit_count    = 32'b0;
+    assign miss_count   = 32'b0;
+    assign miss_latency = 32'b0;
+`endif
 
 endmodule

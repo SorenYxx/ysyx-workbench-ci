@@ -11,7 +11,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(1706);
+    Verilated::stackCheck(1856);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision
@@ -25,6 +25,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     // Setup scopes
     __Vscopep_ysyxSoCFull__asic__axi42apb = new VerilatedScope{this, "ysyxSoCFull.asic.axi42apb", "axi42apb", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4frag = new VerilatedScope{this, "ysyxSoCFull.asic.axi4frag", "axi4frag", "<null>", -9, VerilatedScope::SCOPE_OTHER};
+    __Vscopep_ysyxSoCFull__asic__axi4xbar = new VerilatedScope{this, "ysyxSoCFull.asic.axi4xbar", "axi4xbar", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4xbar_1 = new VerilatedScope{this, "ysyxSoCFull.asic.axi4xbar_1", "axi4xbar_1", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4yank = new VerilatedScope{this, "ysyxSoCFull.asic.axi4yank", "axi4yank", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1 = new VerilatedScope{this, "ysyxSoCFull.asic.axi4yank.unnamedblk1", "unnamedblk1", "<null>", -9, VerilatedScope::SCOPE_OTHER};
@@ -39,6 +40,7 @@ VysyxSoCFull__Syms::~VysyxSoCFull__Syms() {
     // Tear down scopes
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi42apb, __Vscopep_ysyxSoCFull__asic__axi42apb = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4frag, __Vscopep_ysyxSoCFull__asic__axi4frag = nullptr);
+    VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4xbar, __Vscopep_ysyxSoCFull__asic__axi4xbar = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4xbar_1, __Vscopep_ysyxSoCFull__asic__axi4xbar_1 = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4yank, __Vscopep_ysyxSoCFull__asic__axi4yank = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1, __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1 = nullptr);

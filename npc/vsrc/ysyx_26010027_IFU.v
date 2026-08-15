@@ -7,9 +7,14 @@
 module ysyx_26010027_IFU (
     input             clock,
     input             reset,
-    input      [31:0] n_pc,
-    output reg [31:0] pc,
-    output     [31:0] inst,
+    output reg        ifu_idu_valid,
+    input             idu_ifu_ready,
+
+    output reg [31:0] ifu_idu_pc,
+    output reg [31:0] ifu_idu_inst,
+
+    input             exu_flush,
+    input      [31:0] exu_flush_pc,
 
     // ----------- AXI4 -----------
     input             cpu_ifu_arready,
@@ -25,14 +30,15 @@ module ysyx_26010027_IFU (
     input      [31:0] cpu_ifu_rdata,
     input      [ 1:0] cpu_ifu_rresp,
     input      [ 3:0] cpu_ifu_rid,
-    input             cpu_ifu_rlast,
+    input             cpu_ifu_rlast
     // --------------------------------
 
-    output            ifu_stall,
-    input             lsu_stall
+    // output            ifu_stall,
+    // input             lsu_stall
 
 );
 
+    // ----- AXI4 -----
     reg [1:0] state;
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
@@ -40,55 +46,98 @@ module ysyx_26010027_IFU (
     wire handshake_ar = ifu_cpu_arvalid && cpu_ifu_arready;
     wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
-    reg lsu_pending;
-
     always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            state       <= IDLE;
-            pc          <= `PC_START;
-            lsu_pending <= 1'b0;
-        end else begin
+        if (reset)
+            state <= IDLE;
+        else
             case (state)
                 IDLE: begin
-                    if (handshake_ar && !lsu_stall) begin
+                    if (handshake_ar) begin
                         state <= WAIT;
                     end
                 end
                 WAIT: begin
-                    if (lsu_stall) begin
-                        lsu_pending <= 1'b1;
-                    end else if (handshake_r) begin
-                        pc    <= n_pc;
+                    if (handshake_r) begin
                         state <= IDLE;
-                        lsu_pending <= 1'b0;
-                    end else if (lsu_pending && !lsu_stall) begin
-                        pc    <= n_pc;
-                        state <= IDLE;
-                        lsu_pending <= 1'b0;
                     end
                 end
                 default: state <= IDLE;
             endcase
-        end
     end
 
     // inst 锁存
-    reg [31:0] inst_latch;
+    wire [31:0] inst;
+    reg  [31:0] inst_latch;
     always @(posedge clock, posedge reset) begin
         if (reset)
             inst_latch <= 32'h0;
-        else if (cpu_ifu_rvalid)
+        else if (handshake_r)
             inst_latch <= cpu_ifu_rdata;
     end
 
-    assign ifu_cpu_araddr  = pc;
-    assign ifu_cpu_arvalid = (state == IDLE);
-    assign ifu_cpu_rready  = (state == WAIT);
+    // 交付当拍（valid && ready）同时预取下一条，故取指地址用 next_pc
+    assign ifu_cpu_araddr  = (ifu_idu_valid && idu_ifu_ready) & !flush_flag ? next_pc : ifu_idu_pc;
+    assign ifu_cpu_arvalid = (state == IDLE) && idu_ifu_ready; // 反压
+    assign ifu_cpu_rready  = (state == WAIT); 
     assign ifu_cpu_arid    = 4'h0;
     assign ifu_cpu_arlen   = 8'h0;
     assign ifu_cpu_arsize  = 3'b010;
     assign ifu_cpu_arburst = 2'b01;
-    assign ifu_stall       = !cpu_ifu_rvalid && !lsu_pending;
-    assign inst            = cpu_ifu_rvalid ? cpu_ifu_rdata : inst_latch;
+    assign inst            = (cpu_ifu_rvalid & !flush_flag) ? cpu_ifu_rdata : inst_latch;
+    // ---------------
+
+    wire [ 6:0] opcode = inst[6:0];
+    wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+    wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
+    wire branch = (opcode == 7'b1100011);
+    wire jump   = (opcode == 7'b1101111 || opcode == 7'b1100111); // ret和jalr一样直接flush
+
+    // 预取下一条指令地址（分支预测：branch/jump 一定跳转）
+    wire [31:0] next_pc = branch ? (ifu_idu_pc + imm_B) :
+                          jump   ? (ifu_idu_pc + imm_J) :
+                                   (ifu_idu_pc + 4);
+
+    always @(posedge clock or posedge reset) begin
+        if (reset) begin
+            ifu_idu_pc   <= `PC_START;
+            ifu_idu_inst <= 32'b0;
+        end 
+        else begin
+            if (exu_flush) begin
+                ifu_idu_pc <= exu_flush_pc;
+            end 
+            else if (ifu_idu_valid && idu_ifu_ready)
+                ifu_idu_pc   <= next_pc;
+                ifu_idu_inst <= inst;
+        end 
+    end
+
+    reg flush_flag;
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            flush_flag <= 1'b0;
+        end 
+        else if (exu_flush) begin
+            flush_flag <= 1'b1;
+        end 
+        else if (handshake_ar) begin // 保证冲刷pc发送、不接收回来的垃圾data
+            flush_flag <= 1'b0;
+        end
+    end
+
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            ifu_idu_valid <= 1'b0;
+        end 
+        else if (exu_flush || flush_flag) begin
+            ifu_idu_valid <= 1'b0;
+        end
+        else if (ifu_idu_valid && idu_ifu_ready) begin
+            ifu_idu_valid <= 1'b0;  // 交付给 IDU
+        end
+        else if (handshake_r) begin
+            ifu_idu_valid <= 1'b1;  // 取到指令
+        end
+    end
 
 endmodule

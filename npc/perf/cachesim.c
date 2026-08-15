@@ -3,54 +3,48 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define M 4       // 块内偏移位数（2^4 = 16B）
-#define G 1       // 组索引位数（示例值，组数=8）
-#define W 1       // 组相联路数（4路）
+#define MAX_WAYS 16
 
-uint32_t total_count;
-uint32_t miss_count;
-uint32_t hit_count;
+static uint32_t total_count, miss_count, hit_count;
+static uint32_t offset_bits, index_bits, nways;
 
 typedef struct {
     uint32_t tag;
-    bool valid;
-    uint32_t timestamp; // 记录最后访问时间
-} CacheBlock;
+    bool     valid;
+    uint32_t timestamp; // 记录访问时间，用于 LRU 替换
+} CacheBlock; // cache 块
 
 typedef struct {
-    CacheBlock blocks[W];  // 每组W路
-    uint32_t access_counter; // 组访问计数器，用于生成时间戳
-} CacheGroup;
+    CacheBlock blocks[MAX_WAYS];
+    uint32_t   access_counter;
+} CacheGroup; // cache 组
 
 typedef struct {
-    CacheGroup groups[1 << G]; // 共2^G组
-} Cache;
+    CacheGroup *groups;
+    uint32_t    nsets;
+} Cache; // cache 整体
 
-void init_cache(Cache *cache) {
-    for (int g = 0; g < (1 << G); g++) {
-        CacheGroup *grp = &cache->groups[g];
-        grp->access_counter = 0;
-        for (int i = 0; i < W; i++) {
-            grp->blocks[i].valid = false;
-            grp->blocks[i].tag = 0;
-            grp->blocks[i].timestamp = 0;
-        }
+static void cache_init(Cache *cache) {
+    cache->groups = calloc(cache->nsets, sizeof(CacheGroup));
+    for (uint32_t g = 0; g < cache->nsets; g++) {
+        for (uint32_t i = 0; i < nways; i++)
+            cache->groups[g].blocks[i].valid = false;
     }
 }
 
-void get_cache_info(uint32_t addr, uint32_t *group, uint32_t *tag) {
-    *group = (addr >> M) & ((1 << G) - 1); // 组索引位于块偏移后
-    *tag = addr >> (M + G);                // 标签为剩余高位
+static void cache_handle(uint32_t addr, uint32_t *group, uint32_t *tag) {
+    *group = (addr >> offset_bits) & ((1u << index_bits) - 1);
+    *tag   = addr >> (offset_bits + index_bits);
 }
 
-void simulate_cache(Cache *cache, uint32_t pc) {
+static void cache_sim(Cache *cache, uint32_t pc) {
     uint32_t group, tag;
-    get_cache_info(pc, &group, &tag);
+    cache_handle(pc, &group, &tag);
     CacheGroup *grp = &cache->groups[group];
 
-    // 检查命中
+    // check hit
     int hit_idx = -1;
-    for (int i = 0; i < W; i++) {
+    for (uint32_t i = 0; i < nways; i++) {
         if (grp->blocks[i].valid && grp->blocks[i].tag == tag) {
             hit_idx = i;
             break;
@@ -59,76 +53,73 @@ void simulate_cache(Cache *cache, uint32_t pc) {
 
     if (hit_idx != -1) {
         hit_count++;
-        // 更新命中块的时间戳
         grp->blocks[hit_idx].timestamp = grp->access_counter++;
-        total_count++;
     } else {
         miss_count++;
-        total_count++;
 
-        // 寻找替换目标：无效块或LRU
+        // LRU replacement
         int lru_idx = 0;
         uint32_t min_ts = UINT32_MAX;
-        for (int i = 0; i < W; i++) {
-            if (!grp->blocks[i].valid) {
-                lru_idx = i;
-                break;
-            }
+        for (uint32_t i = 0; i < nways; i++) {
+            if (!grp->blocks[i].valid) { lru_idx = i; break; }
             if (grp->blocks[i].timestamp < min_ts) {
                 min_ts = grp->blocks[i].timestamp;
                 lru_idx = i;
             }
         }
-
-        // 替换并更新
-        grp->blocks[lru_idx].tag = tag;
-        grp->blocks[lru_idx].valid = true;
+        grp->blocks[lru_idx].tag       = tag;
+        grp->blocks[lru_idx].valid     = true;
         grp->blocks[lru_idx].timestamp = grp->access_counter++;
     }
+    total_count++;
 }
 
-int main(int argc, char *argv[])
-{
-if (argc != 2) {
-        fprintf(stderr, "Usage: %s <pc_trace_file>\n", argv[0]);
-        return EXIT_FAILURE;
+int main(int argc, char *argv[]) {
+    if (argc < 5) {
+        fprintf(stderr,
+            "Usage: %s <block_size_B> <num_sets> <ways> <miss_penalty> <itrace.bin>\n"
+            "  block_size:  4, 8, 16, 32, 64 ...\n"
+            "  num_sets:    1, 2, 4, 8, 16, 32, 64 ...\n"
+            "  ways:        1 (direct), 2, 4, 8 ...\n"
+            "  miss_penalty: cycles per miss (for AMAT)\n",
+            argv[0]);
+        return 1;
     }
 
-    const char *file_path = argv[1];
-    FILE *file = fopen(file_path, "rb");
-    if (!file) {
-        perror("Failed to open file");
-        return EXIT_FAILURE;
-    }
+    int bsize        = atoi(argv[1]);  // cache块大小
+    int nsets        = atoi(argv[2]);  // 组个数
+    int ways         = atoi(argv[3]);  // ways (组内 cache 块个数)
+    int miss_penalty = atoi(argv[4]);  // 缺失代价
+    const char *file = argv[5];
 
-		// 初始化缓存
-    Cache cache;
-    init_cache(&cache);
+    offset_bits = 0; while ((1 << offset_bits) < bsize) offset_bits++;
+    index_bits  = 0; while ((1 << index_bits)  < nsets) index_bits++;
+    nways       = ways;
 
-		uint32_t pc;
+    printf("--Cache: %dB blocks, %d sets, %d-way, "
+           "%d entries total (%.1fKB)\n",
+           bsize, nsets, ways, nsets * ways,
+           (float)(nsets * ways * bsize) / 1024);
+    printf("--off=%d idx=%d tag=%d miss_penalty=%d\n",
+           offset_bits, index_bits, 32 - offset_bits - index_bits, miss_penalty);
 
-		// 逐个读取 pc 值并模拟缓存访问
-    while (fread(&pc, sizeof(pc), 1, file) == 1) {
-        simulate_cache(&cache, pc);
-    }
+    FILE *fp = fopen(file, "rb");
+    if (!fp) { perror(file); return 1; }
 
-    fclose(file);
+    Cache cache = { .nsets = nsets };
+    cache_init(&cache);
 
-    // 输出结果
-    printf("Total accesses: %u\n", total_count);
-    printf("Misses: %u\n", miss_count);
-    printf("Miss rate: %.2f%%\n", ((float)miss_count / total_count) * 100);
-    printf("Hit: %u\n", hit_count);
-		printf("Hit rate: %.2f%%\n", ((float)hit_count / total_count) * 100);
-		printf("offset = %d, index = %d, way = %d\n", M, G, W);
+    uint32_t pc;
+    while (fread(&pc, sizeof(pc), 1, fp) == 1) // 读取 pc 启动模拟
+        cache_sim(&cache, pc);
 
-	return 0;
-}
-	
+    fclose(fp);
+    free(cache.groups);
 
-// Binary trace reader: reads 4-byte uint32_t PCs in little-endian
-static uint32_t next_pc_bin(FILE *fp) {
-  uint32_t pc;
-  if (fread(&pc, 4, 1, fp) == 1) return pc;
-  return 0xffffffff; // EOF marker
+    double miss_rate = total_count ? (double)miss_count / total_count * 100 : 0;
+    double amat = 1.0 + (miss_rate / 100.0) * miss_penalty;
+
+    printf("[access=%u hit=%u miss=%u miss_rate=%.2f%% AMAT=%.2f]\n",
+           total_count, hit_count, miss_count, miss_rate, amat);
+    return 0;
 }
