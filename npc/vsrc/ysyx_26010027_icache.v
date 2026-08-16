@@ -1,4 +1,4 @@
-// `define ICACHE 1
+`define ICACHE 1
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
@@ -31,7 +31,7 @@ module ysyx_26010027_icache (
 `ifdef ICACHE
     // ----- cache parameters -----
     parameter BLOCK_SIZE = 16; // 块大小 16B
-    parameter BLOCK_NUMS = 128; // cache 块数
+    parameter BLOCK_NUMS = 8; // cache 块数
     parameter WAYS       = 4;  // 组内的相联度
 
     parameter SET_NUMS   = BLOCK_NUMS / WAYS; // 组数

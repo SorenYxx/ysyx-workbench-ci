@@ -40,31 +40,44 @@ module ysyx_26010027_IFU (
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
 
-    wire handshake_ar = ifu_cpu_arvalid && cpu_ifu_arready;
+    // AR 事务锁存
+    reg        arvalid_q;
+    reg [31:0] araddr_q;
+    reg        flush_ar_sent; // 冲刷后 AR 已发出
+
+    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q;
+    wire handshake_ar = arvalid_q && cpu_ifu_arready;
     wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
+    // State machine
     always @(posedge clock, posedge reset) begin
         if (reset)
             state <= IDLE;
         else
             case (state)
-                IDLE: begin
-                    if (handshake_ar) begin
-                        state <= WAIT;
-                    end
-                end
-                WAIT: begin
-                    if (handshake_r) begin
-                        state <= IDLE;
-                    end
-                end
+                IDLE: if (handshake_ar) state <= WAIT;
+                WAIT: if (handshake_r) state <= IDLE;
                 default: state <= IDLE;
             endcase
     end
 
-    // 握手同时预取下一条，取指地址用 next_pc
-    assign ifu_cpu_araddr  = (ifu_idu_valid && idu_ifu_ready) & !flush_flag ? next_pc : ifu_idu_pc;
-    assign ifu_cpu_arvalid = (state == IDLE) && idu_ifu_ready; // 反压
+    // AR 锁存(避免反压造成毛刺)
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            arvalid_q <= 1'b0;
+            araddr_q  <= 32'b0;
+        end
+        else if (handshake_ar) begin
+            arvalid_q <= 1'b0;
+        end
+        else if (ar_flag) begin
+            arvalid_q <= 1'b1;
+            araddr_q  <= (ifu_idu_valid && !flush_flag) ? next_pc : ifu_idu_pc;
+        end
+    end
+
+    assign ifu_cpu_araddr  = araddr_q;
+    assign ifu_cpu_arvalid = arvalid_q;
     assign ifu_cpu_rready  = (state == WAIT);
     assign ifu_cpu_arid    = 4'h0;
     assign ifu_cpu_arlen   = 8'h0;
@@ -97,12 +110,12 @@ module ysyx_26010027_IFU (
         end
     end
 
-    // 到达即捕获: 与 ifu_idu_pc 同为寄存器, 保证 PC 与指令对齐
+    // 捕获到达数据
     always @(posedge clock, posedge reset) begin
         if (reset)
             ifu_idu_inst <= 32'b0;
         else if (exu_flush)
-            ifu_idu_inst <= 32'b0;   // 冲刷时清空(valid 也会清)
+            ifu_idu_inst <= 32'b0;   // 冲刷时清空
         else if (handshake_r)
             ifu_idu_inst <= cpu_ifu_rdata;
     end
@@ -110,13 +123,19 @@ module ysyx_26010027_IFU (
     reg flush_flag;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            flush_flag <= 1'b0;
+            flush_flag    <= 1'b0;
+            flush_ar_sent <= 1'b0;
         end 
         else if (exu_flush) begin
-            flush_flag <= 1'b1;
+            flush_flag    <= 1'b1;
+            flush_ar_sent <= 1'b0;
         end 
-        else if (handshake_ar) begin // 保证冲刷pc发送、不接收回来的垃圾data
-            flush_flag <= 1'b0;
+        else if (ar_flag && flush_flag) begin
+            flush_ar_sent <= 1'b1;  // 冲刷后的取指 AR 已发出
+        end
+        else if (handshake_ar) begin
+            if (flush_ar_sent) flush_flag <= 1'b0;  // 冲刷取指完成, 清除
+            flush_ar_sent <= 1'b0;
         end
     end
 

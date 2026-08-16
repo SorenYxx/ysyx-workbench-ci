@@ -102,7 +102,7 @@ void step_and_eval() {
 
   lp->loop_time ++;
   if (lp->loop_time > 10000) {
-    Log("\033[1;31mAbort at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, lp->loop_time);
+    Log("\033[1;31mDead loop at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, lp->loop_time);
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = lp->pc;
   }

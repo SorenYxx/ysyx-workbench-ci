@@ -144,4 +144,5 @@ extern "C" void sdram_trace(int addr, int data, int is_write) {
            is_write ? "W" : "R", addr, data & 0xffff, 0xa0000000 + (addr << 2));
   }
 }
+
 // -----------------

@@ -775,6 +775,7 @@ module ysyx_26010027 (
                 ftrace_print(idu_exu_pc, exu_flush_pc, {27'b0, idu_exu_waddr}, {27'b0, idu_exu_inst[19:15]});
             end
 
+            // ebreak
             if ((lsu_wbu_inst == 32'h00100073) || access_fault) begin
                 finish_sim();
                 $display("ebreak at PC = 0x%h Inst = 0x%h", lsu_wbu_pc, lsu_wbu_inst);

@@ -4,6 +4,7 @@
  * NPC Configuration Menu
  *
  */
+#define CONFIG_STATISTICS 1
 #define CONFIG_WATCHPOINT 1
 #define CONFIG_FLASH_SIZE 0x1000000
 #define CONFIG_RTC_MMIO 0x10000048

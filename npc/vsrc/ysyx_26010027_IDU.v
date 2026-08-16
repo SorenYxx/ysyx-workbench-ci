@@ -199,9 +199,9 @@ module ysyx_26010027_IDU (
     wire [4:0] raddr1 = inst[19:15];
     wire [4:0] raddr2 = inst[24:20];
 
-    always @(*)
-        if (illegal && (inst != 32'b0))
-            is_illegal_inst();
+    // always @(*)
+    //     if (ifu_idu_valid && illegal && (inst != 32'b0))
+    //         is_illegal_inst();
 
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin

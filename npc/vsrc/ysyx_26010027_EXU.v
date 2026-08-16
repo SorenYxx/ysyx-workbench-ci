@@ -63,14 +63,14 @@ module ysyx_26010027_EXU (
     reg  [31:0] result;
 
     // 前递值
-    wire [31:0] exu_fwd = (exu_lsu_rf_res == 2'b11) ? (exu_lsu_pc + 4) : exu_lsu_alu_result; // 一拍
-    wire [31:0] lsu_fwd = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_pc + 4) : lsu_wbu_alu_result; // 两拍
+    wire [31:0] lsu_fwd = (exu_lsu_rf_res == 2'b11) ? (exu_lsu_pc + 4) : exu_lsu_alu_result; // 一拍
+    wire [31:0] wbu_fwd = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_pc + 4) : lsu_wbu_alu_result; // 两拍
 
-    assign rdata1 = raw_1[0]   ? exu_fwd : 
-                    raw_1[1]   ? lsu_fwd : 
+    assign rdata1 = raw_1[0]   ? lsu_fwd : 
+                    raw_1[1]   ? wbu_fwd : 
                     load_use_1 ? lsu_wbu_mem_result : wbu_exu_rdata1;
-    assign rdata2 = raw_2[0]   ? exu_fwd : 
-                    raw_2[1]   ? lsu_fwd : 
+    assign rdata2 = raw_2[0]   ? lsu_fwd : 
+                    raw_2[1]   ? wbu_fwd : 
                     load_use_2 ? lsu_wbu_mem_result : wbu_exu_rdata2;
 
     assign src1 = idu_exu_alu_arc1 ? pc  : rdata1;
@@ -114,19 +114,23 @@ module ysyx_26010027_EXU (
     wire load_use_2;
     wire load_use_stall;
 
-    assign raw_1[0] = (idu_wbu_raddr1 != 0 && idu_wbu_raddr1 == exu_lsu_waddr && exu_lsu_reg_w && exu_lsu_valid && (exu_lsu_rf_res == 2'b00 || exu_lsu_rf_res == 2'b11));
-    assign raw_2[0] = (idu_wbu_raddr2 != 0 && idu_wbu_raddr2 == exu_lsu_waddr && exu_lsu_reg_w && exu_lsu_valid && (exu_lsu_rf_res == 2'b00 || exu_lsu_rf_res == 2'b11));
-    assign raw_1[1] = (idu_wbu_raddr1 != 0 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && (lsu_wbu_rf_res == 2'b00 || lsu_wbu_rf_res == 2'b11));
-    assign raw_2[1] = (idu_wbu_raddr2 != 0 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && (lsu_wbu_rf_res == 2'b00 || lsu_wbu_rf_res == 2'b11));
+    // raw 前递
+    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b00 || exu_lsu_rf_res == 2'b11);
+    wire wbu_fwd_flag = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b00 || lsu_wbu_rf_res == 2'b11);
+    assign raw_1[0] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_flag); // 读地址等于邻级写地址且不为0、当前rf_res位选为 ALU or PC+4
+    assign raw_2[0] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_flag);
+    assign raw_1[1] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && wbu_fwd_flag);
+    assign raw_2[1] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && wbu_fwd_flag);
 
-    assign load_use_1 = (idu_wbu_raddr1 != 0 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
-    assign load_use_2 = (idu_wbu_raddr2 != 0 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
+    // load-use 前递
+    assign load_use_1 = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
+    assign load_use_2 = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
 
     // 等 load 数据: load 尚未进入 LSU(在 EXU->LSU 寄存器), 或已在 LSU 中访存、数据未回
-    assign load_use_stall = (idu_wbu_raddr1 != 0 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr1)
-                         || (idu_wbu_raddr2 != 0 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr2)
-                         || (idu_wbu_raddr1 != 0 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr1)
-                         || (idu_wbu_raddr2 != 0 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr2);
+    assign load_use_stall = (|idu_wbu_raddr1 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr1)
+                         || (|idu_wbu_raddr2 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr2)
+                         || (|idu_wbu_raddr1 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr1)
+                         || (|idu_wbu_raddr2 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr2);
 
     // flush handle (无条件flush)
     wire [31:0] dnpc = (idu_exu_jump != 2'b0 || idu_exu_branch != 3'd6) ? result : snpc;
@@ -150,7 +154,6 @@ module ysyx_26010027_EXU (
             exu_flush_pc = 32'b0;
         end
     end
-
 
     assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !load_use_stall;
     always @(posedge clock, posedge reset) begin
