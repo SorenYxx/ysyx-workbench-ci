@@ -1,3 +1,4 @@
+// `define ICACHE 1
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
@@ -27,6 +28,7 @@ module ysyx_26010027_icache (
     output reg [31:0] miss_latency
 );
 
+`ifdef ICACHE
     // ----- cache parameters -----
     parameter BLOCK_SIZE = 16; // 块大小 16B
     parameter BLOCK_NUMS = 128; // cache 块数
@@ -194,5 +196,19 @@ module ysyx_26010027_icache (
             endcase
         end
     end
+`else
+    assign arb_arvalid = ifu_arvalid;
+    assign arb_araddr  = ifu_araddr;
+    assign arb_arlen   = 8'd0;
+    assign arb_arsize  = 3'd2;
+    assign arb_rready  = ifu_rready;
+    assign ifu_arready = arb_arready;
+    assign ifu_rvalid  = arb_rvalid;
+    assign ifu_rdata   = arb_rdata;
+
+    assign hit_count    = 32'b0;
+    assign miss_count   = 32'b0;
+    assign miss_latency = 32'b0;
+`endif
 
 endmodule

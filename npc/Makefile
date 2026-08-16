@@ -6,7 +6,6 @@ ELF    	  = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
 DUMP      = wave.fst
 LIBS      += -lcapstone -lreadline -ldl
 NPCFLAGS  += -e $(ELF)
-NXDC_FILES = constr/ysyxsoc.nxdc # 引脚绑定
 
 # ----- Kconfig -----
 -include $(NPC_HOME)/include/config/auto.conf
@@ -38,15 +37,22 @@ $(CONFIG_MK): $(NPC_HOME)/.config $(CONF)
 # ------------------
 
 # ----- NVBoard -----
+ifeq ($(CONFIG_NVBOARD),y)
 BUILD_DIR = obj_dir
+NXDC_FILES = constr/ysyxsoc.nxdc # 引脚绑定
 
 # constraint file
 SRC_AUTO_BIND = $(abspath $(BUILD_DIR)/auto_bind.cpp)
 $(SRC_AUTO_BIND): $(NXDC_FILES)
+	@mkdir -p $(BUILD_DIR)
 	python3 $(NVBOARD_HOME)/scripts/auto_pin_bind.py $^ $@
 
 # rules for NVBoard
 include $(NVBOARD_HOME)/scripts/nvboard.mk
+else
+SRC_AUTO_BIND =
+INC_PATH += $(NVBOARD_HOME)/usr/include
+endif
 
 # ------------------
 

@@ -71,9 +71,10 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
   if (addr32 < CONFIG_FLASH_SIZE) {
     *data = *(int32_t *)(flash + addr32);
-#ifdef CONFIG_MTRACE
-    printf("[flash]read         0x%08x from 0x%08x\n", *data, addr32);
-#endif
+    // 追踪 app 拷贝区段(0x300000a0 起)的读, 看 XIP 控制器请求的地址
+    if (addr32 >= 0x1a0 && addr32 < 0x2f0) {
+      printf("[flash]read addr=0x%08x data=0x%08x\n", addr32, *data);
+    }
   }
 }
 
@@ -121,6 +122,14 @@ extern "C" void psram_write(int32_t addr, int32_t *data, int32_t *wmask) {
       if ((wmask[0] >> i) & 0x1) pt[i] = (uint8_t)((data[0] >> (i * 8)) & 0xFF);
     }
     IFDEF(CONFIG_MTRACE, printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32));
+  }
+}
+
+// SDRAM 模型 (sdram.v) 的读写追踪: 只追踪 0xa0000120 处指令(word 0x90/0x91)
+extern "C" void sdram_trace(int addr, int data, int is_write) {
+  if (addr == 0x90 || addr == 0x91) {
+    printf("[sdram]%s word=0x%06x data=0x%04x byte=0x%08x\n",
+           is_write ? "W" : "R", addr, data & 0xffff, 0xa0000000 + (addr << 1));
   }
 }
 // -----------------

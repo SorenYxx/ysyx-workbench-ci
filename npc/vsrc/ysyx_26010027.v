@@ -507,8 +507,10 @@ module ysyx_26010027 (
         .idu_wbu_raddr1  (idu_wbu_raddr1),
         .idu_wbu_raddr2  (idu_wbu_raddr2),
         .lsu_wbu_waddr   (lsu_wbu_waddr),
+        .lsu_wbu_pc      (lsu_wbu_pc),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_load_inflight(lsu_load_inflight),
         .wbu_exu_rdata1  (wbu_exu_rdata1),
         .wbu_exu_rdata2  (wbu_exu_rdata2)
     );
@@ -526,6 +528,7 @@ module ysyx_26010027 (
     wire [ 4:0] lsu_wbu_waddr;
     wire [31:0] lsu_wbu_alu_result;
     wire [31:0] lsu_wbu_mem_result;
+    wire        lsu_load_inflight;
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -589,7 +592,9 @@ module ysyx_26010027 (
         .lsu_wbu_waddr   (lsu_wbu_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_load_inflight(lsu_load_inflight),
 
+        // AXI
         .cpu_lsu_arready (cpu_lsu_arready),
         .lsu_cpu_araddr  (lsu_cpu_araddr),
         .lsu_cpu_arvalid (lsu_cpu_arvalid),
@@ -716,10 +721,9 @@ module ysyx_26010027 (
         end else begin
             case (grant)
                 IFU_GRANT:
-                    if (handshake_ifu_r) begin
-                        if (lsu_cpu_arvalid || lsu_cpu_awvalid)
-                            grant <= LSU_GRANT;
-                    end
+                    // IFU 空闲(未发请求且未等响应)且有 LSU 请求时让出总线, 否则 IFU 优先
+                    if ((lsu_cpu_arvalid || lsu_cpu_awvalid) && !ifu_cpu_arvalid && !ifu_cpu_rready)
+                        grant <= LSU_GRANT;
                     else grant <= IFU_GRANT;
 
                 LSU_GRANT:

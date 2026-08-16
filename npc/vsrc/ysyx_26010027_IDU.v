@@ -150,8 +150,7 @@ module ysyx_26010027_IDU (
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00;                                // ALU
 
-    wire [3:0] alu_op = (add || addi || ld_type || (jump == 2'b01)) ? 4'd0  :
-                        (sub || inst_B)    ? 4'd1  :
+    wire [3:0] alu_op = (sub || inst_B)    ? 4'd1  :
                         lui                ? 4'd2  :
                         (sll || slli)      ? 4'd3  :
                         (srl || srli)      ? 4'd4  :
