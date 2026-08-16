@@ -64,13 +64,13 @@ module ysyx_26010027_EXU (
 
     // 前递值
     wire [31:0] exu_fwd = (exu_lsu_rf_res == 2'b11) ? (exu_lsu_pc + 4) : exu_lsu_alu_result; // 一拍
-    wire [31:0] wbu_fwd = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_pc + 4) : lsu_wbu_alu_result; // 两拍
+    wire [31:0] lsu_fwd = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_pc + 4) : lsu_wbu_alu_result; // 两拍
 
     assign rdata1 = raw_1[0]   ? exu_fwd : 
-                    raw_1[1]   ? wbu_fwd : 
+                    raw_1[1]   ? lsu_fwd : 
                     load_use_1 ? lsu_wbu_mem_result : wbu_exu_rdata1;
     assign rdata2 = raw_2[0]   ? exu_fwd : 
-                    raw_2[1]   ? wbu_fwd : 
+                    raw_2[1]   ? lsu_fwd : 
                     load_use_2 ? lsu_wbu_mem_result : wbu_exu_rdata2;
 
     assign src1 = idu_exu_alu_arc1 ? pc  : rdata1;

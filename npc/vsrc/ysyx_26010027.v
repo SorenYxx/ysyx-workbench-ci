@@ -6,6 +6,8 @@ import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
 import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch, input int icache_hit, input int icache_miss, input int icache_miss_latency);
+import "DPI-C" function void cpu_trace(input int pc, input int inst);
+import "DPI-C" function void ifu_trace(input int pc, input int inst);
 
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
@@ -762,6 +764,11 @@ module ysyx_26010027 (
                           {{31{1'b0}}, lsu_wbu_valid && wbu_jump},
                           {{31{1'b0}}, lsu_wbu_valid && wbu_branch},
                           hit_count, miss_count, miss_latency);
+
+            // 提交追踪
+            // if (lsu_wbu_valid) cpu_trace(lsu_wbu_pc, lsu_wbu_inst);
+            // // IFU->IDU 交付追踪
+            // if (ifu_idu_valid && idu_ifu_ready) ifu_trace(ifu_idu_pc, ifu_idu_inst);
 
             // ftrace
             if (idu_exu_valid && exu_idu_ready && idu_exu_jump == 2'b01) begin

@@ -1,7 +1,7 @@
 `ifdef TOP_SOC
-  `define PC_START 32'h3000_0000;
+  `define PC_START 32'h3000_0000
 `else
-  `define PC_START 32'h8000_0000;
+  `define PC_START 32'h8000_0000
 `endif
 
 module ysyx_26010027_IFU (
@@ -62,28 +62,17 @@ module ysyx_26010027_IFU (
             endcase
     end
 
-    // inst 锁存
-    wire [31:0] inst;
-    reg  [31:0] inst_latch;
-    always @(posedge clock, posedge reset) begin
-        if (reset)
-            inst_latch <= 32'h0;
-        else if (handshake_r)
-            inst_latch <= cpu_ifu_rdata;
-    end
-
-    // 交付当拍（valid && ready）同时预取下一条，故取指地址用 next_pc
+    // 握手同时预取下一条，取指地址用 next_pc
     assign ifu_cpu_araddr  = (ifu_idu_valid && idu_ifu_ready) & !flush_flag ? next_pc : ifu_idu_pc;
     assign ifu_cpu_arvalid = (state == IDLE) && idu_ifu_ready; // 反压
-    assign ifu_cpu_rready  = (state == WAIT); 
+    assign ifu_cpu_rready  = (state == WAIT);
     assign ifu_cpu_arid    = 4'h0;
     assign ifu_cpu_arlen   = 8'h0;
     assign ifu_cpu_arsize  = 3'b010;
     assign ifu_cpu_arburst = 2'b01;
-    assign ifu_idu_inst    = (cpu_ifu_rvalid & !flush_flag) ? cpu_ifu_rdata : inst_latch;
     // ---------------
 
-    assign inst = ifu_idu_inst;
+    wire [31:0] inst = ifu_idu_inst;
     wire [ 6:0] opcode = inst[6:0];
     wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
     wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
@@ -97,15 +86,25 @@ module ysyx_26010027_IFU (
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
-            ifu_idu_pc   <= `PC_START;
+            ifu_idu_pc <= `PC_START;
         end 
         else begin
             if (exu_flush) begin
                 ifu_idu_pc <= exu_flush_pc;
             end 
             else if (ifu_idu_valid && idu_ifu_ready)
-                ifu_idu_pc   <= next_pc;
+                ifu_idu_pc <= next_pc;
         end
+    end
+
+    // 到达即捕获: 与 ifu_idu_pc 同为寄存器, 保证 PC 与指令对齐
+    always @(posedge clock, posedge reset) begin
+        if (reset)
+            ifu_idu_inst <= 32'b0;
+        else if (exu_flush)
+            ifu_idu_inst <= 32'b0;   // 冲刷时清空(valid 也会清)
+        else if (handshake_r)
+            ifu_idu_inst <= cpu_ifu_rdata;
     end
 
     reg flush_flag;
