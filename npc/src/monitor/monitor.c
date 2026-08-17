@@ -10,6 +10,7 @@
 uint32_t mvendorid = 0x79737978; // "ysyx"
 uint32_t marchid   = 0x26010027; // "26010027"
 
+static char *diff_so_file = NULL;
 static char *elf_file = NULL;
 
 IFDEF(CONFIG_FTRACE, void init_ftrace(const char *elf_sile));
@@ -17,18 +18,21 @@ void sdb_set_batch_mode();
 
 static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
+    {"diff"  , required_argument, NULL, 'd'},
     {"elf"   , required_argument, NULL, 'e'},
     {"help"  , no_argument      , NULL, 'h'},
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-e:h", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-d:e:h", table, NULL)) != -1) {
     switch (o) {
+      case 'd': diff_so_file = optarg; break;
       case 'e': elf_file = optarg; break;
       case 1:   break; // skip positional args (e.g. --img value consumed elsewhere)
       case 'h':
         printf("Usage: %s [OPTION...] --img IMAGE\n\n", argv[0]);
         printf("\t-e,--elf=FILE           load ELF for function trace\n");
+        printf("\t-d,--diff=REF_SO          specify diff file\n");
         printf("\n");
         exit(0);
       default: break;
@@ -121,7 +125,6 @@ static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Waveform dump: %s", MUXDEF(CONFIG_WAVE_DUMP, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Batch mode: %s", MUXDEF(CONFIG_BATCH_MODE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
-  Log("Differential testing: %s", MUXDEF(CONFIG_DIFFTEST, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   Log("Build time: %s, %s", __TIME__, __DATE__);
   printf("== Welcome to %s-YSYXSOC! ==\n", ANSI_FMT(str(riscv32), ANSI_FG_YELLOW ANSI_BG_MAGENTA));
   printf("== For help, type \"help\" ==\n");
@@ -150,7 +153,7 @@ void sim_init(int argc, char *argv[]) {
   IFDEF(CONFIG_DEVICE, init_device());
 
   /* Initialize differential testing. */
-  IFDEF(CONFIG_DIFFTEST, init_difftest(elf_file, img_size));
+  IFDEF(CONFIG_DIFFTEST, init_difftest(diff_so_file, img_size));
 
   /* Initialize NVBoard */
   IFDEF(CONFIG_NVBOARD, init_nvboard());
