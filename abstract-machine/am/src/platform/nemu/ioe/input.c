@@ -9,3 +9,8 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
   kbd->keydown = (k & KEYDOWN_MASK ? true : false);
   kbd->keycode = k & ~KEYDOWN_MASK;
 }
+
+void __am_uart_input(AM_UART_RX_T *uart) {
+  if (inb(MMIO_BASE) & 0x01) uart->data = inb(MMIO_BASE);
+  else uart->data = 0xff;
+}
