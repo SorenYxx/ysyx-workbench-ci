@@ -85,9 +85,11 @@ config VGA_SHOW_SCREEN
 
 choice
   prompt "Screen Size"
-  default VGA_SIZE_400x300
+  default VGA_SIZE_640x480
 config VGA_SIZE_400x300
   bool "400 x 300"
+config VGA_SIZE_640x480
+  bool "640 x 480"
 config VGA_SIZE_800x600
   bool "800 x 600"
 endchoice
