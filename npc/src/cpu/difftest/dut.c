@@ -74,13 +74,13 @@ void check_difftest() {
   CPU_state ref_regs;// use to check
 
   if (is_skip_ref) {
-    // MMIO 等 ref 无法一致模拟的指令: 用 DUT 状态追平 ref, 跳过本次对比
+    // 跳过本次对比
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
 
-  // 流水线对齐: ref 执行前其 pc 应与本次提交指令的 pc 一致
+  // 流水线对齐
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
   if (ref_regs.pc != CPU_PC()) {
     Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_regs.pc, CPU_PC());
@@ -90,7 +90,6 @@ void check_difftest() {
     return;
   }
 
-  // ref 执行同一条指令后, 对比寄存器与 CSR
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
   checkregs(&ref_regs);

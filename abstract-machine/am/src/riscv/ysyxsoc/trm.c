@@ -28,6 +28,7 @@ void halt(int code) {
 }
 
 void _trm_init() {
+#ifndef CONFIG_DIFFTEST
   uart_init();  // 串口初始化
 
   // ----- 打印 CPU ID -----
@@ -42,6 +43,7 @@ void _trm_init() {
   printf("\n");
   printf("NPC ID: %d\n", arch_id);
   // ----------------------
+#endif
 
   int ret = main(mainargs);
   halt(ret);
