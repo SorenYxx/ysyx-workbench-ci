@@ -11,6 +11,6 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
 }
 
 void __am_uart_input(AM_UART_RX_T *uart) {
-  if (inb(MMIO_BASE) & 0x01) uart->data = inb(MMIO_BASE);
+  if (inb(SERIAL_PORT) & 0x01) uart->data = inb(SERIAL_PORT);
   else uart->data = 0xff;
 }
