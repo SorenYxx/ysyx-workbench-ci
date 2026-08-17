@@ -3,6 +3,7 @@
 #include <sdb.h>
 
 #define COUNTER 7
+#define MAX_LOOP 1000000
 
 MUXDEF(CONFIG_SOC, VysyxSoCFull *top = new VysyxSoCFull;, Vysyx_26010027 *top = new Vysyx_26010027;)
 
@@ -11,7 +12,7 @@ vluint64_t main_time = 0;
 
 bool en[COUNTER] = {0};
 
-int ifu_valid   = 0;
+int cpu_valid   = 0;
 int lsu_r_valid = 0;
 int lsu_w_valid = 0;
 int exu_valid   = 0;
@@ -92,8 +93,8 @@ struct pc_loop // 单个死循环指令
 };
 pc_loop *lp = new pc_loop{ .pc = PC_START, .loop_time = 0 };
 
-static void dead_loop(uint32_t looptimes) {
-  Log("\033[1;31mDead loop at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, looptimes);
+static void dead_loop() {
+  Log("\033[1;31mDead loop at PC = 0x%08x\033[0m", lp->pc);
   npc_state.state = NPC_ABORT;
   npc_state.halt_pc = lp->pc;
 }
@@ -107,7 +108,7 @@ void step_and_eval() {
   main_time ++;
 
   lp->loop_time ++;
-  if (lp->loop_time > 1000000) dead_loop(lp->loop_time);
+  if (lp->loop_time > MAX_LOOP) dead_loop();
 
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
@@ -126,10 +127,10 @@ void step_and_eval() {
 
 // debug相关
 static void debug() {
-  ifu_valid = CPU_VALID();
-  if (ifu_valid) {
-    IFDEF(CONFIG_WATCHPOINT, check_watchpoints);
-    IFDEF(CONFIG_DIFFTEST, check_difftest);
+  cpu_valid = CPU_VALID();
+  if (cpu_valid) {
+    IFDEF(CONFIG_WATCHPOINT, check_watchpoints());
+    IFDEF(CONFIG_DIFFTEST, check_difftest());
     total_inst ++;
     for (int i = 0; i < COUNTER; i++) en[i] = 1;
 

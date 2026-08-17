@@ -27,8 +27,8 @@ void init_difftest(const char *ref_so_file, long img_size) {
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
       
-    ref_difftest_memcpy(CONFIG_MROM_BASE, guest_to_host(CONFIG_MROM_BASE), img_size, DIFFTEST_TO_REF);
-    
+    ref_difftest_memcpy(CONFIG_FLASH_BASE, guest_to_flash(CONFIG_FLASH_BASE), img_size, DIFFTEST_TO_REF);
+
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
 }
 
