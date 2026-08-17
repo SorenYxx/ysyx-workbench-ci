@@ -16,6 +16,8 @@ extern "C" {
 
 
     // DPI IMPORTS
+    // DPI import at vsrc/ysyx_26010027.v:9:30
+    extern void cpu_trace(int pc, int inst);
     // DPI import at vsrc/ysyx_26010027.v:1:30
     extern void finish_sim();
     // DPI import at vsrc/ysyx_26010027.v:2:30
@@ -26,6 +28,8 @@ extern "C" {
     extern void get_csr(int csr, int data);
     // DPI import at vsrc/ysyx_26010027.v:6:30
     extern void get_reg(int waddr, int r);
+    // DPI import at vsrc/ysyx_26010027.v:10:30
+    extern void ifu_trace(int pc, int inst);
     // DPI import at vsrc/ysyx_26010027.v:5:30
     extern void is_illegal_inst();
     // DPI import at vsrc/ysyx_26010027.v:3:30

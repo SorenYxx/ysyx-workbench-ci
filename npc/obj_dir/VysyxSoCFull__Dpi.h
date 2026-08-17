@@ -16,6 +16,8 @@ extern "C" {
 
 
     // DPI IMPORTS
+    // DPI import at vsrc/ysyx_26010027.v:9:30
+    extern void cpu_trace(int pc, int inst);
     // DPI import at vsrc/ysyx_26010027.v:1:30
     extern void finish_sim();
     // DPI import at ../ysyxSoC/perip/flash/flash.v:84:30
@@ -28,6 +30,8 @@ extern "C" {
     extern void get_csr(int csr, int data);
     // DPI import at vsrc/ysyx_26010027.v:6:30
     extern void get_reg(int waddr, int r);
+    // DPI import at vsrc/ysyx_26010027.v:10:30
+    extern void ifu_trace(int pc, int inst);
     // DPI import at vsrc/ysyx_26010027.v:5:30
     extern void is_illegal_inst();
     // DPI import at ../ysyxSoC/build/ysyxSoCFull.v:6723:30
@@ -36,6 +40,8 @@ extern "C" {
     extern int pmem_read(int raddr);
     // DPI import at vsrc/ysyx_26010027.v:4:30
     extern void pmem_write(int waddr, int wdata, int wmask);
+    // DPI import at ../ysyxSoC/perip/sdram/sdram.v:1:30
+    extern void sdram_trace(int addr, int data, int is_write);
 
 #ifdef __cplusplus
 }

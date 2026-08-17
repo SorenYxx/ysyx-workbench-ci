@@ -6,6 +6,8 @@ import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
 import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch, input int icache_hit, input int icache_miss, input int icache_miss_latency);
+import "DPI-C" function void cpu_trace(input int pc, input int inst);
+import "DPI-C" function void ifu_trace(input int pc, input int inst);
 
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
@@ -406,6 +408,12 @@ module ysyx_26010027 (
     wire [ 1:0] idu_exu_jump;
     wire [ 2:0] idu_exu_branch;
 
+    wire [11:0] idu_wbu_csr_raddr;
+    wire [11:0] idu_exu_csr_waddr;
+    wire        idu_exu_csr_we;
+    wire        idu_exu_csr_ecall;
+    wire        idu_exu_csr_mret;
+
     // IDU -> WBU（寄存器读地址，供前递/读寄存器堆）
     wire [ 4:0] idu_wbu_raddr1;
     wire [ 4:0] idu_wbu_raddr2;
@@ -441,6 +449,12 @@ module ysyx_26010027 (
 
         .idu_wbu_raddr1(idu_wbu_raddr1),
         .idu_wbu_raddr2(idu_wbu_raddr2),
+        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
+        .idu_exu_csr_waddr(idu_exu_csr_waddr),
+        .idu_exu_csr_we   (idu_exu_csr_we),
+        .idu_exu_csr_ecall(idu_exu_csr_ecall),
+        .idu_exu_csr_mret (idu_exu_csr_mret),
+
         .fence_i       (fence_i)
     );
 
@@ -460,6 +474,12 @@ module ysyx_26010027 (
     wire [ 1:0] exu_lsu_rf_res;
     wire [ 4:0] exu_lsu_waddr;
     wire [31:0] exu_lsu_alu_result;
+
+    wire [11:0] exu_lsu_csr_waddr;
+    wire        exu_lsu_csr_we;
+    wire        exu_lsu_csr_ecall;
+    wire        exu_lsu_csr_mret;
+    wire [31:0] exu_lsu_csr_wdata;
 
     // flush
     wire        exu_flush;
@@ -484,6 +504,10 @@ module ysyx_26010027 (
         .idu_exu_waddr   (idu_exu_waddr),
         .idu_exu_jump    (idu_exu_jump),
         .idu_exu_branch  (idu_exu_branch),
+        .idu_exu_csr_waddr(idu_exu_csr_waddr),
+        .idu_exu_csr_we  (idu_exu_csr_we),
+        .idu_exu_csr_ecall(idu_exu_csr_ecall),
+        .idu_exu_csr_mret(idu_exu_csr_mret),
 
         .lsu_exu_ready   (lsu_exu_ready),
         .exu_lsu_valid   (exu_lsu_valid),
@@ -497,21 +521,34 @@ module ysyx_26010027 (
         .exu_lsu_rf_res  (exu_lsu_rf_res),
         .exu_lsu_waddr   (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_csr_waddr(exu_lsu_csr_waddr),
+        .exu_lsu_csr_we  (exu_lsu_csr_we),
+        .exu_lsu_csr_ecall(exu_lsu_csr_ecall),
+        .exu_lsu_csr_mret(exu_lsu_csr_mret),
+        .exu_lsu_csr_wdata(exu_lsu_csr_wdata),
 
         .exu_flush       (exu_flush),
         .exu_flush_pc    (exu_flush_pc),
 
         .lsu_wbu_valid   (lsu_wbu_valid),
         .lsu_wbu_reg_w   (lsu_wbu_reg_w),
+        .lsu_wbu_csr_we  (lsu_wbu_csr_we),
         .lsu_wbu_rf_res  (lsu_wbu_rf_res),
         .idu_wbu_raddr1  (idu_wbu_raddr1),
         .idu_wbu_raddr2  (idu_wbu_raddr2),
+        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
         .lsu_wbu_waddr   (lsu_wbu_waddr),
+        .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
+        .lsu_wbu_pc      (lsu_wbu_pc),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
         .lsu_load_inflight(lsu_load_inflight),
         .wbu_exu_rdata1  (wbu_exu_rdata1),
-        .wbu_exu_rdata2  (wbu_exu_rdata2)
+        .wbu_exu_rdata2  (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .exu_mtvec       (wbu_exu_mtvec),
+        .exu_mepc        (wbu_exu_mepc)
     );
 
 
@@ -528,6 +565,11 @@ module ysyx_26010027 (
     wire [31:0] lsu_wbu_alu_result;
     wire [31:0] lsu_wbu_mem_result;
     wire        lsu_load_inflight;
+    wire [11:0] lsu_wbu_csr_waddr;
+    wire        lsu_wbu_csr_we;
+    wire        lsu_wbu_csr_ecall;
+    wire        lsu_wbu_csr_mret;
+    wire [31:0] lsu_wbu_csr_wdata;
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -581,6 +623,11 @@ module ysyx_26010027 (
         .exu_lsu_rf_res  (exu_lsu_rf_res),
         .exu_lsu_waddr   (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_csr_waddr(exu_lsu_csr_waddr),
+        .exu_lsu_csr_we  (exu_lsu_csr_we),
+        .exu_lsu_csr_ecall(exu_lsu_csr_ecall),
+        .exu_lsu_csr_mret(exu_lsu_csr_mret),
+        .exu_lsu_csr_wdata(exu_lsu_csr_wdata),
 
         .wbu_lsu_ready   (wbu_lsu_ready),
         .lsu_wbu_valid   (lsu_wbu_valid),
@@ -591,6 +638,11 @@ module ysyx_26010027 (
         .lsu_wbu_waddr   (lsu_wbu_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
+        .lsu_wbu_csr_we  (lsu_wbu_csr_we),
+        .lsu_wbu_csr_ecall(lsu_wbu_csr_ecall),
+        .lsu_wbu_csr_mret(lsu_wbu_csr_mret),
+        .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
         .lsu_load_inflight(lsu_load_inflight),
 
         // AXI
@@ -634,6 +686,9 @@ module ysyx_26010027 (
 
     wire [31:0] wbu_exu_rdata1;
     wire [31:0] wbu_exu_rdata2;
+    wire [31:0] wbu_exu_csr_rdata;
+    wire [31:0] wbu_exu_mtvec;
+    wire [31:0] wbu_exu_mepc;
 
     ysyx_26010027_WBU my_WBU (
         .clock  (clock),
@@ -645,6 +700,9 @@ module ysyx_26010027 (
 
         .wbu_exu_rdata1 (wbu_exu_rdata1),
         .wbu_exu_rdata2 (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .csr_mtvec     (wbu_exu_mtvec),
+        .csr_mepc      (wbu_exu_mepc),
 
         .lsu_wbu_valid  (lsu_wbu_valid),
         .wbu_lsu_ready  (wbu_lsu_ready),
@@ -655,12 +713,12 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
 
-        .csr_raddr (12'b0),
-        .csr_waddr (12'b0),
-        .csr_wdata (32'b0),
-        .csr_we    (1'b0),
-        .csr_ecall (1'b0),
-        .csr_mret  (1'b0)
+        .csr_raddr (idu_wbu_csr_raddr),
+        .csr_waddr (lsu_wbu_csr_waddr),
+        .csr_wdata (lsu_wbu_csr_wdata),
+        .csr_we    (lsu_wbu_csr_we),
+        .csr_ecall (lsu_wbu_csr_ecall),
+        .csr_mret  (lsu_wbu_csr_mret)
     );
 
 
@@ -720,10 +778,9 @@ module ysyx_26010027 (
         end else begin
             case (grant)
                 IFU_GRANT:
-                    if (handshake_ifu_r) begin
-                        if (lsu_cpu_arvalid || lsu_cpu_awvalid)
-                            grant <= LSU_GRANT;
-                    end
+                    // IFU 空闲(未发请求且未等响应)且有 LSU 请求时让出总线, 否则 IFU 优先
+                    if ((lsu_cpu_arvalid || lsu_cpu_awvalid) && !ifu_cpu_arvalid && !ifu_cpu_rready)
+                        grant <= LSU_GRANT;
                     else grant <= IFU_GRANT;
 
                 LSU_GRANT:
@@ -763,11 +820,17 @@ module ysyx_26010027 (
                           {{31{1'b0}}, lsu_wbu_valid && wbu_branch},
                           hit_count, miss_count, miss_latency);
 
+            // 提交追踪
+            // if (lsu_wbu_valid) cpu_trace(lsu_wbu_pc, lsu_wbu_inst);
+            // // IFU->IDU 交付追踪
+            // if (ifu_idu_valid && idu_ifu_ready) ifu_trace(ifu_idu_pc, ifu_idu_inst);
+
             // ftrace
             if (idu_exu_valid && exu_idu_ready && idu_exu_jump == 2'b01) begin
                 ftrace_print(idu_exu_pc, exu_flush_pc, {27'b0, idu_exu_waddr}, {27'b0, idu_exu_inst[19:15]});
             end
 
+            // ebreak
             if ((lsu_wbu_inst == 32'h00100073) || access_fault) begin
                 finish_sim();
                 $display("ebreak at PC = 0x%h Inst = 0x%h", lsu_wbu_pc, lsu_wbu_inst);

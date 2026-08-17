@@ -27,13 +27,14 @@ module ysyx_26010027_IDU (
     output reg [ 2:0] idu_exu_branch,
     input             exu_flush,
 
+    output reg [11:0] idu_wbu_csr_raddr,
+    output reg [11:0] idu_exu_csr_waddr,
+    output reg        idu_exu_csr_we,
+    output reg        idu_exu_csr_ecall,
+    output reg        idu_exu_csr_mret,
+
     // IDU - WBU
     output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2,
-    // output     [11:0] csr_raddr,
-    // output     [31:0] csr_wdata, // from EXU
-    // output            csr_we,
-    // output            csr_ecall,
-    // output            csr_mret,
 
     output            fence_i       // fence.i 指令
 );
@@ -150,8 +151,7 @@ module ysyx_26010027_IDU (
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00;                                // ALU
 
-    wire [3:0] alu_op = (add || addi || ld_type || (jump == 2'b01)) ? 4'd0  :
-                        (sub || inst_B)    ? 4'd1  :
+    wire [3:0] alu_op = (sub || inst_B)    ? 4'd1  :
                         lui                ? 4'd2  :
                         (sll || slli)      ? 4'd3  :
                         (srl || srli)      ? 4'd4  :
@@ -170,7 +170,8 @@ module ysyx_26010027_IDU (
     wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
     wire reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we);
-    wire csr_we = csrrw || csrrs || csrrc;
+    wire csr_we = csrrw;
+    wire csr_re = csrrs || csrrc;
 
     wire [1:0] mem_w = sw ? 2'b00 :
                        sb ? 2'b01 :
@@ -183,8 +184,6 @@ module ysyx_26010027_IDU (
                        lbu ? 3'd3 :
                        lhu ? 3'd4 :
                        3'd5;
-
-    wire [4:0] waddr = inst[11:7];
 
     assign fence_i = (inst == 32'h0000100F);
     wire ebreak = (inst == 32'h00100073);
@@ -199,10 +198,11 @@ module ysyx_26010027_IDU (
 
     wire [4:0] raddr1 = inst[19:15];
     wire [4:0] raddr2 = inst[24:20];
+    wire [4:0] waddr  = inst[11:7];
 
-    always @(*)
-        if (illegal && (inst != 32'b0))
-            is_illegal_inst();
+    // always @(*)
+    //     if (ifu_idu_valid && illegal && (inst != 32'b0))
+    //         is_illegal_inst();
 
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin
@@ -236,6 +236,12 @@ module ysyx_26010027_IDU (
         idu_exu_jump     <= 2'd0;
         idu_exu_branch   <= 3'd6;
 
+        idu_wbu_csr_raddr <= 12'd0;
+        idu_exu_csr_waddr <= 12'd0;
+        idu_exu_csr_we    <= 1'd0;
+        idu_exu_csr_ecall <= 1'd0;
+        idu_exu_csr_mret  <= 1'd0;
+
         idu_wbu_raddr1 <= 5'd0;
         idu_wbu_raddr2 <= 5'd0;
 
@@ -255,6 +261,12 @@ module ysyx_26010027_IDU (
         idu_exu_jump     <= jump;
         idu_exu_branch   <= branch;
 
+        idu_wbu_csr_raddr <= csr_addr;
+        idu_exu_csr_waddr <= csr_addr;
+        idu_exu_csr_we    <= csr_we;
+        idu_exu_csr_ecall <= csr_ecall;
+        idu_exu_csr_mret  <= csr_mret;
+
         idu_wbu_raddr1 <= raddr1;
         idu_wbu_raddr2 <= raddr2;
       end
@@ -272,6 +284,12 @@ module ysyx_26010027_IDU (
         idu_exu_waddr    <= idu_exu_waddr;
         idu_exu_jump     <= idu_exu_jump;
         idu_exu_branch   <= idu_exu_branch;
+
+        idu_wbu_csr_raddr <= idu_wbu_csr_raddr;
+        idu_exu_csr_waddr <= idu_exu_csr_waddr;
+        idu_exu_csr_we    <= idu_exu_csr_we;
+        idu_exu_csr_ecall <= idu_exu_csr_ecall;
+        idu_exu_csr_mret  <= idu_exu_csr_mret;
 
         idu_wbu_raddr1 <= idu_wbu_raddr1;
         idu_wbu_raddr2 <= idu_wbu_raddr2;

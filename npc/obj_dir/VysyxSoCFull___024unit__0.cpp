@@ -114,6 +114,44 @@ void VysyxSoCFull___024unit____Vdpiimwrap_get_cpu_state_TOP____024unit(IData/*31
     get_cpu_state(lsu_get_data__Vcvt, lsu_w_data__Vcvt, exu_done__Vcvt, alu_we__Vcvt, csr_we__Vcvt, cpu_jump__Vcvt, cpu_branch__Vcvt, icache_hit__Vcvt, icache_miss__Vcvt, icache_miss_latency__Vcvt);
 }
 
+extern "C" void cpu_trace(int pc, int inst);
+
+void VysyxSoCFull___024unit____Vdpiimwrap_cpu_trace_TOP____024unit(IData/*31:0*/ pc, IData/*31:0*/ inst) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_cpu_trace_TOP____024unit\n"); );
+    // Body
+    int pc__Vcvt;
+    pc__Vcvt = pc;
+    int inst__Vcvt;
+    inst__Vcvt = inst;
+    cpu_trace(pc__Vcvt, inst__Vcvt);
+}
+
+extern "C" void ifu_trace(int pc, int inst);
+
+void VysyxSoCFull___024unit____Vdpiimwrap_ifu_trace_TOP____024unit(IData/*31:0*/ pc, IData/*31:0*/ inst) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_ifu_trace_TOP____024unit\n"); );
+    // Body
+    int pc__Vcvt;
+    pc__Vcvt = pc;
+    int inst__Vcvt;
+    inst__Vcvt = inst;
+    ifu_trace(pc__Vcvt, inst__Vcvt);
+}
+
+extern "C" void sdram_trace(int addr, int data, int is_write);
+
+void VysyxSoCFull___024unit____Vdpiimwrap_sdram_trace_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ data, IData/*31:0*/ is_write) {
+    VL_DEBUG_IF(VL_DBG_MSGF("+        VysyxSoCFull___024unit____Vdpiimwrap_sdram_trace_TOP____024unit\n"); );
+    // Body
+    int addr__Vcvt;
+    addr__Vcvt = addr;
+    int data__Vcvt;
+    data__Vcvt = data;
+    int is_write__Vcvt;
+    is_write__Vcvt = is_write;
+    sdram_trace(addr__Vcvt, data__Vcvt, is_write__Vcvt);
+}
+
 extern "C" void flash_read(int addr, int* data);
 
 void VysyxSoCFull___024unit____Vdpiimwrap_flash_read_TOP____024unit(IData/*31:0*/ addr, IData/*31:0*/ &data) {

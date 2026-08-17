@@ -15,7 +15,7 @@
 #define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_pc)
 #define CPU_INST()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_inst)
 #define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_reg_w)
-#define CPU_VALID() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_icache__DOT__rvalid_o)
+#define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
 #else
 #include "Vysyx_26010027.h"
 #include "Vysyx_26010027___024root.h"

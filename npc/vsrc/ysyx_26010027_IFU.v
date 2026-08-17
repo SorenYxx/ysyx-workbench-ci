@@ -1,7 +1,7 @@
 `ifdef TOP_SOC
-  `define PC_START 32'h3000_0000;
+  `define PC_START 32'h3000_0000
 `else
-  `define PC_START 32'h8000_0000;
+  `define PC_START 32'h8000_0000
 `endif
 
 module ysyx_26010027_IFU (
@@ -33,9 +33,6 @@ module ysyx_26010027_IFU (
     input             cpu_ifu_rlast
     // --------------------------------
 
-    // output            ifu_stall,
-    // input             lsu_stall
-
 );
 
     // ----- AXI4 -----
@@ -43,49 +40,52 @@ module ysyx_26010027_IFU (
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
 
-    wire handshake_ar = ifu_cpu_arvalid && cpu_ifu_arready;
+    // AR 事务锁存
+    reg        arvalid_q;
+    reg [31:0] araddr_q;
+    reg        flush_ar_sent; // 冲刷后 AR 已发出
+
+    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q;
+    wire handshake_ar = arvalid_q && cpu_ifu_arready;
     wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
+    // State machine
     always @(posedge clock, posedge reset) begin
         if (reset)
             state <= IDLE;
         else
             case (state)
-                IDLE: begin
-                    if (handshake_ar) begin
-                        state <= WAIT;
-                    end
-                end
-                WAIT: begin
-                    if (handshake_r) begin
-                        state <= IDLE;
-                    end
-                end
+                IDLE: if (handshake_ar) state <= WAIT;
+                WAIT: if (handshake_r) state <= IDLE;
                 default: state <= IDLE;
             endcase
     end
 
-    // inst 锁存
-    wire [31:0] inst;
-    reg  [31:0] inst_latch;
+    // AR 锁存(避免反压造成毛刺)
     always @(posedge clock, posedge reset) begin
-        if (reset)
-            inst_latch <= 32'h0;
-        else if (handshake_r)
-            inst_latch <= cpu_ifu_rdata;
+        if (reset) begin
+            arvalid_q <= 1'b0;
+            araddr_q  <= 32'b0;
+        end
+        else if (handshake_ar) begin
+            arvalid_q <= 1'b0;
+        end
+        else if (ar_flag) begin
+            arvalid_q <= 1'b1;
+            araddr_q  <= (ifu_idu_valid && !flush_flag) ? next_pc : ifu_idu_pc;
+        end
     end
 
-    // 交付当拍（valid && ready）同时预取下一条，故取指地址用 next_pc
-    assign ifu_cpu_araddr  = (ifu_idu_valid && idu_ifu_ready) & !flush_flag ? next_pc : ifu_idu_pc;
-    assign ifu_cpu_arvalid = (state == IDLE) && idu_ifu_ready; // 反压
-    assign ifu_cpu_rready  = (state == WAIT); 
+    assign ifu_cpu_araddr  = araddr_q;
+    assign ifu_cpu_arvalid = arvalid_q;
+    assign ifu_cpu_rready  = (state == WAIT);
     assign ifu_cpu_arid    = 4'h0;
     assign ifu_cpu_arlen   = 8'h0;
     assign ifu_cpu_arsize  = 3'b010;
     assign ifu_cpu_arburst = 2'b01;
-    assign inst            = (cpu_ifu_rvalid & !flush_flag) ? cpu_ifu_rdata : inst_latch;
     // ---------------
 
+    wire [31:0] inst = ifu_idu_inst;
     wire [ 6:0] opcode = inst[6:0];
     wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
     wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
@@ -99,29 +99,43 @@ module ysyx_26010027_IFU (
 
     always @(posedge clock or posedge reset) begin
         if (reset) begin
-            ifu_idu_pc   <= `PC_START;
-            ifu_idu_inst <= 32'b0;
+            ifu_idu_pc <= `PC_START;
         end 
         else begin
             if (exu_flush) begin
                 ifu_idu_pc <= exu_flush_pc;
             end 
             else if (ifu_idu_valid && idu_ifu_ready)
-                ifu_idu_pc   <= next_pc;
-                ifu_idu_inst <= inst;
-        end 
+                ifu_idu_pc <= next_pc;
+        end
+    end
+
+    // 捕获到达数据
+    always @(posedge clock, posedge reset) begin
+        if (reset)
+            ifu_idu_inst <= 32'b0;
+        else if (exu_flush)
+            ifu_idu_inst <= 32'b0;   // 冲刷时清空
+        else if (handshake_r)
+            ifu_idu_inst <= cpu_ifu_rdata;
     end
 
     reg flush_flag;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            flush_flag <= 1'b0;
+            flush_flag    <= 1'b0;
+            flush_ar_sent <= 1'b0;
         end 
         else if (exu_flush) begin
-            flush_flag <= 1'b1;
+            flush_flag    <= 1'b1;
+            flush_ar_sent <= 1'b0;
         end 
-        else if (handshake_ar) begin // 保证冲刷pc发送、不接收回来的垃圾data
-            flush_flag <= 1'b0;
+        else if (ar_flag && flush_flag) begin
+            flush_ar_sent <= 1'b1;  // 冲刷后的取指 AR 已发出
+        end
+        else if (handshake_ar) begin
+            if (flush_ar_sent) flush_flag <= 1'b0;  // 冲刷取指完成, 清除
+            flush_ar_sent <= 1'b0;
         end
     end
 

@@ -71,9 +71,9 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
   if (addr32 < CONFIG_FLASH_SIZE) {
     *data = *(int32_t *)(flash + addr32);
-#ifdef CONFIG_MTRACE
-    printf("[flash]read         0x%08x from 0x%08x\n", *data, addr32);
-#endif
+    if (addr32 >= 0x1a0 && addr32 < 0x2f0) {
+      // printf("[flash]read addr=0x%08x data=0x%08x\n", addr32, *data);
+    }
   }
 }
 
@@ -123,4 +123,26 @@ extern "C" void psram_write(int32_t addr, int32_t *data, int32_t *wmask) {
     IFDEF(CONFIG_MTRACE, printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32));
   }
 }
+
+// 提交追踪: 打印 app 起始段(SDRAM)的提交 PC/指令, 定位 PC 与指令错位点
+extern "C" void cpu_trace(int pc, int inst) {
+  if (pc >= 0xa0000000 && pc < 0xa0000200) {
+    printf("[commit] pc=0x%08x inst=0x%08x\n", pc, inst);
+  }
+}
+
+// IFU->IDU 交付追踪: 看 IFU 输出的 PC/指令是否对齐
+extern "C" void ifu_trace(int pc, int inst) {
+  if (pc >= 0xa0000000 && pc < 0xa0000200) {
+    printf("[ifu] pc=0x%08x inst=0x%08x\n", pc, inst);
+  }
+}
+
+extern "C" void sdram_trace(int addr, int data, int is_write) {
+  if (addr == 0x48 || addr == 0x49) {
+    printf("[sdram]%s word=0x%06x data=0x%04x byte=0x%08x\n",
+           is_write ? "W" : "R", addr, data & 0xffff, 0xa0000000 + (addr << 2));
+  }
+}
+
 // -----------------

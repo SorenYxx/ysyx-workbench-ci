@@ -61,6 +61,7 @@ int is_exit_status_bad() {
   return !good;
 }
 
+// 性能计数器和 IPC 追踪
 static void statistics() {
   uint32_t total_access = icache_hit_counter + icache_miss_counter;
   double amat = total_access > 0 ?
@@ -70,24 +71,32 @@ static void statistics() {
 
   Log("Total cycles = %ld", main_time);
   Log("Total insts = %ld", total_inst);
+#ifdef CONFIG_STATISTICS
   Log("- Load and Store insts = %ld, with %ld loads and %ld stores", lsu_r_counter + lsu_w_counter, lsu_r_counter, lsu_w_counter);
   Log("- Execution insts = %ld", exu_counter);
   Log("- Computational insts = %ld", alu_counter);
   Log("- CSR insts = %ld", csr_counter);
   Log("- Jump insts = %ld", jump_counter);
   Log("- Branch insts = %ld", branch_counter);
-  Log("ICache: hit=%ld miss=%ld miss_rate=%.1f%% miss_latency=%ld AMAT=%.2f",
+  Log("- ICache: hit=%ld miss=%ld miss_rate=%.1f%% miss_latency=%ld AMAT=%.2f",
       icache_hit_counter, icache_miss_counter, miss_rate, icache_miss_latency, amat);
+#endif
   Log("Simulation IPC of npc = %.8f", (double)total_inst / main_time);
 }
 
 // eval
-struct stop_loop
+struct pc_loop // 单个死循环指令
 {
   uint32_t pc;
   uint32_t loop_time;
 };
-stop_loop *lp = new stop_loop{ .pc = PC_START, .loop_time = 0 };
+pc_loop *lp = new pc_loop{ .pc = PC_START, .loop_time = 0 };
+
+static void dead_loop(uint32_t looptimes) {
+  Log("\033[1;31mDead loop at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, looptimes);
+  npc_state.state = NPC_ABORT;
+  npc_state.halt_pc = lp->pc;
+}
 
 void step_and_eval() {
   top->clock = 0; top->eval();
@@ -97,12 +106,8 @@ void step_and_eval() {
 
   main_time ++;
 
-  lp->loop_time ++;
-  if (lp->loop_time > 10000) {
-    Log("\033[1;31mAbort at PC = 0x%08x with loop_time = %d\033[0m", lp->pc, lp->loop_time);
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = lp->pc;
-  }
+  // lp->loop_time ++;
+  // if (lp->loop_time > 1000000) dead_loop(lp->loop_time);
 
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
@@ -119,6 +124,7 @@ void step_and_eval() {
   if (en[6] && branch)      { branch_counter++; en[6] = 0; }
 }
 
+// debug相关
 static void debug() {
   ifu_valid = CPU_VALID();
   if (ifu_valid) {
@@ -132,27 +138,28 @@ static void debug() {
   }
 }
 
+// 执行相关
 void cpu_exec(uint64_t n) {
-  switch (npc_state.state) {
-    case NPC_END: case NPC_ABORT: case NPC_QUIT:
-    Log("Simulation already ended at 0x%08x.", npc_state.halt_pc);
-    statistics();
-    return;
-    default: npc_state.state = NPC_RUNNING;
-  }
-
   for (uint64_t i = 0; i < n; i ++) {
     step_and_eval();
     debug();
 
     IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
+    switch (npc_state.state) {
+      case NPC_END: case NPC_ABORT: case NPC_QUIT:
+      return; // 直接跳转检查状态结束
+      default: npc_state.state = NPC_RUNNING;
+    }
 
     if (npc_state.state == NPC_END || npc_state.state == NPC_ABORT) break; 
   }
   if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
 }
 
+// 退出模拟
 void sim_exit() {
+  statistics();
+  Log("Simulation already ended at 0x%08x.", npc_state.halt_pc);
 #ifdef CONFIG_WAVE_DUMP
   tfp->close();
   delete tfp;
@@ -164,7 +171,6 @@ void sim_exit() {
 // ebreak
 void finish_sim() {
   npc_state.halt_pc = CPU_PC();
-  statistics();
   if (R[10] == 0) { 
     Log("\033[1;32mHIT GOOD TRAP\033[0m"); 
     npc_state.state = NPC_END;
