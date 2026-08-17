@@ -22,6 +22,7 @@
 #define PMEM_RIGHT ((paddr_t)CONFIG_MBASE + CONFIG_MSIZE - 1)
 
 // ---------- For ysyxSoC ----------
+#ifdef CONFIG_REF_SOC
 #define FLASH_LEFT  ((paddr_t)CONFIG_FLASH_BASE)
 #define FLASH_RIGHT  ((paddr_t)CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE - 1)
 
@@ -33,9 +34,14 @@
 
 #define SDRAM_LEFT  ((paddr_t)CONFIG_SDRAM_BASE)
 #define SDRAM_RIGHT ((paddr_t)CONFIG_SDRAM_BASE + CONFIG_SDRAM_SIZE - 1)
+#endif
 // ---------------------------------
 
+#ifdef CONFIG_REF_SOC
 #define RESET_VECTOR (FLASH_LEFT + CONFIG_PC_RESET_OFFSET)
+#else
+#define RESET_VECTOR (PMEM_LEFT + CONFIG_PC_RESET_OFFSET)
+#endif
 
 /* convert the guest physical address in the guest program to host virtual address in NEMU */
 uint8_t* guest_to_host(paddr_t paddr);
@@ -43,6 +49,7 @@ uint8_t* guest_to_host(paddr_t paddr);
 paddr_t host_to_guest(uint8_t *haddr);
 
 // ---------- For ysyxSoC ----------
+#ifdef CONFIG_REF_SOC
 uint8_t* guest_to_host_flash(paddr_t paddr);
 paddr_t  host_to_guest_flash(uint8_t *haddr);
 uint8_t* guest_to_host_mrom(paddr_t paddr);
@@ -51,6 +58,7 @@ uint8_t* guest_to_host_sram(paddr_t paddr);
 paddr_t host_to_guest_sram(uint8_t *haddr);
 uint8_t* guest_to_host_sdram(paddr_t paddr);
 paddr_t host_to_guest_sdram(uint8_t *haddr);
+#endif
 // ---------------------------------
 
 static inline bool in_pmem(paddr_t addr) {
@@ -58,6 +66,7 @@ static inline bool in_pmem(paddr_t addr) {
 }
 
 // ---------- For ysyxSoC ----------
+#ifdef CONFIG_REF_SOC
 static inline bool in_flash(paddr_t addr) {
   return addr - CONFIG_FLASH_BASE < CONFIG_FLASH_SIZE;
 }
@@ -73,6 +82,7 @@ static inline bool in_sram(paddr_t addr) {
 static inline bool in_sdram(paddr_t addr) {
   return addr - CONFIG_SDRAM_BASE < CONFIG_SDRAM_SIZE;
 }
+#endif
 // ---------------------------------
 
 word_t paddr_read(paddr_t addr, int len);
