@@ -24,7 +24,6 @@ config SERIAL_PORT
 
 config SERIAL_MMIO
   hex "MMIO address of the serial controller"
-  default 0x10000000 if REF_SOC
   default 0xa00003f8
 
 config SERIAL_INPUT_FIFO
@@ -44,7 +43,6 @@ config RTC_PORT
 
 config RTC_MMIO
   hex "MMIO address of the timer"
-  default 0x02000000 if REF_SOC
   default 0xa0000048
 endif # HAS_TIMER
 
@@ -60,7 +58,6 @@ config I8042_DATA_PORT
 
 config I8042_DATA_MMIO
   hex "MMIO address of the keyboard controller"
-  default 0x10011000 if REF_SOC
   default 0xa0000060
 endif # HAS_KEYBOARD
 
@@ -71,7 +68,6 @@ menuconfig HAS_VGA
 if HAS_VGA
 config FB_ADDR
   hex "Physical address of the VGA frame buffer"
-  default 0x21000000 if REF_SOC
   default 0xa1000000
 
 config VGA_CTL_PORT
@@ -89,11 +85,9 @@ config VGA_SHOW_SCREEN
 
 choice
   prompt "Screen Size"
-  default VGA_SIZE_640x480
+  default VGA_SIZE_400x300
 config VGA_SIZE_400x300
   bool "400 x 300"
-config VGA_SIZE_640x480
-  bool "640 x 480"
 config VGA_SIZE_800x600
   bool "800 x 600"
 endchoice
