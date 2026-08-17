@@ -26,8 +26,12 @@ void init_difftest(const char *ref_so_file, long img_size) {
     Log("The result of every instruction will be compared with %s. "
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
-      
+
+#ifdef CONFIG_SOC
     ref_difftest_memcpy(CONFIG_FLASH_BASE, guest_to_flash(CONFIG_FLASH_BASE), img_size, DIFFTEST_TO_REF);
+#else
+    ref_difftest_memcpy(CONFIG_PSRAM_BASE, guest_to_host(CONFIG_PSRAM_BASE), img_size, DIFFTEST_TO_REF);
+#endif
 
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
 }

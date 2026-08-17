@@ -34,9 +34,9 @@ void add_mmio_map(const char *name, paddr_t addr, void *space, uint32_t len, io_
 word_t mmio_read(paddr_t addr, int len) {
   IOMap *map = fetch_mmio_map(addr);
   if (map == NULL) {
-    Log("Warning: mmio_read at unmapped address 0x%08x", addr);
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = CPU_PC();
+    // Log("Warning: mmio_read at unmapped address 0x%08x", addr);
+    // npc_state.state = NPC_ABORT;
+    // npc_state.halt_pc = CPU_PC();
     return 0;
   }
   return map_read(addr, len, map);
@@ -45,9 +45,9 @@ word_t mmio_read(paddr_t addr, int len) {
 void mmio_write(paddr_t addr, int len, word_t data) {
   IOMap *map = fetch_mmio_map(addr);
   if (map == NULL) {
-    Log("Warning: mmio_write at unmapped address 0x%08x", addr);
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = CPU_PC();
+    // Log("Warning: mmio_write at unmapped address 0x%08x", addr);
+    // npc_state.state = NPC_ABORT;
+    // npc_state.halt_pc = CPU_PC();
     return;
   }
   map_write(addr, len, data, map);
