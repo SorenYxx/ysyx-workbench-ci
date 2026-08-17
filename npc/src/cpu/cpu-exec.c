@@ -106,8 +106,8 @@ void step_and_eval() {
 
   main_time ++;
 
-  // lp->loop_time ++;
-  // if (lp->loop_time > 1000000) dead_loop(lp->loop_time);
+  lp->loop_time ++;
+  if (lp->loop_time > 1000000) dead_loop(lp->loop_time);
 
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
