@@ -337,7 +337,7 @@ module ysyx_26010027 (
     ysyx_26010027_icache my_icache (
         .clock       (clock),
         .reset       (reset),
-        .flush_i     (fence_i),
+        .flush_i     (idu_exu_fencei),
 
         .ifu_araddr  (ifu_cpu_araddr),
         .ifu_arvalid (ifu_cpu_arvalid),
@@ -407,6 +407,13 @@ module ysyx_26010027 (
     wire [ 4:0] idu_exu_waddr;
     wire [ 1:0] idu_exu_jump;
     wire [ 2:0] idu_exu_branch;
+    wire        idu_exu_fencei;
+
+    wire [11:0] idu_wbu_csr_raddr;
+    wire [11:0] idu_exu_csr_waddr;
+    wire        idu_exu_csr_we;
+    wire        idu_exu_csr_ecall;
+    wire        idu_exu_csr_mret;
 
     // IDU -> WBU（寄存器读地址，供前递/读寄存器堆）
     wire [ 4:0] idu_wbu_raddr1;
@@ -438,12 +445,18 @@ module ysyx_26010027 (
         .idu_exu_waddr (idu_exu_waddr),
         .idu_exu_jump  (idu_exu_jump),
         .idu_exu_branch(idu_exu_branch),
+        .idu_exu_fencei(idu_exu_fencei),
 
         .exu_flush     (exu_flush),
 
         .idu_wbu_raddr1(idu_wbu_raddr1),
         .idu_wbu_raddr2(idu_wbu_raddr2),
-        .fence_i       (fence_i)
+        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
+        .idu_exu_csr_waddr(idu_exu_csr_waddr),
+        .idu_exu_csr_we   (idu_exu_csr_we),
+        .idu_exu_csr_ecall(idu_exu_csr_ecall),
+        .idu_exu_csr_mret (idu_exu_csr_mret)
+
     );
 
 
@@ -462,6 +475,12 @@ module ysyx_26010027 (
     wire [ 1:0] exu_lsu_rf_res;
     wire [ 4:0] exu_lsu_waddr;
     wire [31:0] exu_lsu_alu_result;
+
+    wire [11:0] exu_lsu_csr_waddr;
+    wire        exu_lsu_csr_we;
+    wire        exu_lsu_csr_ecall;
+    wire        exu_lsu_csr_mret;
+    wire [31:0] exu_lsu_csr_wdata;
 
     // flush
     wire        exu_flush;
@@ -486,6 +505,11 @@ module ysyx_26010027 (
         .idu_exu_waddr   (idu_exu_waddr),
         .idu_exu_jump    (idu_exu_jump),
         .idu_exu_branch  (idu_exu_branch),
+        .idu_exu_fencei  (idu_exu_fencei),
+        .idu_exu_csr_waddr(idu_exu_csr_waddr),
+        .idu_exu_csr_we  (idu_exu_csr_we),
+        .idu_exu_csr_ecall(idu_exu_csr_ecall),
+        .idu_exu_csr_mret(idu_exu_csr_mret),
 
         .lsu_exu_ready   (lsu_exu_ready),
         .exu_lsu_valid   (exu_lsu_valid),
@@ -499,22 +523,34 @@ module ysyx_26010027 (
         .exu_lsu_rf_res  (exu_lsu_rf_res),
         .exu_lsu_waddr   (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_csr_waddr(exu_lsu_csr_waddr),
+        .exu_lsu_csr_we  (exu_lsu_csr_we),
+        .exu_lsu_csr_ecall(exu_lsu_csr_ecall),
+        .exu_lsu_csr_mret(exu_lsu_csr_mret),
+        .exu_lsu_csr_wdata(exu_lsu_csr_wdata),
 
         .exu_flush       (exu_flush),
         .exu_flush_pc    (exu_flush_pc),
 
         .lsu_wbu_valid   (lsu_wbu_valid),
         .lsu_wbu_reg_w   (lsu_wbu_reg_w),
+        .lsu_wbu_csr_we  (lsu_wbu_csr_we),
         .lsu_wbu_rf_res  (lsu_wbu_rf_res),
         .idu_wbu_raddr1  (idu_wbu_raddr1),
         .idu_wbu_raddr2  (idu_wbu_raddr2),
+        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
         .lsu_wbu_waddr   (lsu_wbu_waddr),
+        .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
         .lsu_wbu_pc      (lsu_wbu_pc),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
         .lsu_load_inflight(lsu_load_inflight),
         .wbu_exu_rdata1  (wbu_exu_rdata1),
-        .wbu_exu_rdata2  (wbu_exu_rdata2)
+        .wbu_exu_rdata2  (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .exu_mtvec       (wbu_exu_mtvec),
+        .exu_mepc        (wbu_exu_mepc)
     );
 
 
@@ -531,6 +567,11 @@ module ysyx_26010027 (
     wire [31:0] lsu_wbu_alu_result;
     wire [31:0] lsu_wbu_mem_result;
     wire        lsu_load_inflight;
+    wire [11:0] lsu_wbu_csr_waddr;
+    wire        lsu_wbu_csr_we;
+    wire        lsu_wbu_csr_ecall;
+    wire        lsu_wbu_csr_mret;
+    wire [31:0] lsu_wbu_csr_wdata;
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -584,6 +625,11 @@ module ysyx_26010027 (
         .exu_lsu_rf_res  (exu_lsu_rf_res),
         .exu_lsu_waddr   (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_csr_waddr(exu_lsu_csr_waddr),
+        .exu_lsu_csr_we  (exu_lsu_csr_we),
+        .exu_lsu_csr_ecall(exu_lsu_csr_ecall),
+        .exu_lsu_csr_mret(exu_lsu_csr_mret),
+        .exu_lsu_csr_wdata(exu_lsu_csr_wdata),
 
         .wbu_lsu_ready   (wbu_lsu_ready),
         .lsu_wbu_valid   (lsu_wbu_valid),
@@ -594,6 +640,11 @@ module ysyx_26010027 (
         .lsu_wbu_waddr   (lsu_wbu_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
+        .lsu_wbu_csr_we  (lsu_wbu_csr_we),
+        .lsu_wbu_csr_ecall(lsu_wbu_csr_ecall),
+        .lsu_wbu_csr_mret(lsu_wbu_csr_mret),
+        .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
         .lsu_load_inflight(lsu_load_inflight),
 
         // AXI
@@ -637,6 +688,9 @@ module ysyx_26010027 (
 
     wire [31:0] wbu_exu_rdata1;
     wire [31:0] wbu_exu_rdata2;
+    wire [31:0] wbu_exu_csr_rdata;
+    wire [31:0] wbu_exu_mtvec;
+    wire [31:0] wbu_exu_mepc;
 
     ysyx_26010027_WBU my_WBU (
         .clock  (clock),
@@ -648,6 +702,9 @@ module ysyx_26010027 (
 
         .wbu_exu_rdata1 (wbu_exu_rdata1),
         .wbu_exu_rdata2 (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .csr_mtvec     (wbu_exu_mtvec),
+        .csr_mepc      (wbu_exu_mepc),
 
         .lsu_wbu_valid  (lsu_wbu_valid),
         .wbu_lsu_ready  (wbu_lsu_ready),
@@ -658,12 +715,12 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
 
-        .csr_raddr (12'b0),
-        .csr_waddr (12'b0),
-        .csr_wdata (32'b0),
-        .csr_we    (1'b0),
-        .csr_ecall (1'b0),
-        .csr_mret  (1'b0)
+        .csr_raddr (idu_wbu_csr_raddr),
+        .csr_waddr (lsu_wbu_csr_waddr),
+        .csr_wdata (lsu_wbu_csr_wdata),
+        .csr_we    (lsu_wbu_csr_we),
+        .csr_ecall (lsu_wbu_csr_ecall),
+        .csr_mret  (lsu_wbu_csr_mret)
     );
 
 

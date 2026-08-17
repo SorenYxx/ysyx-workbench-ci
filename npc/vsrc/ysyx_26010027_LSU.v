@@ -17,6 +17,12 @@ module ysyx_26010027_LSU (
     input      [ 4:0] exu_lsu_waddr,
     input      [31:0] exu_lsu_alu_result,
 
+    input      [11:0] exu_lsu_csr_waddr,
+    input             exu_lsu_csr_we,
+    input             exu_lsu_csr_ecall,
+    input             exu_lsu_csr_mret,
+    input      [31:0] exu_lsu_csr_wdata,
+
     // LSU - WBU
     input             wbu_lsu_ready,
     output wire       lsu_wbu_valid,
@@ -27,6 +33,12 @@ module ysyx_26010027_LSU (
     output reg [ 4:0] lsu_wbu_waddr,
     output reg [31:0] lsu_wbu_alu_result,
     output reg [31:0] lsu_wbu_mem_result,
+
+    output reg [11:0] lsu_wbu_csr_waddr,
+    output reg        lsu_wbu_csr_we,
+    output reg        lsu_wbu_csr_ecall,
+    output reg        lsu_wbu_csr_mret,
+    output reg [31:0] lsu_wbu_csr_wdata,
 
     // 前递/停顿: LSU 中正在访存、数据未回的 load
     output wire       lsu_load_inflight,
@@ -151,11 +163,11 @@ module ysyx_26010027_LSU (
     end
 
     // ----- Load 数据处理 -----
-    wire [31:0] out_data = (l_mem_r == 3'd0) ? rdata_shifted :
-                           (l_mem_r == 3'd1) ? {{24{rdata_shifted[7]}}, rdata_shifted[7:0]} :
-                           (l_mem_r == 3'd2) ? {{16{rdata_shifted[15]}}, rdata_shifted[15:0]} :
-                           (l_mem_r == 3'd3) ? {24'b0, rdata_shifted[7:0]} :
-                           (l_mem_r == 3'd4) ? {16'b0, rdata_shifted[15:0]} : 32'b0;
+    wire [31:0] mem_rdata = (l_mem_r == 3'd0) ? rdata_shifted :
+                            (l_mem_r == 3'd1) ? {{24{rdata_shifted[7]}}, rdata_shifted[7:0]} :
+                            (l_mem_r == 3'd2) ? {{16{rdata_shifted[15]}}, rdata_shifted[15:0]} :
+                            (l_mem_r == 3'd3) ? {24'b0, rdata_shifted[7:0]} :
+                            (l_mem_r == 3'd4) ? {16'b0, rdata_shifted[15:0]} : 32'b0;
 
     // ----- 访存占用 -----
     always @(posedge clock, posedge reset) begin
@@ -191,6 +203,12 @@ module ysyx_26010027_LSU (
             lsu_wbu_waddr      <= 5'b0;
             lsu_wbu_alu_result <= 32'b0;
             lsu_wbu_mem_result <= 32'b0;
+            lsu_wbu_csr_waddr  <= 12'b0;
+            lsu_wbu_csr_we     <= 1'b0;
+            lsu_wbu_csr_ecall  <= 1'b0;
+            lsu_wbu_csr_mret   <= 1'b0;
+            lsu_wbu_csr_wdata  <= 32'b0;
+
             l_mem_w            <= 2'b11;
             l_mem_r            <= 3'd5;
             l_mem_addr         <= 32'b0;
@@ -204,6 +222,12 @@ module ysyx_26010027_LSU (
                 lsu_wbu_rf_res     <= exu_lsu_rf_res;
                 lsu_wbu_waddr      <= exu_lsu_waddr;
                 lsu_wbu_alu_result <= exu_lsu_alu_result;
+
+                lsu_wbu_csr_waddr  <= exu_lsu_csr_waddr;
+                lsu_wbu_csr_we     <= exu_lsu_csr_we;
+                lsu_wbu_csr_ecall  <= exu_lsu_csr_ecall;
+                lsu_wbu_csr_mret   <= exu_lsu_csr_mret;
+                lsu_wbu_csr_wdata  <= exu_lsu_csr_wdata;
                 // 访存相关锁存
                 l_mem_w            <= exu_lsu_mem_w;
                 l_mem_r            <= exu_lsu_mem_r;
@@ -211,7 +235,7 @@ module ysyx_26010027_LSU (
                 l_wdata            <= exu_lsu_wdata;
             end
             if (handshake_r)
-                lsu_wbu_mem_result <= out_data;
+                lsu_wbu_mem_result <= mem_rdata;
         end
     end
 

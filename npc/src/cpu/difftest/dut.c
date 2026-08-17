@@ -8,8 +8,6 @@ void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 static bool is_skip_ref = false;
-// static int skip_dut_nr_inst = 0;
-static bool is_stop_ref = CPU_REG_W();
 
 void difftest_skip_ref() {
   is_skip_ref = true;
@@ -28,52 +26,50 @@ void init_difftest(const char *ref_so_file, long img_size) {
     Log("The result of every instruction will be compared with %s. "
       "This will help you a lot for debugging, but also significantly reduce the performance. "
       "If it is not necessary, you can turn it off in menuconfig.", ref_so_file);
-      
-    ref_difftest_memcpy(CONFIG_MROM_BASE, guest_to_host(CONFIG_MROM_BASE), img_size, DIFFTEST_TO_REF);
-    
+
+#ifdef CONFIG_SOC
+    ref_difftest_memcpy(CONFIG_FLASH_BASE, guest_to_flash(CONFIG_FLASH_BASE), img_size, DIFFTEST_TO_REF);
+#else
+    ref_difftest_memcpy(CONFIG_PSRAM_BASE, guest_to_host(CONFIG_PSRAM_BASE), img_size, DIFFTEST_TO_REF);
+#endif
+
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
 }
 
-static bool isa_difftest_checkregs(CPU_state *ref_r, uint32_t pc) {
+static bool isa_difftest_checkregs(CPU_state *ref_r) {
   // regs
   for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
-      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], pc);
+      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], CPU_PC());
       return false;
     }
   }
 
-// pc
-  if (ref_r->pc != pc) {
-    Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_r->pc, pc);
-    return false;
-  }
-
   // csrs
   if (ref_r->mstatus != cpu_n.mstatus) {
-    Log("CSR mstatus mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, pc);
+    Log("CSR mstatus mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, CPU_PC());
     return false;
   }
   if (ref_r->mtvec != cpu_n.mtvec) {
-    Log("CSR mtvec mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mtvec, cpu_n.mtvec, pc);
+    Log("CSR mtvec mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mtvec, cpu_n.mtvec, CPU_PC());
     return false;
   }
   if (ref_r->mepc != cpu_n.mepc) {
-    Log("CSR mepc mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mepc, cpu_n.mepc, pc);
+    Log("CSR mepc mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mepc, cpu_n.mepc, CPU_PC());
     return false;
   }
   if (ref_r->mcause != cpu_n.mcause) {
-    Log("CSR mcause mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mcause, cpu_n.mcause, pc);
+    Log("CSR mcause mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mcause, cpu_n.mcause, CPU_PC());
     return false;
   }
 
   return true;
 }
 
-static void checkregs(CPU_state *ref, uint32_t pc) {
-  if (!isa_difftest_checkregs(ref, pc)) {
+static void checkregs(CPU_state *ref) {
+  if (!isa_difftest_checkregs(ref)) {
     npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = pc;
+    npc_state.halt_pc = CPU_PC();
     isa_reg_display();
   }
 }
@@ -81,19 +77,24 @@ static void checkregs(CPU_state *ref, uint32_t pc) {
 void check_difftest() {
   CPU_state ref_regs;// use to check
 
-  if (!is_stop_ref) {
-    return;
-  }
-
   if (is_skip_ref) {
+    // 跳过本次对比
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
     is_skip_ref = false;
     return;
   }
 
+  // 流水线对齐
+  ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
+  if (ref_regs.pc != CPU_PC()) {
+    Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_regs.pc, CPU_PC());
+    npc_state.state = NPC_ABORT;
+    npc_state.halt_pc = CPU_PC();
+    isa_reg_display();
+    return;
+  }
+
   ref_difftest_exec(1);
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
-  // printf("check_difftest at ref pc = 0x%08x dut pc: 0x%08x\n", ref_regs.pc, CPU_PC());
-
-  checkregs(&ref_regs, CPU_PC());
+  checkregs(&ref_regs);
 }

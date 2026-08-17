@@ -19,6 +19,12 @@ module ysyx_26010027_EXU (
 
     input      [ 1:0] idu_exu_jump,
     input      [ 2:0] idu_exu_branch,
+    input             idu_exu_fencei,
+
+    input      [11:0] idu_exu_csr_waddr,
+    input             idu_exu_csr_we,
+    input             idu_exu_csr_ecall,
+    input             idu_exu_csr_mret,
 
     // EXU - LSU
     input             lsu_exu_ready,
@@ -35,6 +41,12 @@ module ysyx_26010027_EXU (
     output reg [ 4:0] exu_lsu_waddr,
     output reg [31:0] exu_lsu_alu_result,
 
+    output reg [11:0] exu_lsu_csr_waddr,
+    output reg        exu_lsu_csr_we,
+    output reg        exu_lsu_csr_ecall,
+    output reg        exu_lsu_csr_mret,
+    output reg [31:0] exu_lsu_csr_wdata,
+
     // flush
     // input      [31:0] ifu_idu_pc,
     output reg        exu_flush,
@@ -44,13 +56,18 @@ module ysyx_26010027_EXU (
     input             lsu_wbu_valid,
     input             lsu_load_inflight,
     input             lsu_wbu_reg_w,
+    input             lsu_wbu_csr_we,
     input      [ 1:0] lsu_wbu_rf_res,
     input      [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2,
+    input      [11:0] idu_wbu_csr_raddr,
     input      [ 4:0] lsu_wbu_waddr,
+    input      [11:0] lsu_wbu_csr_waddr,
     input      [31:0] lsu_wbu_pc,
     input      [31:0] lsu_wbu_alu_result, // RAW
     input      [31:0] lsu_wbu_mem_result, // Load-Use
-    input      [31:0] wbu_exu_rdata1, wbu_exu_rdata2 // Normal
+    input      [31:0] lsu_wbu_csr_wdata,
+    input      [31:0] wbu_exu_rdata1, wbu_exu_rdata2, wbu_exu_csr_rdata,// Normal
+    input      [31:0] exu_mtvec, exu_mepc // ecall/mret
 
 );
 
@@ -60,6 +77,7 @@ module ysyx_26010027_EXU (
     wire [31:0] pc = idu_exu_pc;
     wire [31:0] imm = idu_exu_imm;
     wire [31:0] snpc = pc + 4;
+    wire [31:0] csr_rdata;
     reg  [31:0] result;
 
     // 前递值
@@ -72,6 +90,8 @@ module ysyx_26010027_EXU (
     assign rdata2 = raw_2[0]   ? lsu_fwd : 
                     raw_2[1]   ? wbu_fwd : 
                     load_use_2 ? lsu_wbu_mem_result : wbu_exu_rdata2;
+    assign csr_rdata = csr_fwd[0] ? exu_lsu_csr_wdata : 
+                       csr_fwd[1] ? lsu_wbu_csr_wdata : wbu_exu_csr_rdata;
 
     assign src1 = idu_exu_alu_arc1 ? pc  : rdata1;
     assign src2 = idu_exu_alu_arc2 ? imm : rdata2;
@@ -102,7 +122,7 @@ module ysyx_26010027_EXU (
             4'd10: result = src1 & src2; // and/andi
             4'd11: result = src1 | src2; // or/ori
             4'd12: result = src1;       // csrrw
-            // 4'd13: result = src1 | csr_result; // csrrs
+            4'd13: result = src1 | csr_rdata; // csrrs
             default: result = 0;
         endcase
     end
@@ -113,10 +133,11 @@ module ysyx_26010027_EXU (
     wire load_use_1;
     wire load_use_2;
     wire load_use_stall;
+    wire [1:0] csr_fwd;
 
     // raw 前递
-    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b00 || exu_lsu_rf_res == 2'b11);
-    wire wbu_fwd_flag = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b00 || lsu_wbu_rf_res == 2'b11);
+    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01);
+    wire wbu_fwd_flag = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01);
     assign raw_1[0] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_flag); // 读地址等于邻级写地址且不为0、当前rf_res位选为 ALU or PC+4
     assign raw_2[0] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_flag);
     assign raw_1[1] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && wbu_fwd_flag);
@@ -132,17 +153,33 @@ module ysyx_26010027_EXU (
                          || (|idu_wbu_raddr1 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr1)
                          || (|idu_wbu_raddr2 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr2);
 
+    assign csr_fwd[0] = (|idu_wbu_csr_raddr && idu_wbu_csr_raddr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10);
+    assign csr_fwd[1] = (|idu_wbu_csr_raddr && idu_wbu_csr_raddr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
+
     // flush handle (无条件flush)
-    wire [31:0] dnpc = (idu_exu_jump != 2'b0 || idu_exu_branch != 3'd6) ? result : snpc;
+    wire [31:0] trap_pc = idu_exu_csr_ecall ? exu_mtvec : exu_mepc;
+    wire [31:0] dnpc = (idu_exu_csr_ecall || idu_exu_csr_mret) ? trap_pc :
+                       (idu_exu_jump != 2'b0 || idu_exu_branch != 3'd6) ? result : snpc;
     always @(*) begin
         if (reset) begin
             exu_flush    = 1'b0;
             exu_flush_pc = 32'b0;
         end 
         else if (idu_exu_valid && exu_idu_ready) begin
+            // 正常跳转
             if ((idu_exu_jump != 2'b0 || idu_exu_branch != 3'd6)) begin
                 exu_flush    = 1'b1;
                 exu_flush_pc = dnpc;
+            end
+            // 异常跳转
+            else if (idu_exu_csr_ecall || idu_exu_csr_mret) begin
+                exu_flush    = 1'b1;
+                exu_flush_pc = dnpc;
+            end
+            // fence.i 冲刷指令+4
+            else if (idu_exu_fencei) begin
+                exu_flush    = 1'b1;
+                exu_flush_pc = idu_exu_pc + 4;
             end
             else begin
                 exu_flush    = 1'b0;
@@ -181,6 +218,12 @@ module ysyx_26010027_EXU (
             exu_lsu_waddr      <= 0;
             exu_lsu_alu_result <= 0;
 
+            exu_lsu_csr_waddr  <= 0;
+            exu_lsu_csr_we     <= 0;
+            exu_lsu_csr_ecall  <= 0;
+            exu_lsu_csr_mret   <= 0;
+            exu_lsu_csr_wdata  <= 0;
+
         end
         else if (idu_exu_valid && exu_idu_ready) begin
             exu_lsu_pc       <= idu_exu_pc;
@@ -194,6 +237,12 @@ module ysyx_26010027_EXU (
             exu_lsu_rf_res     <= idu_exu_rf_res;
             exu_lsu_waddr      <= idu_exu_waddr;
             exu_lsu_alu_result <= result;
+
+            exu_lsu_csr_waddr  <= idu_exu_csr_waddr;
+            exu_lsu_csr_we     <= idu_exu_csr_we;
+            exu_lsu_csr_ecall  <= idu_exu_csr_ecall;
+            exu_lsu_csr_mret   <= idu_exu_csr_mret;
+            exu_lsu_csr_wdata  <= result;
         end
         else begin
             exu_lsu_pc       <= exu_lsu_pc;
@@ -206,6 +255,12 @@ module ysyx_26010027_EXU (
             exu_lsu_waddr      <= exu_lsu_waddr;
             exu_lsu_rf_res     <= exu_lsu_rf_res;
             exu_lsu_alu_result <= exu_lsu_alu_result;
+
+            exu_lsu_csr_waddr  <= exu_lsu_csr_waddr;
+            exu_lsu_csr_we     <= exu_lsu_csr_we;
+            exu_lsu_csr_ecall  <= exu_lsu_csr_ecall;
+            exu_lsu_csr_mret   <= exu_lsu_csr_mret;
+            exu_lsu_csr_wdata  <= exu_lsu_csr_wdata;
         end
     end
 

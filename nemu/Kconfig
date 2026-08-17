@@ -213,6 +213,16 @@ config DIFFTEST_REF_NAME
   default "none"
 endmenu
 
+config REF_SOC
+  bool "Adapt memory layout for ysyxSoC (use NEMU as REF for differential testing)"
+  default n
+  help
+    When enabled, NEMU resets PC to FLASH_BASE, loads the image into flash,
+    and enables the ysyxSoC memory regions (flash/mrom/sram/sdram). This is
+    used when NEMU serves as the reference for differential testing the
+    ysyxSoC/NPC. Disable it to run AM programs linked by the default linker
+    script (image loaded into pmem, PC reset to MBASE).
+
 if MODE_SYSTEM
 source "src/memory/Kconfig"
 source "src/device/Kconfig"

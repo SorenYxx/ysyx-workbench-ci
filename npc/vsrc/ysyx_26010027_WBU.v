@@ -7,6 +7,9 @@ module ysyx_26010027_WBU (
 
     output     [31:0] wbu_exu_rdata1,
     output     [31:0] wbu_exu_rdata2,
+    output     [31:0] wbu_exu_csr_rdata,
+    output     [31:0] csr_mtvec,
+    output     [31:0] csr_mepc,
 
     input             lsu_wbu_valid,
     output            wbu_lsu_ready,
@@ -28,11 +31,10 @@ module ysyx_26010027_WBU (
 
     wire [31:0] wdata;
     wire [ 4:0] waddr;
-    reg  [31:0] csr_rdata = 0;
 
-    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00) ? lsu_wbu_alu_result :
-                   (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result :
-                   (lsu_wbu_rf_res == 2'b10) ? csr_rdata : lsu_wbu_pc + 4) : 0;
+    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result : // ALU | CSR
+                   (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result : // MEM
+                   lsu_wbu_pc + 4) : 0; // PC + 4
     assign waddr = (lsu_wbu_reg_w) ? lsu_wbu_waddr : 0;
     assign wbu_lsu_ready = lsu_wbu_valid;
 
@@ -49,20 +51,20 @@ module ysyx_26010027_WBU (
         .rdata2(wbu_exu_rdata2)
     );
 
-    // ysyx_26010027_CSR my_csr (
-    //     .clock       (clock),
-    //     .reset       (reset),
-    //     .csr_ecall   (csr_ecall),
-    //     .csr_mret    (csr_mret),
-    //     .csr_raddr    (csr_raddr),
-    //     .csr_waddr   (csr_waddr),
-    //     .csr_wdata   (csr_wdata),
-    //     .csr_rdata   (csr_rdata),
-    //     .pc          (lsu_wbu_pc),
-    //     .csr_we      (csr_we),
+    ysyx_26010027_CSR my_csr (
+        .clock       (clock),
+        .reset       (reset),
+        .csr_ecall   (csr_ecall),
+        .csr_mret    (csr_mret),
+        .csr_raddr   (csr_raddr),
+        .csr_waddr   (csr_waddr),
+        .csr_wdata   (csr_wdata),
+        .csr_rdata   (wbu_exu_csr_rdata),
+        .csr_mtvec   (csr_mtvec),
+        .csr_mepc    (csr_mepc),
+        .pc          (lsu_wbu_pc),
+        .csr_we      (csr_we)
 
-    //     .ifu_stall   (1'b0)
-
-    // );
+    );
 
 endmodule

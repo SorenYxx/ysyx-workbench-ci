@@ -2,10 +2,10 @@ SIMULATOR = verilator
 NPC_HOME  = $(shell pwd)
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c") $(SRC_AUTO_BIND) # auto_bind 文件
 INC_PATH  = $(NPC_HOME)/include
-ELF    	  = $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 DUMP      = wave.fst
 LIBS      += -lcapstone -lreadline -ldl
-NPCFLAGS  += -e $(ELF)
+NPCFLAGS  += -e $(ELF) -d $(REF_SO)
 
 # ----- Kconfig -----
 -include $(NPC_HOME)/include/config/auto.conf
@@ -63,7 +63,7 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP)\""
 all: sim compile run
 
 compile: $(SRC_AUTO_BIND)
-	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
+	@verilator -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
         -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME \
         -Wno-DEFPARAM -Wno-ASSIGNDLY -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
         -Wno-UNDRIVEN \

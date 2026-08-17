@@ -6,7 +6,7 @@
 //MEM -- defined via Kconfig (autoconf.h), fallback defaults for IDE
 #ifndef CONFIG_PSRAM_BASE
 #define CONFIG_PSRAM_BASE 0x80000000
-#define CONFIG_PSRAM_SIZE 0x400000
+#define CONFIG_PSRAM_SIZE 0x8000000
 #define CONFIG_MROM_BASE  0x20000000
 #define CONFIG_MROM_SIZE  0x1000
 #define CONFIG_SRAM_BASE  0x0f000000

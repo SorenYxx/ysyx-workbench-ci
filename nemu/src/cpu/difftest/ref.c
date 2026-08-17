@@ -21,19 +21,33 @@
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
     Log("Copying %zu bytes to reference memory at 0x%08x", n, addr);
-    if (in_mrom(addr)) {
+#ifdef CONFIG_REF_SOC
+    if (in_flash(addr)) {
+      memcpy(guest_to_host_flash(addr), buf, n);
+    } else if (in_mrom(addr)) {
       memcpy(guest_to_host_mrom(addr), buf, n);
     } else if (in_sram(addr)) {
       memcpy(guest_to_host_sram(addr), buf, n);
-    } else {
+    } else if (in_sdram(addr)) {
+      memcpy(guest_to_host_sdram(addr), buf, n);
+    } else
+#endif
+    {
       memcpy(guest_to_host(addr), buf, n);
     }
   } else {
-    if (in_mrom(addr)) {
+#ifdef CONFIG_REF_SOC
+    if (in_flash(addr)) {
+      memcpy(buf, guest_to_host_flash(addr), n);
+    } else if (in_mrom(addr)) {
       memcpy(buf, guest_to_host_mrom(addr), n);
     } else if (in_sram(addr)) {
       memcpy(buf, guest_to_host_sram(addr), n);
-    } else {
+    } else if (in_sdram(addr)) {
+      memcpy(buf, guest_to_host_sdram(addr), n);
+    } else
+#endif
+    {
       memcpy(buf, guest_to_host(addr), n);
     }
   }
@@ -57,7 +71,10 @@ __EXPORT void difftest_raise_intr(word_t NO) {
 
 __EXPORT void difftest_init(int port) {
   void init_mem();
+  void init_device();
   init_mem();
   /* Perform ISA dependent initialization. */
   init_isa();
+  /* Initialize devices so that MMIO access from DUT can be handled. */
+  IFDEF(CONFIG_DEVICE, init_device());
 }

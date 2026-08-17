@@ -23,7 +23,9 @@ void halt(int code) {
 }
 
 void _trm_init() {
-  /* int vendor_id, arch_id;
+#ifndef CONFIG_DIFFTEST
+  // ----- 打印 CPU ID -----
+  int vendor_id, arch_id;
   char num[4];
 
   asm volatile("csrr %0, mvendorid" : "=r"(vendor_id));
@@ -32,8 +34,9 @@ void _trm_init() {
   for (int i = 0; i < 4; i ++) num[i] = (vendor_id >> (8 * i)) & 0xFF;
   for (int i = 3; i >= 0; i --) printf("%c", num[i]);
   printf("\n");
-  printf("---- NPC ID: %08x ----\n", arch_id);
-  */
+  printf("NPC ID: %d\n", arch_id);
+  // ----------------------
+#endif
 
   int ret = main(mainargs);
   halt(ret);

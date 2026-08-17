@@ -7,6 +7,8 @@ module ysyx_26010027_CSR (
     input       [11:0] csr_waddr,
     input       [31:0] csr_wdata,
     output reg  [31:0] csr_rdata,
+    output      [31:0] csr_mtvec,
+    output      [31:0] csr_mepc,
     input       [31:0] pc,
     input  wire        csr_we
 
@@ -40,7 +42,7 @@ module ysyx_26010027_CSR (
                 mcause <= 32'd11;  // M-mode
                 get_csr({20'b0, 12'h341}, pc);
                 get_csr({20'b0, 12'h342}, 32'd11);
-            end else if (csr_we) begin
+            end else if (csr_we && !csr_ecall && !csr_mret) begin
                 get_csr({20'b0, csr_waddr}, csr_wdata);
                 case (csr_waddr)
                     12'h300: mstatus <= csr_wdata;
@@ -59,8 +61,11 @@ module ysyx_26010027_CSR (
                        (csr_raddr == 12'hB00) ? mcycle :
                        (csr_raddr == 12'hB80) ? mcycleh :
                        (csr_raddr == 12'h300) ? mstatus :
-                       (csr_raddr == 12'h305 && csr_ecall) ? mtvec :
-                       (csr_raddr == 12'h341 && csr_mret) ? mepc :
+                       (csr_raddr == 12'h305) ? mtvec :
+                       (csr_raddr == 12'h341) ? mepc :
                        (csr_raddr == 12'h342) ? mcause : 0;
+
+    assign csr_mtvec = mtvec;
+    assign csr_mepc  = mepc;
 
 endmodule

@@ -28,20 +28,22 @@ void halt(int code) {
 }
 
 void _trm_init() {
+#ifndef CONFIG_DIFFTEST
   uart_init();  // 串口初始化
 
   // ----- 打印 CPU ID -----
-  // int vendor_id, arch_id;
-  // char num[4];
+  int vendor_id, arch_id;
+  char num[4];
 
-  // asm volatile("csrr %0, mvendorid" : "=r"(vendor_id));
-  // asm volatile("csrr %0, marchid"   : "=r"(arch_id));
+  asm volatile("csrr %0, mvendorid" : "=r"(vendor_id));
+  asm volatile("csrr %0, marchid"   : "=r"(arch_id));
 
-  // for (int i = 0; i < 4; i ++) num[i] = (vendor_id >> (8 * i)) & 0xFF;
-  // for (int i = 3; i >= 0; i --) printf("%c", num[i]);
-  // printf("\n");
-  // printf("NPC ID: %d\n", arch_id);
+  for (int i = 0; i < 4; i ++) num[i] = (vendor_id >> (8 * i)) & 0xFF;
+  for (int i = 3; i >= 0; i --) printf("%c", num[i]);
+  printf("\n");
+  printf("NPC ID: %d\n", arch_id);
   // ----------------------
+#endif
 
   int ret = main(mainargs);
   halt(ret);
