@@ -19,6 +19,7 @@ module ysyx_26010027_EXU (
 
     input      [ 1:0] idu_exu_jump,
     input      [ 2:0] idu_exu_branch,
+    input             idu_exu_fencei,
 
     input      [11:0] idu_exu_csr_waddr,
     input             idu_exu_csr_we,
@@ -172,6 +173,10 @@ module ysyx_26010027_EXU (
             else if (idu_exu_csr_ecall || idu_exu_csr_mret) begin
                 exu_flush    = 1'b1;
                 exu_flush_pc = dnpc;
+            end
+            else if (idu_exu_fencei) begin
+                exu_flush    = 1'b1;
+                exu_flush_pc = idu_exu_pc + 4;
             end
             else begin
                 exu_flush    = 1'b0;

@@ -1,4 +1,6 @@
-`define ICACHE 1
+`ifdef TOP_SOC
+    `define ICACHE
+`endif
 module ysyx_26010027_icache (
     input             clock,
     input             reset,

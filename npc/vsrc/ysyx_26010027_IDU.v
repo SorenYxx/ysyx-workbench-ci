@@ -25,6 +25,7 @@ module ysyx_26010027_IDU (
 
     output reg [ 1:0] idu_exu_jump,
     output reg [ 2:0] idu_exu_branch,
+    output reg        idu_exu_fencei,
     input             exu_flush,
 
     output reg [11:0] idu_wbu_csr_raddr,
@@ -34,9 +35,8 @@ module ysyx_26010027_IDU (
     output reg        idu_exu_csr_mret,
 
     // IDU - WBU
-    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2,
+    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2
 
-    output            fence_i       // fence.i 指令
 );
 
     // ----- Instruction decoding -----
@@ -185,8 +185,8 @@ module ysyx_26010027_IDU (
                        lhu ? 3'd4 :
                        3'd5;
 
-    assign fence_i = (inst == 32'h0000100F);
-    wire ebreak = (inst == 32'h00100073);
+    wire fence_i = (inst == 32'h0000100F);
+    wire ebreak  = (inst == 32'h00100073);
 
     // Immediate generation
     wire [31:0] imm = (inst_I) ? {{20{inst[31]}}, inst[31:20]} :
@@ -235,6 +235,7 @@ module ysyx_26010027_IDU (
         idu_exu_waddr    <= 5'd0;
         idu_exu_jump     <= 2'd0;
         idu_exu_branch   <= 3'd6;
+        idu_exu_fencei   <= 1'd0;
 
         idu_wbu_csr_raddr <= 12'd0;
         idu_exu_csr_waddr <= 12'd0;
@@ -260,6 +261,7 @@ module ysyx_26010027_IDU (
         idu_exu_waddr    <= waddr;
         idu_exu_jump     <= jump;
         idu_exu_branch   <= branch;
+        idu_exu_fencei   <= fence_i;
 
         idu_wbu_csr_raddr <= csr_addr;
         idu_exu_csr_waddr <= csr_addr;
@@ -284,6 +286,7 @@ module ysyx_26010027_IDU (
         idu_exu_waddr    <= idu_exu_waddr;
         idu_exu_jump     <= idu_exu_jump;
         idu_exu_branch   <= idu_exu_branch;
+        idu_exu_fencei   <= idu_exu_fencei;
 
         idu_wbu_csr_raddr <= idu_wbu_csr_raddr;
         idu_exu_csr_waddr <= idu_exu_csr_waddr;

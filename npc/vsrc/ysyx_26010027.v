@@ -337,7 +337,7 @@ module ysyx_26010027 (
     ysyx_26010027_icache my_icache (
         .clock       (clock),
         .reset       (reset),
-        .flush_i     (fence_i),
+        .flush_i     (idu_exu_fencei),
 
         .ifu_araddr  (ifu_cpu_araddr),
         .ifu_arvalid (ifu_cpu_arvalid),
@@ -407,6 +407,7 @@ module ysyx_26010027 (
     wire [ 4:0] idu_exu_waddr;
     wire [ 1:0] idu_exu_jump;
     wire [ 2:0] idu_exu_branch;
+    wire        idu_exu_fencei;
 
     wire [11:0] idu_wbu_csr_raddr;
     wire [11:0] idu_exu_csr_waddr;
@@ -444,6 +445,7 @@ module ysyx_26010027 (
         .idu_exu_waddr (idu_exu_waddr),
         .idu_exu_jump  (idu_exu_jump),
         .idu_exu_branch(idu_exu_branch),
+        .idu_exu_fencei(idu_exu_fencei),
 
         .exu_flush     (exu_flush),
 
@@ -453,9 +455,8 @@ module ysyx_26010027 (
         .idu_exu_csr_waddr(idu_exu_csr_waddr),
         .idu_exu_csr_we   (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
-        .idu_exu_csr_mret (idu_exu_csr_mret),
+        .idu_exu_csr_mret (idu_exu_csr_mret)
 
-        .fence_i       (fence_i)
     );
 
 
@@ -504,6 +505,7 @@ module ysyx_26010027 (
         .idu_exu_waddr   (idu_exu_waddr),
         .idu_exu_jump    (idu_exu_jump),
         .idu_exu_branch  (idu_exu_branch),
+        .idu_exu_fencei  (idu_exu_fencei),
         .idu_exu_csr_waddr(idu_exu_csr_waddr),
         .idu_exu_csr_we  (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
