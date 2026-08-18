@@ -63,7 +63,7 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP)\""
 all: sim compile run
 
 compile: $(SRC_AUTO_BIND)
-	@verilator -Wall --cc --exe --build --trace-fst --top-module $(TOP) \
+	@verilator -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
         -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DECLFILENAME \
         -Wno-DEFPARAM -Wno-ASSIGNDLY -Wno-PROCASSINIT -Wno-SYNCASYNCNET \
         -Wno-UNDRIVEN \

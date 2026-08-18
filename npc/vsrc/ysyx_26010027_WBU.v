@@ -32,9 +32,9 @@ module ysyx_26010027_WBU (
     wire [31:0] wdata;
     wire [ 4:0] waddr;
 
-    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result :
-                   (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result :
-                   lsu_wbu_pc + 4) : 0;
+    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result : // ALU | CSR
+                   (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result : // MEM
+                   lsu_wbu_pc + 4) : 0; // PC + 4
     assign waddr = (lsu_wbu_reg_w) ? lsu_wbu_waddr : 0;
     assign wbu_lsu_ready = lsu_wbu_valid;
 
