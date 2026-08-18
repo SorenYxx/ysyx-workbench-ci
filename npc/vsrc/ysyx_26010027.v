@@ -1,3 +1,4 @@
+`ifndef SYNTHESIS
 import "DPI-C" function void finish_sim();
 import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
 import "DPI-C" function int  pmem_read(input int raddr);
@@ -8,6 +9,7 @@ import "DPI-C" function void get_csr(input int csr, input int data);
 import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu_w_data, input int exu_done, input int alu_we, input int csr_we, input int cpu_jump, input int cpu_branch, input int icache_hit, input int icache_miss, input int icache_miss_latency);
 import "DPI-C" function void cpu_trace(input int pc, input int inst);
 import "DPI-C" function void ifu_trace(input int pc, input int inst);
+`endif
 
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
@@ -397,6 +399,7 @@ module ysyx_26010027 (
     wire [31:0] idu_exu_pc;
     wire [31:0] idu_exu_inst;
     wire [31:0] idu_exu_imm;
+    wire [31:0] idu_exu_target;
     wire [ 3:0] idu_exu_alu_op;
     wire [ 1:0] idu_exu_mem_w;
     wire [ 2:0] idu_exu_mem_r;
@@ -434,6 +437,7 @@ module ysyx_26010027 (
         .idu_exu_valid (idu_exu_valid),
         .idu_exu_pc    (idu_exu_pc),
         .idu_exu_inst  (idu_exu_inst),
+        .idu_exu_target(idu_exu_target),
         .idu_exu_imm   (idu_exu_imm),
         .idu_exu_alu_op(idu_exu_alu_op),
         .idu_exu_mem_w (idu_exu_mem_w),
@@ -495,6 +499,7 @@ module ysyx_26010027 (
         .idu_exu_pc      (idu_exu_pc),
         .idu_exu_inst    (idu_exu_inst),
         .idu_exu_imm     (idu_exu_imm),
+        .idu_exu_target  (idu_exu_target),
         .idu_exu_alu_op  (idu_exu_alu_op),
         .idu_exu_mem_w   (idu_exu_mem_w),
         .idu_exu_mem_r   (idu_exu_mem_r),
@@ -795,8 +800,7 @@ module ysyx_26010027 (
     end
 
 
-    // 提交阶段（WBU）调试与统计
-
+`ifndef SYNTHESIS
     wire access_fault = (cpu_ifu_rvalid && ifu_cpu_rready && cpu_ifu_rresp != 2'b00)
                      || (cpu_lsu_rvalid && lsu_cpu_rready && cpu_lsu_rresp != 2'b00)
                      || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
@@ -840,5 +844,6 @@ module ysyx_26010027 (
             end
         end
     end
+`endif
 
 endmodule

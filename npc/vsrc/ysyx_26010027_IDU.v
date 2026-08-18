@@ -13,6 +13,7 @@ module ysyx_26010027_IDU (
     output reg [31:0] idu_exu_pc,
     output reg [31:0] idu_exu_inst,
 
+    output reg [31:0] idu_exu_target,
     output reg [31:0] idu_exu_imm,
     output reg [ 3:0] idu_exu_alu_op,
     output reg [ 1:0] idu_exu_mem_w,
@@ -133,10 +134,10 @@ module ysyx_26010027_IDU (
                      lui || auipc || jal || csr_inst || ebreak || fence_i);
 
     // Control signals
-    wire [1:0] jump = (jal || jalr) ? 2'b01 :
+    wire [1:0] jump = (jalr) ? 2'b01 :
                       csr_ecall ? 2'b10 :
                       csr_mret  ? 2'b11 :
-                      2'b00;
+                      2'b00; // jal
 
     wire [2:0] branch = bne  ? 3'd0 :
                         beq  ? 3'd1 :
@@ -151,20 +152,21 @@ module ysyx_26010027_IDU (
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00;                                // ALU
 
-    wire [3:0] alu_op = (sub || inst_B)    ? 4'd1  :
-                        lui                ? 4'd2  :
-                        (sll || slli)      ? 4'd3  :
-                        (srl || srli)      ? 4'd4  :
-                        (sra || srai)      ? 4'd5  :
-                        (slt || slti)      ? 4'd6  :
-                        sltiu              ? 4'd7  :
-                        sltu               ? 4'd8  :
-                        (r_xor || xori)    ? 4'd9  :
-                        (r_and || andi)    ? 4'd10 :
-                        (r_or || ori)      ? 4'd11 :
-                        csrrw              ? 4'd12 :
-                        csrrs              ? 4'd13 :
-                        4'd0;
+    wire [3:0] alu_op = (sub)           ? 4'd1  :
+                        lui             ? 4'd2  :
+                        (sll || slli)   ? 4'd3  :
+                        (srl || srli)   ? 4'd4  :
+                        (sra || srai)   ? 4'd5  :
+                        (slt || slti)   ? 4'd6  :
+                        sltiu           ? 4'd7  :
+                        sltu            ? 4'd8  :
+                        (r_xor || xori) ? 4'd9  :
+                        (r_and || andi) ? 4'd10 :
+                        (r_or || ori)   ? 4'd11 :
+                        inst_B          ? 4'd12 :
+                        csrrw           ? 4'd13 :
+                        csrrs           ? 4'd14 :
+                        4'd0; // 加法alu
 
     wire alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
     wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
@@ -196,9 +198,10 @@ module ysyx_26010027_IDU (
                 (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
                 32'b0;
 
-    wire [4:0] raddr1 = inst[19:15];
-    wire [4:0] raddr2 = inst[24:20];
-    wire [4:0] waddr  = inst[11:7];
+    wire [31:0] target = ifu_idu_pc + imm;
+    wire [ 4:0] raddr1 = inst[19:15];
+    wire [ 4:0] raddr2 = inst[24:20];
+    wire [ 4:0] waddr  = inst[11:7];
 
     // always @(*)
     //     if (ifu_idu_valid && illegal && (inst != 32'b0))
@@ -224,6 +227,7 @@ module ysyx_26010027_IDU (
       if (reset) begin
         idu_exu_pc       <= 32'd0;
         idu_exu_inst     <= 32'd0;
+        idu_exu_target   <= 32'd0;
         idu_exu_imm      <= 32'd0;
         idu_exu_alu_op   <= 4'd0;
         idu_exu_mem_w    <= 2'd0;
@@ -250,6 +254,7 @@ module ysyx_26010027_IDU (
       else if (ifu_idu_valid && idu_ifu_ready) begin
         idu_exu_pc       <= ifu_idu_pc;
         idu_exu_inst     <= ifu_idu_inst;
+        idu_exu_target   <= target;
         idu_exu_imm      <= imm;
         idu_exu_alu_op   <= alu_op;
         idu_exu_mem_w    <= mem_w;
@@ -275,6 +280,7 @@ module ysyx_26010027_IDU (
       else begin
         idu_exu_pc       <= idu_exu_pc;
         idu_exu_inst     <= idu_exu_inst;
+        idu_exu_target   <= idu_exu_target;
         idu_exu_imm      <= idu_exu_imm;
         idu_exu_alu_op   <= idu_exu_alu_op;
         idu_exu_mem_w    <= idu_exu_mem_w;

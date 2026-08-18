@@ -11,8 +11,8 @@ static const char mainargs[MAINARGS_MAX_LEN] = TOSTRING(MAINARGS_PLACEHOLDER); /
 // 初始化 uart
 void uart_init() {
   *(volatile uint8_t *) (UART_LCR) = 0x80; // 设置 DLAB = 1
-  *(volatile uint8_t *) (UART_LSB) = 0x01; // DLL = 27
-  *(volatile uint8_t *) (UART_MSB) = 0x00; // DLH
+  *(volatile uint8_t *) (UART_LSB) = 0x01; // DLL = 1
+  *(volatile uint8_t *) (UART_MSB) = 0x00; // DLM
   *(volatile uint8_t *) (UART_LCR) = 0x03; // DLAB = 0, 8N1
   *(volatile uint8_t *) (UART_MSB) = 0x00; // 禁用中断
 }
