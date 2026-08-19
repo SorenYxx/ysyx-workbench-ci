@@ -11,7 +11,7 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(686);
+    Verilated::stackCheck(696);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision

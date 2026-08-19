@@ -145,9 +145,9 @@ module ysyx_26010027_LSU (
         if (reset) state_w <= W_IDLE;
         else case (state_w)
             W_IDLE: if (handshake_aw && handshake_w) state_w <= W_RESP;
-                    else if (handshake_aw)          state_w <= W_WAIT;
-            W_WAIT: if (handshake_w)                state_w <= W_RESP;
-            W_RESP: if (handshake_b)                state_w <= W_IDLE;
+                    else if (handshake_aw) state_w <= W_WAIT;
+            W_WAIT: if (handshake_w) state_w <= W_RESP;
+            W_RESP: if (handshake_b) state_w <= W_IDLE;
             default: state_w <= W_IDLE;
         endcase
     end

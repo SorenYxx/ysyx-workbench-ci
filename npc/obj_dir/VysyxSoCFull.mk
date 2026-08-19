@@ -37,6 +37,10 @@ VM_PREFIX = VysyxSoCFull
 VM_MODPREFIX = VysyxSoCFull
 # User CFLAGS (from -CFLAGS on Verilator command line)
 VM_USER_CFLAGS = \
+  -MMD \
+  -O3 \
+  -I/usr/include/SDL2 \
+  -D_REENTRANT \
   -I/home/soren/ysyx-workbench/npc/include \
   -I/home/soren/ysyx-workbench/nvboard/usr/include \
   -DTOP_NAME="VysyxSoCFull" \
@@ -44,13 +48,19 @@ VM_USER_CFLAGS = \
   -DCONFIG_SOC \
   -DCONFIG_WATCHPOINT \
   -DCONFIG_STATISTICS \
+  -DCONFIG_WAVE_DUMP \
   -DCONFIG_HAS_SERIAL \
   -DCONFIG_BATCH_MODE \
+  -DCONFIG_NVBOARD \
   -DCONFIG_DEVICE \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
   -lz \
+  /home/soren/ysyx-workbench/nvboard/build/nvboard.a \
+  -lSDL2 \
+  -lSDL2_image \
+  -lSDL2_ttf \
   -lcapstone \
   -lreadline \
   -ldl \
@@ -73,9 +83,11 @@ VM_USER_CLASSES = \
   watchpoint \
   disasm \
   ftrace \
+  auto_bind \
 
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
+  . \
   .. \
   ../src \
   ../src/cpu \
@@ -127,6 +139,8 @@ watchpoint.o: ./src/monitor/sdb/watchpoint.c
 disasm.o: ./src/utils/disasm.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 ftrace.o: ./src/utils/ftrace.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+auto_bind.o: /home/soren/ysyx-workbench/npc/obj_dir/auto_bind.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 
 ### Link rules... (from --exe)

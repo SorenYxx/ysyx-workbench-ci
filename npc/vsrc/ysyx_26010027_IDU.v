@@ -150,7 +150,7 @@ module ysyx_26010027_IDU (
     wire [1:0] rf_res = ld_type               ? 2'b01 :  // memory
                         (csrrw || csrrs || csrrc) ? 2'b10 :  // CSR
                         (jal || jalr)             ? 2'b11 :  // PC+4
-                        2'b00;                                // ALU
+                        2'b00; // ALU
 
     wire [3:0] alu_op = (sub)           ? 4'd1  :
                         lui             ? 4'd2  :
@@ -254,18 +254,18 @@ module ysyx_26010027_IDU (
       else if (ifu_idu_valid && idu_ifu_ready) begin
         idu_exu_pc       <= ifu_idu_pc;
         idu_exu_inst     <= ifu_idu_inst;
-        idu_exu_target   <= target;
+        idu_exu_target   <= target; // pc + imm
         idu_exu_imm      <= imm;
-        idu_exu_alu_op   <= alu_op;
+        idu_exu_alu_op   <= alu_op; // ALU 算术选择
         idu_exu_mem_w    <= mem_w;
         idu_exu_mem_r    <= mem_r;
-        idu_exu_alu_arc1 <= alu_arc1;
+        idu_exu_alu_arc1 <= alu_arc1; // ALU 源操作数选择
         idu_exu_alu_arc2 <= alu_arc2;
         idu_exu_reg_w    <= reg_w;
-        idu_exu_rf_res   <= rf_res;
+        idu_exu_rf_res   <= rf_res; // GPR的rf-result 写入结果选择
         idu_exu_waddr    <= waddr;
-        idu_exu_jump     <= jump;
-        idu_exu_branch   <= branch;
+        idu_exu_jump     <= jump; // 跳转 包括异常
+        idu_exu_branch   <= branch; // 分支
         idu_exu_fencei   <= fence_i;
 
         idu_wbu_csr_raddr <= csr_addr;
@@ -277,33 +277,7 @@ module ysyx_26010027_IDU (
         idu_wbu_raddr1 <= raddr1;
         idu_wbu_raddr2 <= raddr2;
       end
-      else begin
-        idu_exu_pc       <= idu_exu_pc;
-        idu_exu_inst     <= idu_exu_inst;
-        idu_exu_target   <= idu_exu_target;
-        idu_exu_imm      <= idu_exu_imm;
-        idu_exu_alu_op   <= idu_exu_alu_op;
-        idu_exu_mem_w    <= idu_exu_mem_w;
-        idu_exu_mem_r    <= idu_exu_mem_r;
-        idu_exu_alu_arc1 <= idu_exu_alu_arc1;
-        idu_exu_alu_arc2 <= idu_exu_alu_arc2;
-        idu_exu_reg_w    <= idu_exu_reg_w;
-        idu_exu_rf_res   <= idu_exu_rf_res;
-        idu_exu_waddr    <= idu_exu_waddr;
-        idu_exu_jump     <= idu_exu_jump;
-        idu_exu_branch   <= idu_exu_branch;
-        idu_exu_fencei   <= idu_exu_fencei;
 
-        idu_wbu_csr_raddr <= idu_wbu_csr_raddr;
-        idu_exu_csr_waddr <= idu_exu_csr_waddr;
-        idu_exu_csr_we    <= idu_exu_csr_we;
-        idu_exu_csr_ecall <= idu_exu_csr_ecall;
-        idu_exu_csr_mret  <= idu_exu_csr_mret;
-
-        idu_wbu_raddr1 <= idu_wbu_raddr1;
-        idu_wbu_raddr2 <= idu_wbu_raddr2;
-
-      end
     end
 
 endmodule

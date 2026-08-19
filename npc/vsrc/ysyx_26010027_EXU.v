@@ -93,6 +93,7 @@ module ysyx_26010027_EXU (
     assign csr_rdata = csr_fwd[0] ? exu_lsu_csr_wdata : 
                        csr_fwd[1] ? lsu_wbu_csr_wdata : wbu_exu_csr_rdata;
 
+    // 源操作数选择与处理
     assign src1 = idu_exu_alu_arc1 ? pc  : rdata1;
     assign src2 = idu_exu_alu_arc2 ? imm : rdata2;
     assign mid = src1 - src2;
@@ -108,6 +109,7 @@ module ysyx_26010027_EXU (
                  (idu_exu_branch == 3'd5) ? !ltu :  // bgeu
                  1'b0;
 
+    // ALU module
     always @(*) begin
         case (idu_exu_alu_op)
             4'd0:  alu_result = src1 + src2;
@@ -136,7 +138,7 @@ module ysyx_26010027_EXU (
     wire [1:0] csr_fwd;
 
     // raw 前递
-    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01);
+    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01); // 除 PC + 4
     wire wbu_fwd_flag = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01);
     assign fwd_1[0] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_flag); // 读地址等于邻级写地址且不为0、当前rf_res位选为 ALU or PC+4
     assign fwd_2[0] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_flag);
@@ -147,7 +149,7 @@ module ysyx_26010027_EXU (
     assign fwd_1[2] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
     assign fwd_2[2] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
 
-    // 等 load 数据: load 尚未进入 LSU(在 EXU->LSU 寄存器), 或已在 LSU 中访存、数据未回
+    // 等 load 数据
     assign load_use_stall = (|idu_wbu_raddr1 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr1)
                          || (|idu_wbu_raddr2 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr2)
                          || (|idu_wbu_raddr1 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr1)
@@ -194,7 +196,7 @@ module ysyx_26010027_EXU (
         end
     end
 
-    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !load_use_stall;
+    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !load_use_stall; // stall 反压
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             exu_lsu_valid <= 1'b0;
@@ -232,38 +234,21 @@ module ysyx_26010027_EXU (
             exu_lsu_inst     <= idu_exu_inst;
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
-            exu_lsu_mem_addr <= alu_result;
-            exu_lsu_wdata    <= rdata2;
+            exu_lsu_mem_addr <= alu_result; // ALU-访存地址
+            exu_lsu_wdata    <= rdata2; // 直接传rs2寄存器的值
 
             exu_lsu_reg_w      <= idu_exu_reg_w;
             exu_lsu_rf_res     <= idu_exu_rf_res;
-            exu_lsu_waddr      <= idu_exu_waddr;
-            exu_lsu_alu_result <= alu_result;
+            exu_lsu_waddr      <= idu_exu_waddr; // rf 地址
+            exu_lsu_alu_result <= alu_result; // ALU结果
 
             exu_lsu_csr_waddr  <= idu_exu_csr_waddr;
             exu_lsu_csr_we     <= idu_exu_csr_we;
             exu_lsu_csr_ecall  <= idu_exu_csr_ecall;
             exu_lsu_csr_mret   <= idu_exu_csr_mret;
-            exu_lsu_csr_wdata  <= alu_result;
+            exu_lsu_csr_wdata  <= alu_result; // ALU-csr写数据
         end
-        else begin
-            exu_lsu_pc       <= exu_lsu_pc;
-            exu_lsu_inst     <= exu_lsu_inst;
-            exu_lsu_mem_w    <= exu_lsu_mem_w;
-            exu_lsu_mem_r    <= exu_lsu_mem_r;
-            exu_lsu_mem_addr <= exu_lsu_mem_addr;
 
-            exu_lsu_reg_w      <= exu_lsu_reg_w;
-            exu_lsu_waddr      <= exu_lsu_waddr;
-            exu_lsu_rf_res     <= exu_lsu_rf_res;
-            exu_lsu_alu_result <= exu_lsu_alu_result;
-
-            exu_lsu_csr_waddr  <= exu_lsu_csr_waddr;
-            exu_lsu_csr_we     <= exu_lsu_csr_we;
-            exu_lsu_csr_ecall  <= exu_lsu_csr_ecall;
-            exu_lsu_csr_mret   <= exu_lsu_csr_mret;
-            exu_lsu_csr_wdata  <= exu_lsu_csr_wdata;
-        end
     end
 
 endmodule

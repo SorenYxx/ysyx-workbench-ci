@@ -34,13 +34,18 @@ module ysyx_26010027_CLINT (
     // assign io_slave_bid     = 4'b0;
 
     // mtime 计时器
-    reg [63:0] mtime;
+    reg [31:0] mtime_low, mtime_high;
 
     always @(posedge clock, posedge reset) begin
-        if (reset)
-            mtime <= 64'h0;
-        else
-            mtime <= mtime + 64'h1;
+        if (reset) begin
+            mtime_low <= 32'h0;
+            mtime_high <= 32'h0;
+        end
+        else begin
+            mtime_low <= mtime_low + 32'h1;
+            if (mtime_low == 32'hFFFF_FFFF) // 溢出进位
+                mtime_high <= mtime_high + 32'h1;
+        end
     end
 
     // 状态机
@@ -71,8 +76,8 @@ module ysyx_26010027_CLINT (
                         io_slave_rvalid <= 1'b1;
                         io_slave_rresp  <= 2'b0;
                         case (io_slave_araddr[3:2])
-                            2'b00: rdata <= mtime[31:0];
-                            2'b01: rdata <= mtime[63:32];
+                            2'b00: rdata <= mtime_low;
+                            2'b01: rdata <= mtime_high;
                             default: rdata <= 32'b0;
                         endcase
                     end
