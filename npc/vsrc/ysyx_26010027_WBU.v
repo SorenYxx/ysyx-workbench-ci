@@ -14,6 +14,7 @@ module ysyx_26010027_WBU (
     input             lsu_wbu_valid,
     output            wbu_lsu_ready,
     input      [31:0] lsu_wbu_pc,
+    input      [31:0] lsu_wbu_snpc,
     input      [31:0] lsu_wbu_inst,
     input             lsu_wbu_reg_w,
     input      [ 4:0] lsu_wbu_waddr,
@@ -34,7 +35,7 @@ module ysyx_26010027_WBU (
 
     assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result : // ALU | CSR
                    (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result : // MEM
-                   lsu_wbu_pc + 4) : 0; // PC + 4
+                   lsu_wbu_snpc) : 0; // SNPC
     assign waddr = (lsu_wbu_reg_w) ? lsu_wbu_waddr : 0;
     assign wbu_lsu_ready = lsu_wbu_valid;
 

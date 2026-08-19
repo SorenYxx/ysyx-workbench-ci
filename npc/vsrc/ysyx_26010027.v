@@ -470,6 +470,7 @@ module ysyx_26010027 (
     wire        lsu_exu_ready;
     wire        exu_lsu_valid;
     wire [31:0] exu_lsu_pc;
+    wire [31:0] exu_lsu_snpc;
     wire [31:0] exu_lsu_inst;
     wire [ 1:0] exu_lsu_mem_w;
     wire [ 2:0] exu_lsu_mem_r;
@@ -519,6 +520,7 @@ module ysyx_26010027 (
         .lsu_exu_ready   (lsu_exu_ready),
         .exu_lsu_valid   (exu_lsu_valid),
         .exu_lsu_pc      (exu_lsu_pc),
+        .exu_lsu_snpc     (exu_lsu_snpc),
         .exu_lsu_inst    (exu_lsu_inst),
         .exu_lsu_mem_w   (exu_lsu_mem_w),
         .exu_lsu_mem_r   (exu_lsu_mem_r),
@@ -547,6 +549,7 @@ module ysyx_26010027 (
         .lsu_wbu_waddr   (lsu_wbu_waddr),
         .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
         .lsu_wbu_pc      (lsu_wbu_pc),
+        .lsu_wbu_snpc    (lsu_wbu_snpc),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
         .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
@@ -565,6 +568,7 @@ module ysyx_26010027 (
     wire        wbu_lsu_ready;
     wire        lsu_wbu_valid;
     wire [31:0] lsu_wbu_pc;
+    wire [31:0] lsu_wbu_snpc;
     wire [31:0] lsu_wbu_inst;
     wire        lsu_wbu_reg_w;
     wire [ 1:0] lsu_wbu_rf_res;
@@ -625,6 +629,7 @@ module ysyx_26010027 (
         .exu_lsu_valid   (exu_lsu_valid),
         .lsu_exu_ready   (lsu_exu_ready),
         .exu_lsu_pc      (exu_lsu_pc),
+        .exu_lsu_snpc     (exu_lsu_snpc),
         .exu_lsu_inst    (exu_lsu_inst),
         .exu_lsu_reg_w   (exu_lsu_reg_w),
         .exu_lsu_rf_res  (exu_lsu_rf_res),
@@ -639,6 +644,7 @@ module ysyx_26010027 (
         .wbu_lsu_ready   (wbu_lsu_ready),
         .lsu_wbu_valid   (lsu_wbu_valid),
         .lsu_wbu_pc      (lsu_wbu_pc),
+        .lsu_wbu_snpc    (lsu_wbu_snpc),
         .lsu_wbu_inst    (lsu_wbu_inst),
         .lsu_wbu_reg_w   (lsu_wbu_reg_w),
         .lsu_wbu_rf_res  (lsu_wbu_rf_res),
@@ -714,6 +720,7 @@ module ysyx_26010027 (
         .lsu_wbu_valid  (lsu_wbu_valid),
         .wbu_lsu_ready  (wbu_lsu_ready),
         .lsu_wbu_pc     (lsu_wbu_pc),
+        .lsu_wbu_snpc   (lsu_wbu_snpc),
         .lsu_wbu_inst   (lsu_wbu_inst),
         .lsu_wbu_reg_w  (lsu_wbu_reg_w),
         .lsu_wbu_waddr  (lsu_wbu_waddr),

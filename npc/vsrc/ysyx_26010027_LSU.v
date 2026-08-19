@@ -11,6 +11,7 @@ module ysyx_26010027_LSU (
     input             exu_lsu_valid,
     output wire       lsu_exu_ready,
     input      [31:0] exu_lsu_pc,
+    input      [31:0] exu_lsu_snpc,
     input      [31:0] exu_lsu_inst,
     input             exu_lsu_reg_w,
     input      [ 1:0] exu_lsu_rf_res,
@@ -27,6 +28,7 @@ module ysyx_26010027_LSU (
     input             wbu_lsu_ready,
     output wire       lsu_wbu_valid,
     output reg [31:0] lsu_wbu_pc,
+    output reg [31:0] lsu_wbu_snpc,
     output reg [31:0] lsu_wbu_inst,
     output reg        lsu_wbu_reg_w,
     output reg [ 1:0] lsu_wbu_rf_res,
@@ -197,6 +199,7 @@ module ysyx_26010027_LSU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             lsu_wbu_pc         <= 32'b0;
+            lsu_wbu_snpc       <= 32'b0;
             lsu_wbu_inst       <= 32'b0;
             lsu_wbu_reg_w      <= 1'b0;
             lsu_wbu_rf_res     <= 2'b0;
@@ -217,6 +220,7 @@ module ysyx_26010027_LSU (
             if (exu_lsu_valid && lsu_exu_ready) begin
                 // 非访存相关数据透传
                 lsu_wbu_pc         <= exu_lsu_pc;
+                lsu_wbu_snpc       <= exu_lsu_snpc;
                 lsu_wbu_inst       <= exu_lsu_inst;
                 lsu_wbu_reg_w      <= exu_lsu_reg_w;
                 lsu_wbu_rf_res     <= exu_lsu_rf_res;
