@@ -32,7 +32,7 @@ module ysyx_26010027_icache (
 
 `ifdef ICACHE
     // ----- cache parameters -----
-    parameter BLOCK_SIZE = 16; // 块大小 16B
+    parameter BLOCK_SIZE = 8; // 块大小 8B
     parameter BLOCK_NUMS = 8; // cache 块数
     parameter WAYS       = 4;  // 组内的相联度
 

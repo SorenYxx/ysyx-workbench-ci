@@ -9,6 +9,7 @@
 !/ysyxSoC/*
 !Makefile
 !README.md
+!patch
 !.gitignore
 !init.sh
 /fceux-am

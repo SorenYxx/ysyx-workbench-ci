@@ -10,7 +10,7 @@ static void serial_io_handler(uint32_t offset, int len, bool is_write) {
   switch (offset) {
     case CH_OFFSET:
       if (is_write) putchar(serial_base[0]);
-      else scanf("%c", &serial_base[0]);
+      else Assert(0, "serial: do not support read");
       break;
     default: Assert(0, "serial: unsupported offset = %d", offset);
   }

@@ -6,7 +6,7 @@ module ysyx_26010027_CSR (
     input       [11:0] csr_raddr,
     input       [11:0] csr_waddr,
     input       [31:0] csr_wdata,
-    output reg  [31:0] csr_rdata,
+    output      [31:0] csr_rdata,
     output      [31:0] csr_mtvec,
     output      [31:0] csr_mepc,
     input       [31:0] pc,

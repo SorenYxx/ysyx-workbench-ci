@@ -3,7 +3,7 @@ module ysyx_26010027_IDU (
     input             reset,
 
     input             ifu_idu_valid,
-    output reg        idu_ifu_ready,
+    output            idu_ifu_ready,
     input  [31:0]     ifu_idu_pc,
     input  [31:0]     ifu_idu_inst,
 

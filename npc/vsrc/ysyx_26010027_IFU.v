@@ -34,6 +34,10 @@ module ysyx_26010027_IFU (
     // --------------------------------
 
 );
+    // Fetch Queue
+    reg fq_valid [1:0];
+    reg [31:0] fq_pc [1:0];
+    reg [31:0] fq_inst [1:0];
 
     // ----- AXI4 -----
     reg [1:0] state;
@@ -104,7 +108,7 @@ module ysyx_26010027_IFU (
         else begin
             if (exu_flush) begin
                 ifu_idu_pc <= exu_flush_pc;
-            end 
+            end
             else if (ifu_idu_valid && idu_ifu_ready)
                 ifu_idu_pc <= next_pc;
         end
@@ -120,6 +124,7 @@ module ysyx_26010027_IFU (
             ifu_idu_inst <= cpu_ifu_rdata;
     end
 
+    // 冲刷处理-捕获锁存 flush 信号
     reg flush_flag;
     always @(posedge clock, posedge reset) begin
         if (reset) begin

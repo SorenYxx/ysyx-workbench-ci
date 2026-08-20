@@ -47,20 +47,8 @@ extern "C" void get_cpu_state(int lsu_get_data, int lsu_w_data, int exu_done, in
   icache_miss_latency = miss_lat;
 }
 
-// state
-NPCState npc_state = { .state = NPC_STOP };
+// PC 初始化
 CPU_state cpu_n = { .pc = PC_START };
-
-void is_illegal_inst() {
-  Log("\033[1;31mAbort at PC = 0x%08x with illegal_inst = 0x%08x\033[0m", CPU_PC(), CPU_INST());
-  npc_state.state = NPC_ABORT;
-  npc_state.halt_pc = CPU_PC();
-}
-
-int is_exit_status_bad() {
-  int good = (npc_state.state == NPC_END && R[10] == 0) || (npc_state.state == NPC_QUIT);
-  return !good;
-}
 
 // 性能计数器和 IPC 追踪
 static void statistics() {

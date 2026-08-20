@@ -31,6 +31,7 @@ module ysyx_26010027_EXU (
     input             lsu_exu_ready,
     output reg        exu_lsu_valid,
     output reg [31:0] exu_lsu_pc,
+    output reg [31:0] exu_lsu_snpc,
     output reg [31:0] exu_lsu_inst,
 
     output reg [ 1:0] exu_lsu_mem_w, 
@@ -63,6 +64,7 @@ module ysyx_26010027_EXU (
     input      [ 4:0] lsu_wbu_waddr,
     input      [11:0] lsu_wbu_csr_waddr,
     input      [31:0] lsu_wbu_pc,
+    input      [31:0] lsu_wbu_snpc,
     input      [31:0] lsu_wbu_alu_result, // RAW
     input      [31:0] lsu_wbu_mem_result, // Load-Use
     input      [31:0] lsu_wbu_csr_wdata,
@@ -81,8 +83,8 @@ module ysyx_26010027_EXU (
     reg  [31:0] alu_result;
 
     // 前递值
-    wire [31:0] lsu_fwd_data = (exu_lsu_rf_res == 2'b11) ? (exu_lsu_pc + 4) : exu_lsu_alu_result; // 一拍
-    wire [31:0] wbu_fwd_data = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_pc + 4) : lsu_wbu_alu_result; // 两拍
+    wire [31:0] lsu_fwd_data = (exu_lsu_rf_res == 2'b11) ? (exu_lsu_snpc) : exu_lsu_alu_result; // 一拍
+    wire [31:0] wbu_fwd_data = (lsu_wbu_rf_res == 2'b11) ? (lsu_wbu_snpc) : lsu_wbu_alu_result; // 两拍
 
     assign rdata1 = fwd_1[0] ? lsu_fwd_data : 
                     fwd_1[1] ? wbu_fwd_data : 
@@ -109,7 +111,7 @@ module ysyx_26010027_EXU (
                  (idu_exu_branch == 3'd5) ? !ltu :  // bgeu
                  1'b0;
 
-    // ALU module
+    // module ALU
     always @(*) begin
         case (idu_exu_alu_op)
             4'd0:  alu_result = src1 + src2;
@@ -212,6 +214,7 @@ module ysyx_26010027_EXU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             exu_lsu_pc       <= 0;
+            exu_lsu_snpc     <= 0;
             exu_lsu_inst     <= 0;
             exu_lsu_mem_w    <= 0;
             exu_lsu_mem_r    <= 0;
@@ -231,6 +234,7 @@ module ysyx_26010027_EXU (
         end
         else if (idu_exu_valid && exu_idu_ready) begin
             exu_lsu_pc       <= idu_exu_pc;
+            exu_lsu_snpc     <= snpc;
             exu_lsu_inst     <= idu_exu_inst;
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
