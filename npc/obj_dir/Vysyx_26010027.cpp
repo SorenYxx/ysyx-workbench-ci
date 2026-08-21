@@ -12,7 +12,6 @@ Vysyx_26010027::Vysyx_26010027(VerilatedContext* _vcontextp__, const char* _vcna
     , vlSymsp{new Vysyx_26010027__Syms(contextp(), _vcname__, this)}
     , clock{vlSymsp->TOP.clock}
     , reset{vlSymsp->TOP.reset}
-    , nothing{vlSymsp->TOP.nothing}
     , __PVT____024unit{vlSymsp->TOP.__PVT____024unit}
     , rootp{&(vlSymsp->TOP)}
 {

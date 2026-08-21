@@ -102,12 +102,12 @@ module ysyx_26010027_LSU (
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire load_q  = l_busy && is_load  && !mem_done;
+    wire load_q  = l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
     wire store_q = l_busy && is_store && !mem_done;
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
-    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8));
+    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // ！！
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
 
     assign lsu_cpu_awaddr  = l_mem_addr;
@@ -116,10 +116,10 @@ module ysyx_26010027_LSU (
     assign lsu_cpu_wstrb   = (l_mem_w == 2'b00) ? 4'hF :
                              (l_mem_w == 2'b01) ? (4'h1 << l_mem_addr[1:0]) :
                              (l_mem_w == 2'b10) ? (4'h3 << l_mem_addr[1:0]) : 4'h0;
-    assign lsu_cpu_awsize  = (l_mem_w == 2'b00) ? 3'b010 :
-                             (l_mem_w == 2'b10) ? 3'b001 : 3'b000;
-    assign lsu_cpu_arsize  = (l_mem_r == 3'd0) ? 3'b010 :
-                             (l_mem_r == 3'd2 || l_mem_r == 3'd4) ? 3'b001 : 3'b000;
+    assign lsu_cpu_awsize  = (l_mem_w == 2'b00) ? 3'b010 : // sw
+                             (l_mem_w == 2'b10) ? 3'b001 : 3'b000; // sb/sh
+    assign lsu_cpu_arsize  = (l_mem_r == 3'd0) ? 3'b010 : // lw
+                             (l_mem_r == 3'd2 || l_mem_r == 3'd4) ? 3'b001 : 3'b000; // lb/lbu lh/lhu
 
     assign lsu_cpu_awid    = 4'h0;
     assign lsu_cpu_awlen   = 8'h0;
@@ -130,7 +130,7 @@ module ysyx_26010027_LSU (
     assign lsu_cpu_arburst = 2'b01;
 
     assign lsu_cpu_awvalid = (state_w == W_IDLE) && store_q;
-    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT) && store_q;
+    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT) && store_q; // 同时请求
     assign lsu_cpu_arvalid = (state_r == R_IDLE) && load_q;
     assign lsu_cpu_rready  = (state_r == R_WAIT);
     assign lsu_cpu_bready  = (state_w == W_RESP);
@@ -176,7 +176,7 @@ module ysyx_26010027_LSU (
         if (reset)
             l_busy <= 1'b0;
         else if (exu_lsu_valid && lsu_exu_ready)
-            l_busy <= 1'b1;
+            l_busy <= 1'b1; // 访存事务 忙
         else if (lsu_wbu_valid && wbu_lsu_ready)
             l_busy <= 1'b0;
     end
@@ -186,14 +186,14 @@ module ysyx_26010027_LSU (
         if (reset)
             mem_done <= 1'b0;
         else if (exu_lsu_valid && lsu_exu_ready)
-            mem_done <= 1'b0;
+            mem_done <= 1'b0; // 数据交接 标记进行中
         else if (handshake_r || handshake_b)
-            mem_done <= 1'b1;
+            mem_done <= 1'b1; // 捕捉返回标志 标记完成
     end
     
-    assign lsu_exu_ready     = !l_busy;
-    assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 有效 & (非访存或访存完成)
-    assign lsu_load_inflight = l_busy && (is_load) && !mem_done;
+    assign lsu_exu_ready     = !l_busy; // 不忙 向上游要数据
+    assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 忙 & (非访存或访存完成)
+    assign lsu_load_inflight = l_busy && (is_load) && !mem_done; // 忙 & 未完成 load线还在飞
 
     // ----- 锁存 -----
     always @(posedge clock, posedge reset) begin

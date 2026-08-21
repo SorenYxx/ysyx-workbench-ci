@@ -72,6 +72,7 @@ VM_USER_CLASSES = \
   watchpoint \
   disasm \
   ftrace \
+  state \
 
 # User .cpp directories (from .cpp's on Verilator command line)
 VM_USER_DIR = \
@@ -126,6 +127,8 @@ watchpoint.o: ./src/monitor/sdb/watchpoint.c
 disasm.o: ./src/utils/disasm.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 ftrace.o: ./src/utils/ftrace.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+state.o: ./src/utils/state.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 
 ### Link rules... (from --exe)

@@ -75,10 +75,7 @@ module ysyx_26010027_EXU (
 
     wire [31:0] src1, src2;
     wire [31:0] rdata1, rdata2;
-    wire [31:0] mid;
-    wire [31:0] pc = idu_exu_pc;
-    wire [31:0] imm = idu_exu_imm;
-    wire [31:0] snpc = pc + 4;
+    wire [31:0] snpc = idu_exu_pc + 4;
     wire [31:0] csr_rdata;
     reg  [31:0] alu_result;
 
@@ -96,10 +93,10 @@ module ysyx_26010027_EXU (
                        csr_fwd[1] ? lsu_wbu_csr_wdata : wbu_exu_csr_rdata;
 
     // 源操作数选择与处理
-    assign src1 = idu_exu_alu_arc1 ? pc  : rdata1;
-    assign src2 = idu_exu_alu_arc2 ? imm : rdata2;
-    assign mid = src1 - src2;
+    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
+    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
 
+    // branch
     wire eq  = (src1 == src2);
     wire lts = ($signed(src1) < $signed(src2));
     wire ltu = (src1 < src2);
@@ -111,12 +108,12 @@ module ysyx_26010027_EXU (
                  (idu_exu_branch == 3'd5) ? !ltu :  // bgeu
                  1'b0;
 
-    // ALU module
+    // module ALU
     always @(*) begin
         case (idu_exu_alu_op)
             4'd0:  alu_result = src1 + src2;
-            4'd1:  alu_result = mid; // sub
-            4'd2:  alu_result = imm; // lui
+            4'd1:  alu_result = src1 - src2; // sub
+            4'd2:  alu_result = idu_exu_imm; // lui
             4'd3:  alu_result = src1 << src2[4:0]; // sll/slli
             4'd4:  alu_result = src1 >> src2[4:0]; // srl/srli
             4'd5:  alu_result = $signed(src1) >>> src2[4:0]; // sra/srai
@@ -136,28 +133,30 @@ module ysyx_26010027_EXU (
     // data forwarding
     wire [2:0] fwd_1; // 1拍与2拍 RAW 和 1拍load-use
     wire [2:0] fwd_2;
-    wire load_use_stall;
     wire [1:0] csr_fwd;
+    wire load_use_stall;
 
     // raw 前递
-    wire lsu_fwd_flag = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01); // 除 PC + 4
-    wire wbu_fwd_flag = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01);
-    assign fwd_1[0] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_flag); // 读地址等于邻级写地址且不为0、当前rf_res位选为 ALU or PC+4
-    assign fwd_2[0] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_flag);
-    assign fwd_1[1] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && wbu_fwd_flag);
-    assign fwd_2[1] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && wbu_fwd_flag);
+    wire lsu_fwd_alu = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b00); // rf_res选ALU
+    wire wbu_fwd_alu = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b00);
+    assign fwd_1[0] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_alu); // 读地址等于邻级写地址且不为0、当前rf_res来源为 ALU
+    assign fwd_2[0] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_alu);
+    assign fwd_1[1] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && wbu_fwd_alu);
+    assign fwd_2[1] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && wbu_fwd_alu);
 
     // load-use 前递
-    assign fwd_1[2] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
-    assign fwd_2[2] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_wbu_reg_w && lsu_wbu_valid && lsu_wbu_rf_res == 2'b01);
+    wire lsu_fwd_mem = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b01); // rf_res选MEM
+    wire wbu_fwd_mem = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b01);
+    assign fwd_1[2] = (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && wbu_fwd_mem); // rf_res选memory
+    assign fwd_2[2] = (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && wbu_fwd_mem);
 
     // 等 load 数据
-    assign load_use_stall = (|idu_wbu_raddr1 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr1)
-                         || (|idu_wbu_raddr2 && exu_lsu_valid && exu_lsu_reg_w && exu_lsu_rf_res == 2'b01 && exu_lsu_waddr == idu_wbu_raddr2)
-                         || (|idu_wbu_raddr1 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr1)
-                         || (|idu_wbu_raddr2 && lsu_load_inflight && lsu_wbu_waddr == idu_wbu_raddr2);
+    assign load_use_stall = (|idu_wbu_raddr1 && idu_wbu_raddr1 == exu_lsu_waddr && lsu_fwd_mem)
+                         || (|idu_wbu_raddr2 && idu_wbu_raddr2 == exu_lsu_waddr && lsu_fwd_mem)
+                         || (|idu_wbu_raddr1 && idu_wbu_raddr1 == lsu_wbu_waddr && lsu_load_inflight)
+                         || (|idu_wbu_raddr2 && idu_wbu_raddr2 == lsu_wbu_waddr && lsu_load_inflight);
 
-    assign csr_fwd[0] = (|idu_wbu_csr_raddr && idu_wbu_csr_raddr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10);
+    assign csr_fwd[0] = (|idu_wbu_csr_raddr && idu_wbu_csr_raddr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR
     assign csr_fwd[1] = (|idu_wbu_csr_raddr && idu_wbu_csr_raddr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
 
     // flush handle

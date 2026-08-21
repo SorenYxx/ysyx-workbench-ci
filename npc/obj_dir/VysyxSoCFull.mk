@@ -82,6 +82,7 @@ VM_USER_CLASSES = \
   watchpoint \
   disasm \
   ftrace \
+  state \
   auto_bind \
 
 # User .cpp directories (from .cpp's on Verilator command line)
@@ -138,6 +139,8 @@ watchpoint.o: ./src/monitor/sdb/watchpoint.c
 disasm.o: ./src/utils/disasm.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 ftrace.o: ./src/utils/ftrace.c 
+	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
+state.o: ./src/utils/state.c 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<
 auto_bind.o: /home/soren/ysyx-workbench/npc/obj_dir/auto_bind.cpp 
 	$(OBJCACHE) $(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OPT_FAST)  -c -o $@ $<

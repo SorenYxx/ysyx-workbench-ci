@@ -14,9 +14,6 @@ import "DPI-C" function void ifu_trace(input int pc, input int inst);
 `define RTC_BASE 32'h0200_0000
 `define RTC_END  32'h0200_ffff
 module ysyx_26010027 (
-    input         clock,
-    input         reset,
-
 `ifdef TOP_SOC
     // ----- MASTER -----
     // AR
@@ -90,15 +87,14 @@ module ysyx_26010027 (
     output [ 1:0] io_slave_bresp,
     output [ 3:0] io_slave_bid,
 
-    input         io_interrupt
+    input         io_interrupt,
     
 `else
-    output        nothing
+
 `endif
+    input         clock,
+    input         reset
 );
-    wire [31:0] pc   = lsu_wbu_pc;
-    wire [31:0] inst = lsu_wbu_inst;
-    wire [31:0] n_pc = ifu_idu_pc;
 
     // Arbiter 相关信号
     wire        arb_arvalid;
@@ -181,8 +177,8 @@ module ysyx_26010027 (
     assign arb_rvalid = addr_is_clint_r ? io_clint_rvalid : io_master_rvalid;
     assign arb_rdata  = addr_is_clint_r ? io_clint_rdata  : io_master_rdata;
     assign arb_rresp  = addr_is_clint_r ? io_clint_rresp  : io_master_rresp;
-    assign arb_rid    = addr_is_clint_r ? 4'h0             : io_master_rid;
-    assign arb_rlast  = addr_is_clint_r ? 1'b1             : io_master_rlast;
+    assign arb_rid    = addr_is_clint_r ? 4'h0            : io_master_rid;
+    assign arb_rlast  = addr_is_clint_r ? 1'b1            : io_master_rlast;
 
     assign io_master_rready = arb_rready && !addr_is_clint_r;
 
@@ -256,11 +252,11 @@ module ysyx_26010027 (
 
     // pmem (访问模拟内存)
     reg [31:0] pmem_read_data;
-    reg [31:0] pmem_write_data;
     reg        pmem_rvalid;
     reg        pmem_wready;
     reg        pmem_bvalid;
     reg [ 1:0] pmem_bresp;
+    reg [ 1:0] pmem_rresp;
 
     assign arb_arready = arb_arvalid;
     assign arb_awready = arb_awvalid;
@@ -269,8 +265,12 @@ module ysyx_26010027 (
     assign arb_wready  = pmem_wready;
     assign arb_bvalid  = pmem_bvalid;
     assign arb_bresp   = pmem_bresp;
+    assign arb_rresp   = pmem_rresp;
+    assign arb_rid     = 4'b0;
+    assign arb_rlast   = 1'b1;
+    assign arb_bid     = 4'b0;
 
-    always @(posedge clock) begin
+    always @(posedge clock, posedge reset) begin
         if (reset) begin
             pmem_rvalid    <= 1'b0;
             pmem_wready    <= 1'b0;
@@ -283,6 +283,7 @@ module ysyx_26010027 (
             if (arb_arvalid && !pmem_rvalid) begin
                 pmem_read_data <= pmem_read(arb_araddr);
                 pmem_rvalid    <= 1'b1;
+                pmem_rresp     <= 2'b0;
             end
             else if (arb_awvalid && !pmem_wready) begin
                 pmem_write(arb_awaddr, arb_wdata, {{28{1'b0}}, arb_wstrb});
@@ -292,6 +293,10 @@ module ysyx_26010027 (
             end
         end
     end
+
+    assign cpu_ifu_rresp = 2'b0;
+    assign cpu_ifu_rid   = 4'b0;
+    assign cpu_ifu_rlast = 1'b1;
 
 `endif
 
@@ -322,7 +327,7 @@ module ysyx_26010027 (
     wire        icache_arready;
     wire [31:0] icache_araddr;
     wire [ 7:0] icache_arlen;
-    wire [ 3:0] icache_arid;
+    wire [ 3:0] icache_arid = 4'b0;
     wire [ 2:0] icache_arsize;
     wire [ 1:0] icache_arburst = 2'b01; // 硬编码 INCR
     wire        icache_rvalid;
@@ -330,7 +335,7 @@ module ysyx_26010027 (
     wire [31:0] icache_rdata;
     wire [ 1:0] icache_rresp;
     wire        icache_rlast;
-    wire [ 3:0] icache_rid;
+    wire [ 3:0] icache_rid = 4'b0;
 
     wire [31:0] hit_count;
     wire [31:0] miss_count;
@@ -421,8 +426,6 @@ module ysyx_26010027 (
     // IDU -> WBU（寄存器读地址，供前递/读寄存器堆）
     wire [ 4:0] idu_wbu_raddr1;
     wire [ 4:0] idu_wbu_raddr2;
-
-    wire        fence_i;
 
     ysyx_26010027_IDU my_IDU (
         .clock      (clock),
@@ -747,6 +750,9 @@ module ysyx_26010027 (
     assign icache_arready = (grant == IFU_GRANT) ? arb_arready : 1'b0;
     assign icache_rvalid  = (grant == IFU_GRANT) ? arb_rvalid  : 1'b0;
     assign icache_rdata   = (grant == IFU_GRANT) ? arb_rdata   : 32'b0;
+    assign icache_rresp   = (grant == IFU_GRANT) ? arb_rresp   : 2'b0;
+    assign icache_rid     = (grant == IFU_GRANT) ? arb_rid     : 4'b0;
+    assign icache_rlast   = (grant == IFU_GRANT) ? arb_rlast   : 1'b0;
 
     assign cpu_lsu_arready = (grant == LSU_GRANT) ? arb_arready : 1'b0;
     assign cpu_lsu_rvalid  = (grant == LSU_GRANT) ? arb_rvalid  : 1'b0;
@@ -760,8 +766,7 @@ module ysyx_26010027 (
     assign cpu_lsu_bresp   = (grant == LSU_GRANT) ? arb_bresp   : 2'b0;
     assign cpu_lsu_bid     = (grant == LSU_GRANT) ? arb_bid     : 4'b0;
 
-    // 事务完成时握手信号
-    wire handshake_ifu_r = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
+    // lsu事务完成时握手信号
     wire handshake_lsu_r = cpu_lsu_rvalid && lsu_cpu_rready && (cpu_lsu_rresp == 2'b00);
     wire handshake_lsu_b = cpu_lsu_bvalid && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
 
@@ -822,7 +827,7 @@ module ysyx_26010027 (
     wire wbu_alu    = (wbu_opcode == 7'b0110011) || (wbu_opcode == 7'b0010011) ||
                       (wbu_opcode == 7'b0010111) || (wbu_opcode == 7'b0110111);
 
-    always @(posedge clock) begin
+    always @(posedge clock, posedge reset) begin
         if (!reset) begin
             get_cpu_state({{31{1'b0}}, lsu_wbu_valid && wbu_load},
                           {{31{1'b0}}, lsu_wbu_valid && wbu_store},

@@ -3,7 +3,7 @@ module ysyx_26010027_IDU (
     input             reset,
 
     input             ifu_idu_valid,
-    output reg        idu_ifu_ready,
+    output            idu_ifu_ready,
     input  [31:0]     ifu_idu_pc,
     input  [31:0]     ifu_idu_inst,
 
@@ -41,7 +41,7 @@ module ysyx_26010027_IDU (
 );
 
     // ----- Instruction decoding -----
-    wire [31:0] inst  = ifu_idu_inst;
+    wire [31:0] inst   = ifu_idu_inst;
     wire [ 6:0] opcode = inst[6:0];
     wire [ 2:0] funct3 = inst[14:12];
     wire [ 6:0] funct7 = inst[31:25];
@@ -129,10 +129,6 @@ module ysyx_26010027_IDU (
 
     // --------------------------
 
-    // Illegal instruction detection
-    wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
-                     lui || auipc || jal || csr_inst || ebreak || fence_i);
-
     // Control signals
     wire [1:0] jump = (jalr) ? 2'b01 :
                       csr_ecall ? 2'b10 :
@@ -147,7 +143,7 @@ module ysyx_26010027_IDU (
                         bgeu ? 3'd5 :
                         3'd6;
 
-    wire [1:0] rf_res = ld_type               ? 2'b01 :  // memory
+    wire [1:0] rf_res = ld_type                   ? 2'b01 :  // memory
                         (csrrw || csrrs || csrrc) ? 2'b10 :  // CSR
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00; // ALU
@@ -171,9 +167,7 @@ module ysyx_26010027_IDU (
     wire alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
     wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
-    wire reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we);
-    wire csr_we = csrrw;
-    wire csr_re = csrrs || csrrc;
+    wire reg_w  = (inst_I || inst_R || inst_J || inst_U || csrrw);
 
     wire [1:0] mem_w = sw ? 2'b00 :
                        sb ? 2'b01 :
@@ -198,14 +192,19 @@ module ysyx_26010027_IDU (
                 (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
                 32'b0;
 
-    wire [31:0] target = ifu_idu_pc + imm;
+    wire [31:0] target = branch != 3'd6 ? ifu_idu_pc + imm : 32'b0;
     wire [ 4:0] raddr1 = inst[19:15];
     wire [ 4:0] raddr2 = inst[24:20];
     wire [ 4:0] waddr  = inst[11:7];
 
-    // always @(*)
-    //     if (ifu_idu_valid && illegal && (inst != 32'b0))
-    //         is_illegal_inst();
+`ifndef SYNTHESIS
+    // Illegal instruction detection
+    wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
+                     lui || auipc || jal || csr_inst || ebreak || fence_i);
+    always @(posedge clock)
+      if (ifu_idu_valid && idu_ifu_ready && !exu_flush && illegal && (inst != 32'b0))
+        is_illegal_inst();
+`endif
 
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin
@@ -270,7 +269,7 @@ module ysyx_26010027_IDU (
 
         idu_wbu_csr_raddr <= csr_addr;
         idu_exu_csr_waddr <= csr_addr;
-        idu_exu_csr_we    <= csr_we;
+        idu_exu_csr_we    <= csrrw;
         idu_exu_csr_ecall <= csr_ecall;
         idu_exu_csr_mret  <= csr_mret;
 

@@ -45,7 +45,7 @@ module ysyx_26010027_IFU (
     reg [31:0] araddr_q;
     reg        flush_ar_sent; // 冲刷后 AR 已发出
 
-    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q;
+    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q; // 取指flag ready反压
     wire handshake_ar = arvalid_q && cpu_ifu_arready;
     wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
@@ -90,7 +90,7 @@ module ysyx_26010027_IFU (
     wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
     wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
     wire branch = (opcode == 7'b1100011);
-    wire jump   = (opcode == 7'b1101111 || opcode == 7'b1100111); // ret和jalr一样直接flush
+    wire jump   = (opcode == 7'b1100111 || opcode == 7'b1101111); // ret和jalr一样直接flush
 
     // 预取下一条指令地址（分支预测：branch/jump 一定跳转）
     wire [31:0] next_pc = branch ? (ifu_idu_pc + imm_B) :
@@ -104,7 +104,7 @@ module ysyx_26010027_IFU (
         else begin
             if (exu_flush) begin
                 ifu_idu_pc <= exu_flush_pc;
-            end 
+            end
             else if (ifu_idu_valid && idu_ifu_ready)
                 ifu_idu_pc <= next_pc;
         end
@@ -120,6 +120,7 @@ module ysyx_26010027_IFU (
             ifu_idu_inst <= cpu_ifu_rdata;
     end
 
+    // 冲刷处理-捕获锁存 flush 信号
     reg flush_flag;
     always @(posedge clock, posedge reset) begin
         if (reset) begin

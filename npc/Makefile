@@ -6,6 +6,7 @@ REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 DUMP      = wave.fst
 LIBS      += -lcapstone -lreadline -ldl
 NPCFLAGS  += -e $(ELF) -d $(REF_SO)
+VERILATOR_FLAGS += --output-split 15000 --decorations none -O0
 
 # ----- Kconfig -----
 -include $(NPC_HOME)/include/config/auto.conf
