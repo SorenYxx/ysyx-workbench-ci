@@ -5,9 +5,9 @@ module ysyx_26010027_WBU (
     input      [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2, 
     input      [ 1:0] lsu_wbu_rf_res, // reg 的 wdata 选择
 
-    output     [31:0] wbu_exu_rdata1,
-    output     [31:0] wbu_exu_rdata2,
-    output     [31:0] wbu_exu_csr_rdata,
+    output     [31:0] wbu_idu_rdata1,
+    output     [31:0] wbu_idu_rdata2,
+    output     [31:0] wbu_idu_csr_rdata,
     output     [31:0] csr_mtvec,
     output     [31:0] csr_mepc,
 
@@ -48,8 +48,8 @@ module ysyx_26010027_WBU (
 
         .raddr1(idu_wbu_raddr1),
         .raddr2(idu_wbu_raddr2),
-        .rdata1(wbu_exu_rdata1),
-        .rdata2(wbu_exu_rdata2)
+        .rdata1(wbu_idu_rdata1),
+        .rdata2(wbu_idu_rdata2)
     );
 
     ysyx_26010027_CSR my_csr (
@@ -60,7 +60,7 @@ module ysyx_26010027_WBU (
         .csr_raddr   (csr_raddr),
         .csr_waddr   (csr_waddr),
         .csr_wdata   (csr_wdata),
-        .csr_rdata   (wbu_exu_csr_rdata),
+        .csr_rdata   (wbu_idu_csr_rdata),
         .csr_mtvec   (csr_mtvec),
         .csr_mepc    (csr_mepc),
         .pc          (lsu_wbu_pc),

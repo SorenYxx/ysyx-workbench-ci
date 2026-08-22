@@ -417,13 +417,19 @@ module ysyx_26010027 (
     wire [ 2:0] idu_exu_branch;
     wire        idu_exu_fencei;
 
-    wire [11:0] idu_wbu_csr_raddr;
+    wire [31:0] idu_exu_rdata1;
+    wire [31:0] idu_exu_rdata2;
+    wire [ 4:0] idu_exu_raddr1;
+    wire [ 4:0] idu_exu_raddr2;
+
+    wire [11:0] idu_exu_csr_raddr;
+    wire [31:0] idu_exu_csr_rdata;
     wire [11:0] idu_exu_csr_waddr;
     wire        idu_exu_csr_we;
     wire        idu_exu_csr_ecall;
     wire        idu_exu_csr_mret;
 
-    // IDU -> WBU（寄存器读地址，供前递/读寄存器堆）
+    wire [11:0] idu_wbu_csr_raddr; 
     wire [ 4:0] idu_wbu_raddr1;
     wire [ 4:0] idu_wbu_raddr2;
 
@@ -456,13 +462,24 @@ module ysyx_26010027 (
 
         .exu_flush     (exu_flush),
 
-        .idu_wbu_raddr1(idu_wbu_raddr1),
-        .idu_wbu_raddr2(idu_wbu_raddr2),
-        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
+        .idu_exu_raddr1(idu_exu_raddr1),
+        .idu_exu_raddr2(idu_exu_raddr2),
+        .idu_exu_rdata1(idu_exu_rdata1),
+        .idu_exu_rdata2(idu_exu_rdata2),
+
+        .idu_exu_csr_raddr(idu_exu_csr_raddr),
+        .idu_exu_csr_rdata(idu_exu_csr_rdata),
         .idu_exu_csr_waddr(idu_exu_csr_waddr),
         .idu_exu_csr_we   (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
-        .idu_exu_csr_mret (idu_exu_csr_mret)
+        .idu_exu_csr_mret (idu_exu_csr_mret),
+
+        .wbu_idu_csr_rdata(wbu_idu_csr_rdata),
+        .wbu_idu_rdata1(wbu_idu_rdata1),
+        .wbu_idu_rdata2(wbu_idu_rdata2),
+        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
+        .idu_wbu_raddr1(idu_wbu_raddr1),
+        .idu_wbu_raddr2(idu_wbu_raddr2)
 
     );
 
@@ -546,20 +563,20 @@ module ysyx_26010027 (
         .lsu_wbu_reg_w   (lsu_wbu_reg_w),
         .lsu_wbu_csr_we  (lsu_wbu_csr_we),
         .lsu_wbu_rf_res  (lsu_wbu_rf_res),
-        .idu_wbu_raddr1  (idu_wbu_raddr1),
-        .idu_wbu_raddr2  (idu_wbu_raddr2),
-        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
+        .idu_exu_raddr1  (idu_exu_raddr1),
+        .idu_exu_raddr2  (idu_exu_raddr2),
+        .idu_exu_csr_raddr(idu_exu_csr_raddr),
         .lsu_wbu_waddr   (lsu_wbu_waddr),
         .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
         .lsu_wbu_pc      (lsu_wbu_pc),
-        .lsu_wbu_snpc    (lsu_wbu_snpc),
+        .lsu_wbu_snpc    (lsu_wbu_snpc), // ！！多余
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
         .lsu_wbu_csr_wdata(lsu_wbu_csr_wdata),
         .lsu_load_inflight(lsu_load_inflight),
-        .wbu_exu_rdata1  (wbu_exu_rdata1),
-        .wbu_exu_rdata2  (wbu_exu_rdata2),
-        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .idu_exu_rdata1  (idu_exu_rdata1),
+        .idu_exu_rdata2  (idu_exu_rdata2),
+        .idu_exu_csr_rdata(idu_exu_csr_rdata),
         .exu_mtvec       (wbu_exu_mtvec),
         .exu_mepc        (wbu_exu_mepc)
     );
@@ -700,9 +717,9 @@ module ysyx_26010027 (
 
     // ----- WBU -----
 
-    wire [31:0] wbu_exu_rdata1;
-    wire [31:0] wbu_exu_rdata2;
-    wire [31:0] wbu_exu_csr_rdata;
+    wire [31:0] wbu_idu_rdata1;
+    wire [31:0] wbu_idu_rdata2;
+    wire [31:0] wbu_idu_csr_rdata;
     wire [31:0] wbu_exu_mtvec;
     wire [31:0] wbu_exu_mepc;
 
@@ -714,9 +731,9 @@ module ysyx_26010027 (
         .idu_wbu_raddr2 (idu_wbu_raddr2),
         .lsu_wbu_rf_res (lsu_wbu_rf_res),
 
-        .wbu_exu_rdata1 (wbu_exu_rdata1),
-        .wbu_exu_rdata2 (wbu_exu_rdata2),
-        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
+        .wbu_idu_rdata1 (wbu_idu_rdata1),
+        .wbu_idu_rdata2 (wbu_idu_rdata2),
+        .wbu_idu_csr_rdata(wbu_idu_csr_rdata),
         .csr_mtvec     (wbu_exu_mtvec),
         .csr_mepc      (wbu_exu_mepc),
 

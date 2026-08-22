@@ -111,14 +111,15 @@ module ysyx_26010027_IFU (
     end
 
     // 捕获到达数据
-    always @(posedge clock, posedge reset) begin
-        if (reset)
-            ifu_idu_inst <= 32'b0;
-        else if (exu_flush)
-            ifu_idu_inst <= 32'b0;   // 冲刷时清空
-        else if (handshake_r)
-            ifu_idu_inst <= cpu_ifu_rdata;
-    end
+    assign ifu_idu_inst = cpu_ifu_rdata;
+    // always @(posedge clock, posedge reset) begin
+    //     if (reset)
+    //         ifu_idu_inst <= 32'b0;
+    //     else if (exu_flush)
+    //         ifu_idu_inst <= 32'b0;   // 冲刷时清空
+    //     else if (handshake_r)
+    //         ifu_idu_inst <= cpu_ifu_rdata;
+    // end
 
     // 冲刷处理-捕获锁存 flush 信号
     reg flush_flag;

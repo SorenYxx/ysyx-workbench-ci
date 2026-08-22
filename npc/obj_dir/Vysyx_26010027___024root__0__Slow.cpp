@@ -103,6 +103,13 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
     VL_DEBUG_IF(VL_DBG_MSGF("+    Vysyx_26010027___024root___stl_sequent__TOP__0\n"); );
     Vysyx_26010027__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     auto& vlSelfRef = std::ref(*vlSelf).get();
+    // Locals
+    CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4;
+    ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4 = 0;
+    CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12;
+    ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12 = 0;
+    CData/*5:0*/ __Vtableidx6;
+    __Vtableidx6 = 0;
     // Body
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_exu_ready 
         = (1U & (~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_busy)));
@@ -135,168 +142,46 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
             = vlSelfRef.ysyx_26010027__DOT__pmem_rresp;
         vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bresp 
             = vlSelfRef.ysyx_26010027__DOT__pmem_bresp;
+        vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rvalid 
+            = vlSelfRef.ysyx_26010027__DOT__pmem_rvalid;
+        vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bvalid 
+            = vlSelfRef.ysyx_26010027__DOT__pmem_bvalid;
     } else {
         vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rresp = 0U;
         vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bresp = 0U;
+        vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rvalid = 0U;
+        vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bvalid = 0U;
     }
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_I 
-        = ((0x13U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
-           | ((3U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
-              | ((0x67U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
-                 | (0x73U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)))));
-    vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rvalid 
-        = ((2U == (IData)(vlSelfRef.ysyx_26010027__DOT__grant)) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__pmem_rvalid));
-    vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bvalid 
-        = ((2U == (IData)(vlSelfRef.ysyx_26010027__DOT__grant)) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__pmem_bvalid));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B 
-        = (((- (IData)((vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                        >> 0x0000001fU))) << 0x0000000cU) 
-           | ((0x00000800U & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                              << 4U)) | ((0x000007e0U 
-                                          & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                             >> 0x00000014U)) 
-                                         | (0x0000001eU 
-                                            & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                               >> 7U)))));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J 
-        = ((((0x00000ffeU & ((- (IData)((vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                         >> 0x0000001fU))) 
-                             << 1U)) | (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                        >> 0x0000001fU)) 
-            << 0x00000014U) | ((((0x000001feU & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                                 >> 0x0000000bU)) 
-                                 | (1U & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                          >> 0x00000014U))) 
-                                << 0x0000000bU) | (0x000007feU 
-                                                   & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                                      >> 0x00000014U))));
     vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__store_q 
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_busy) 
            & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__mem_done)) 
               & (3U != (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_mem_w))));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__csr_fwd__BRA__0__KET__ 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr)) 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_csr_raddr)) 
            & (((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_csr_waddr) 
-               == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr)) 
+               == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_csr_raddr)) 
               & ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_valid) 
                  & ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_csr_we) 
                     & (2U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res))))));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slti 
-        = (IData)((0x00002013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slli 
-        = (IData)((0x00001013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sltiu 
-        = (IData)((0x00003013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__xori 
-        = (IData)((0x00004013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__ori 
-        = (IData)((0x00006013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__andi 
-        = (IData)((0x00007013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lbu 
-        = (IData)((0x00004003U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lhu 
-        = (IData)((0x00005003U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lw = (IData)(
-                                                            (0x00002003U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lh = (IData)(
-                                                            (0x00001003U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lb = (IData)(
-                                                            (3U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sll 
-        = (IData)((0x00001033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slt 
-        = (IData)((0x00002033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sltu 
-        = (IData)((0x00003033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_xor 
-        = (IData)((0x00004033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_or 
-        = (IData)((0x00006033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_and 
-        = (IData)((0x00007033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sw = (IData)(
-                                                            (0x00002023U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sb = (IData)(
-                                                            (0x00000023U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sh = (IData)(
-                                                            (0x00001023U 
-                                                             == 
-                                                             (0x0000707fU 
-                                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrw 
-        = (IData)((0x00001073U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrs 
-        = (IData)((0x00002073U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_U 
-        = ((0x37U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
-           | (0x17U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight 
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_busy) 
            & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__mem_done)) 
               & (5U != (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_mem_r))));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bne 
-        = (IData)((0x00001063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__beq 
-        = (IData)((0x00000063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__blt 
-        = (IData)((0x00004063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bge 
-        = (IData)((0x00005063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bltu 
-        = (IData)((0x00006063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bgeu 
-        = (IData)((0x00007063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11 
-        = (IData)((0x00000033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4 
-        = (IData)((0x00005013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12 
-        = (IData)((0x00005033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_1 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1)) 
-           & ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_waddr) 
-              == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2)) 
-           & ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_waddr) 
-              == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_data 
-        = ((3U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res))
-            ? vlSelfRef.ysyx_26010027__DOT__exu_lsu_snpc
-            : vlSelfRef.ysyx_26010027__DOT__exu_lsu_alu_result);
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data 
-        = ((3U == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res))
-            ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_snpc
-            : vlSelfRef.ysyx_26010027__DOT__lsu_wbu_alu_result);
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1)) 
-           & ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1) 
-              == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_waddr)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2)) 
-           & ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2) 
-              == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_waddr)));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_waddr) 
+           == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_waddr) 
+           == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_2 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1) 
+           == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_waddr));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_11 
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_reg_w) 
            & (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_valid));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2) 
+           == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_waddr));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid 
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_busy) 
            & ((~ ((5U != (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_mem_r)) 
@@ -316,15 +201,6 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bvalid) 
            & ((2U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__state_w)) 
               & (0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bresp))));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__next_pc 
-        = ((0x63U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))
-            ? (vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc 
-               + vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B)
-            : (((0x67U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
-                | (0x6fU == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)))
-                ? (vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc 
-                   + vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J)
-                : ((IData)(4U) + vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc)));
     vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_wvalid 
         = (((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__state_w)) 
             | (1U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__state_w))) 
@@ -332,109 +208,297 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
     vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_awvalid 
         = ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__state_w)) 
            & (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__store_q));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_14 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrw) 
-           | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrs) 
-              | (IData)((0x00003073U == (0x0000707fU 
-                                         & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)))));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__imm 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_I)
-            ? (((- (IData)((vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                            >> 0x0000001fU))) << 0x0000000cU) 
-               | (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                  >> 0x00000014U)) : ((0x23U == (0x0000007fU 
-                                                 & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))
-                                       ? (((- (IData)(
-                                                      (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                                       >> 0x0000001fU))) 
-                                           << 0x0000000cU) 
-                                          | ((0x00000fe0U 
-                                              & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                                 >> 0x00000014U)) 
-                                             | (0x0000001fU 
-                                                & (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                                                   >> 7U))))
-                                       : ((0x63U == 
-                                           (0x0000007fU 
-                                            & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))
-                                           ? vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B
-                                           : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_U)
-                                               ? (0xfffff000U 
-                                                  & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)
-                                               : ((0x6fU 
-                                                   == 
-                                                   (0x0000007fU 
-                                                    & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))
-                                                   ? vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J
-                                                   : 0U)))));
     vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_arvalid 
         = ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__state_r)) 
            & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight));
-    vlSelfRef.__Vtableidx7 = ((((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bgeu) 
-                                << 5U) | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bltu) 
-                                           << 4U) | 
-                                          ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bge) 
-                                           << 3U))) 
-                              | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__blt) 
-                                  << 2U) | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__beq) 
-                                             << 1U) 
-                                            | (IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bne))));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__branch 
-        = Vysyx_26010027__ConstPool__TABLE_h02dc8855_0
-        [vlSelfRef.__Vtableidx7];
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sub 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11) 
-           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                        >> 0x00000019U)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srli 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4) 
-           & (0U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                     >> 0x00000019U)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srai 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4) 
-           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                        >> 0x00000019U)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srl 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12) 
-           & (0U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                     >> 0x00000019U)));
-    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sra 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12) 
-           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
-                        >> 0x00000019U)));
+    if ((1U == (IData)(vlSelfRef.ysyx_26010027__DOT__grant))) {
+        vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+            = vlSelfRef.ysyx_26010027__DOT__pmem_read_data;
+        vlSelfRef.ysyx_26010027__DOT__arb_arvalid = vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q;
+    } else {
+        vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst = 0U;
+        vlSelfRef.ysyx_26010027__DOT__arb_arvalid = vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_arvalid;
+    }
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1)) 
+           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_2));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_flag 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_11) 
+           & (0U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res)));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__exu_idu_ready 
-        = (1U & ((~ ((((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_1) 
-                       | (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3)) 
-                      & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8) 
-                         & (1U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res)))) 
-                     | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight) 
-                        & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4) 
-                           | (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5))))) 
+        = (1U & ((~ (((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1)) 
+                      & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_11) 
+                         & ((1U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res)) 
+                            & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7)))) 
+                     | (((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2)) 
+                         & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_11) 
+                            & ((1U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res)) 
+                               & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8)))) 
+                        | (((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1)) 
+                            & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight) 
+                               & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_2))) 
+                           | ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2)) 
+                              & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight) 
+                                 & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4))))))) 
                  & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_valid)) 
                     | (~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__l_busy)))));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_alu 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8) 
-           & (0U == (IData)(vlSelfRef.ysyx_26010027__DOT__exu_lsu_rf_res)));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2)) 
+           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__csr_fwd__BRA__1__KET__ 
-        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr)) 
-           & (((IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr) 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_csr_raddr)) 
+           & (((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_csr_raddr) 
                == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_csr_waddr)) 
               & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid) 
                  & ((IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_csr_we) 
                     & (2U == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res))))));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_reg_w) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_flag 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid) 
+           & ((IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_reg_w) 
+              & (0U == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res))));
+    vlSelfRef.__VdfgRegularize_he50b618e_0_5 = ((IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_reg_w) 
+                                                & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid) 
+                                                   & (1U 
+                                                      == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res))));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_I 
+        = ((0x13U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
+           | ((3U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
+              | ((0x67U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
+                 | (0x73U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)))));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B 
+        = (((- (IData)((vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                        >> 0x0000001fU))) << 0x0000000cU) 
+           | ((0x00000800U & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                              << 4U)) | ((0x000007e0U 
+                                          & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                             >> 0x00000014U)) 
+                                         | (0x0000001eU 
+                                            & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                               >> 7U)))));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J 
+        = ((((0x00000ffeU & ((- (IData)((vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                         >> 0x0000001fU))) 
+                             << 1U)) | (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                        >> 0x0000001fU)) 
+            << 0x00000014U) | ((((0x000001feU & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                                 >> 0x0000000bU)) 
+                                 | (1U & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                          >> 0x00000014U))) 
+                                << 0x0000000bU) | (0x000007feU 
+                                                   & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                                      >> 0x00000014U))));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slti 
+        = (IData)((0x00002013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slli 
+        = (IData)((0x00001013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sltiu 
+        = (IData)((0x00003013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__xori 
+        = (IData)((0x00004013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__ori 
+        = (IData)((0x00006013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__andi 
+        = (IData)((0x00007013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lbu 
+        = (IData)((0x00004003U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lhu 
+        = (IData)((0x00005003U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lw = (IData)(
+                                                            (0x00002003U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lh = (IData)(
+                                                            (0x00001003U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__lb = (IData)(
+                                                            (3U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sll 
+        = (IData)((0x00001033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slt 
+        = (IData)((0x00002033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sltu 
+        = (IData)((0x00003033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_xor 
+        = (IData)((0x00004033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_or 
+        = (IData)((0x00006033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__r_and 
+        = (IData)((0x00007033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sw = (IData)(
+                                                            (0x00002023U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sb = (IData)(
+                                                            (0x00000023U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sh = (IData)(
+                                                            (0x00001023U 
+                                                             == 
+                                                             (0x0000707fU 
+                                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrw 
+        = (IData)((0x00001073U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrs 
+        = (IData)((0x00002073U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_U 
+        = ((0x37U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
+           | (0x17U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bne 
+        = (IData)((0x00001063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__beq 
+        = (IData)((0x00000063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__blt 
+        = (IData)((0x00004063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bge 
+        = (IData)((0x00005063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bltu 
+        = (IData)((0x00006063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bgeu 
+        = (IData)((0x00007063U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11 
+        = (IData)((0x00000033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4 
+        = (IData)((0x00005013U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
+    ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12 
+        = (IData)((0x00005033U == (0x0000707fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)));
     vlSelfRef.ysyx_26010027__DOT__arb_awvalid = ((2U 
                                                   == (IData)(vlSelfRef.ysyx_26010027__DOT__grant)) 
                                                  & (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_awvalid));
-    vlSelfRef.ysyx_26010027__DOT__arb_arvalid = ((1U 
-                                                  == (IData)(vlSelfRef.ysyx_26010027__DOT__grant))
-                                                  ? (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q)
-                                                  : (IData)(vlSelfRef.ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_arvalid));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__0__KET__ 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr1)) 
+           & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7) 
+              & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_flag)));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__0__KET__ 
+        = ((0U != (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_raddr2)) 
+           & ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8) 
+              & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_flag)));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__idu_ifu_ready 
+        = (1U & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_valid)) 
+                 | (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__exu_idu_ready)));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__1__KET__ 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3) 
+           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_flag));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__1__KET__ 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5) 
+           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_flag));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__2__KET__ 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3) 
+           & (IData)(vlSelfRef.__VdfgRegularize_he50b618e_0_5));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__2__KET__ 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5) 
+           & (IData)(vlSelfRef.__VdfgRegularize_he50b618e_0_5));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__next_pc 
+        = ((0x63U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))
+            ? (vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc 
+               + vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B)
+            : (((0x67U == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
+                | (0x6fU == (0x0000007fU & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)))
+                ? (vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc 
+                   + vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J)
+                : ((IData)(4U) + vlSelfRef.ysyx_26010027__DOT__ifu_idu_pc)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_14 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrw) 
+           | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__csrrs) 
+              | (IData)((0x00003073U == (0x0000707fU 
+                                         & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)))));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__imm 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_I)
+            ? (((- (IData)((vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                            >> 0x0000001fU))) << 0x0000000cU) 
+               | (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                  >> 0x00000014U)) : ((0x23U == (0x0000007fU 
+                                                 & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))
+                                       ? (((- (IData)(
+                                                      (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                                       >> 0x0000001fU))) 
+                                           << 0x0000000cU) 
+                                          | ((0x00000fe0U 
+                                              & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                                 >> 0x00000014U)) 
+                                             | (0x0000001fU 
+                                                & (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                                                   >> 7U))))
+                                       : ((0x63U == 
+                                           (0x0000007fU 
+                                            & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))
+                                           ? vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_B
+                                           : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_U)
+                                               ? (0xfffff000U 
+                                                  & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)
+                                               : ((0x6fU 
+                                                   == 
+                                                   (0x0000007fU 
+                                                    & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))
+                                                   ? vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__imm_J
+                                                   : 0U)))));
+    __Vtableidx6 = ((((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bgeu) 
+                      << 5U) | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bltu) 
+                                 << 4U) | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bge) 
+                                           << 3U))) 
+                    | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__blt) 
+                        << 2U) | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__beq) 
+                                   << 1U) | (IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bne))));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__branch 
+        = Vysyx_26010027__ConstPool__TABLE_h02dc8855_0
+        [__Vtableidx6];
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sub 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11) 
+           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                        >> 0x00000019U)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srli 
+        = ((IData)(ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4) 
+           & (0U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                     >> 0x00000019U)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srai 
+        = ((IData)(ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4) 
+           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                        >> 0x00000019U)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srl 
+        = ((IData)(ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12) 
+           & (0U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                     >> 0x00000019U)));
+    vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sra 
+        = ((IData)(ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12) 
+           & (0x20U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
+                        >> 0x00000019U)));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__handshake_ar 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q) 
+           & ((1U == (IData)(vlSelfRef.ysyx_26010027__DOT__grant)) 
+              & (IData)(vlSelfRef.ysyx_26010027__DOT__arb_arvalid)));
+    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ar_flag 
+        = ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__state)) 
+           & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q)) 
+              & (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__idu_ifu_ready)));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src1 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_alu_arc1)
+            ? vlSelfRef.ysyx_26010027__DOT__idu_exu_pc
+            : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__0__KET__)
+                ? vlSelfRef.ysyx_26010027__DOT__exu_lsu_alu_result
+                : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__1__KET__)
+                    ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_alu_result
+                    : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__2__KET__)
+                        ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_mem_result
+                        : vlSelfRef.ysyx_26010027__DOT__idu_exu_rdata1))));
+    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__rdata2 
+        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__0__KET__)
+            ? vlSelfRef.ysyx_26010027__DOT__exu_lsu_alu_result
+            : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__1__KET__)
+                ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_alu_result
+                : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__2__KET__)
+                    ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_mem_result
+                    : vlSelfRef.ysyx_26010027__DOT__idu_exu_rdata2)));
     vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__illegal 
         = (1U & (~ (((IData)((0x00000013U == (0x0000707fU 
-                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))) 
+                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))) 
                      | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slti) 
                         | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__slli) 
                            | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__srli) 
@@ -451,9 +515,9 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
                                                             | (0x67U 
                                                                == 
                                                                (0x0000007fU 
-                                                                & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)))))))))))))))) 
+                                                                & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)))))))))))))))) 
                     | ((((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11) 
-                         & (0U == (vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst 
+                         & (0U == (vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst 
                                    >> 0x00000019U))) 
                         | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sub) 
                            | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__sll) 
@@ -475,73 +539,16 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
                                           | (IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__bgeu)))))) 
                              | ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT__inst_U) 
                                 | ((0x6fU == (0x0000007fU 
-                                              & vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)) 
+                                              & vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)) 
                                    | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_14) 
                                        | ((0x00000073U 
-                                           == vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst) 
+                                           == vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst) 
                                           | (0x30200073U 
-                                             == vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst))) 
+                                             == vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst))) 
                                       | ((0x00100073U 
-                                          == vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst) 
+                                          == vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst) 
                                          | (0x0000100fU 
-                                            == vlSelfRef.ysyx_26010027__DOT__ifu_idu_inst)))))))))));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__idu_ifu_ready 
-        = (1U & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_valid)) 
-                 | (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__exu_idu_ready)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__0__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_1) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_alu));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__0__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_alu));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_alu 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7) 
-           & (0U == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_mem 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7) 
-           & (1U == (IData)(vlSelfRef.ysyx_26010027__DOT__lsu_wbu_rf_res)));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__handshake_ar 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q) 
-           & ((1U == (IData)(vlSelfRef.ysyx_26010027__DOT__grant)) 
-              & (IData)(vlSelfRef.ysyx_26010027__DOT__arb_arvalid)));
-    vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ar_flag 
-        = ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__state)) 
-           & ((~ (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__arvalid_q)) 
-              & (IData)(vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__idu_ifu_ready)));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__1__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_alu));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__1__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_alu));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__2__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_mem));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__2__KET__ 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5) 
-           & (IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_mem));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src1 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_alu_arc1)
-            ? vlSelfRef.ysyx_26010027__DOT__idu_exu_pc
-            : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__0__KET__)
-                ? vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_data
-                : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__1__KET__)
-                    ? vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data
-                    : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__2__KET__)
-                        ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_mem_result
-                        : ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1))
-                            ? 0U : vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__rf
-                           [(0x0000000fU & (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr1))])))));
-    vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__rdata2 
-        = ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__0__KET__)
-            ? vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_data
-            : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__1__KET__)
-                ? vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data
-                : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__2__KET__)
-                    ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_mem_result
-                    : ((0U == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2))
-                        ? 0U : vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__rf
-                       [(0x0000000fU & (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_raddr2))]))));
+                                            == vlSelfRef.ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst)))))))))));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src2 
         = ((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_alu_arc2)
             ? vlSelfRef.ysyx_26010027__DOT__idu_exu_imm
@@ -551,7 +558,7 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__ltu 
         = (vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src1 
            < vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src2);
-    vlSelfRef.__Vtableidx6 = (((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__ltu) 
+    vlSelfRef.__Vtableidx7 = (((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__ltu) 
                                << 5U) | (((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__lts) 
                                           << 4U) | 
                                          (((vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src1 
@@ -559,7 +566,7 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
                                            << 3U) | (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_branch))));
     vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__taken 
         = Vysyx_26010027__ConstPool__TABLE_h073bc315_0
-        [vlSelfRef.__Vtableidx6];
+        [vlSelfRef.__Vtableidx7];
     vlSelfRef.ysyx_26010027__DOT__exu_flush = ((1U 
                                                 & (~ (IData)(vlSelfRef.reset))) 
                                                && (((IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_valid) 
@@ -585,39 +592,7 @@ VL_ATTR_COLD void Vysyx_26010027___024root___stl_sequent__TOP__0(Vysyx_26010027_
                                     ? vlSelfRef.ysyx_26010027__DOT__exu_lsu_csr_wdata
                                     : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__csr_fwd__BRA__1__KET__)
                                         ? vlSelfRef.ysyx_26010027__DOT__lsu_wbu_csr_wdata
-                                        : ((0x0f11U 
-                                            == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                            ? 0x79737978U
-                                            : ((0x0f12U 
-                                                == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                ? 0x018ce1abU
-                                                : (
-                                                   (0x0b00U 
-                                                    == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                    ? (IData)(vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc)
-                                                    : 
-                                                   ((0x0b80U 
-                                                     == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                     ? (IData)(
-                                                               (vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc 
-                                                                >> 0x00000020U))
-                                                     : 
-                                                    ((0x0300U 
-                                                      == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                      ? vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mstatus
-                                                      : 
-                                                     ((0x0305U 
-                                                       == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                       ? vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mtvec
-                                                       : 
-                                                      ((0x0341U 
-                                                        == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                        ? vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mepc
-                                                        : 
-                                                       ((0x0342U 
-                                                         == (IData)(vlSelfRef.ysyx_26010027__DOT__idu_wbu_csr_raddr))
-                                                         ? vlSelfRef.ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mcause
-                                                         : 0U))))))))))))
+                                        : vlSelfRef.ysyx_26010027__DOT__idu_exu_csr_rdata))))
                     : ((1U & (IData)(vlSelfRef.ysyx_26010027__DOT__idu_exu_alu_op))
                         ? vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__src1
                         : ((IData)(vlSelfRef.ysyx_26010027__DOT__my_EXU__DOT__taken)
@@ -745,7 +720,6 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__pmem_rresp = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 13484282183720737751ull);
     vlSelf->ysyx_26010027__DOT__ifu_idu_valid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10851374109827987108ull);
     vlSelf->ysyx_26010027__DOT__ifu_idu_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10301744487378174435ull);
-    vlSelf->ysyx_26010027__DOT__ifu_idu_inst = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10931056467553149345ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_valid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 1566529455734479870ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12506349250553889274ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_inst = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11718105045691107783ull);
@@ -762,13 +736,16 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__idu_exu_jump = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 3940989719338071747ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_branch = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 17383793050778104949ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_fencei = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9933456105787219114ull);
-    vlSelf->ysyx_26010027__DOT__idu_wbu_csr_raddr = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 10633509087596524072ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_rdata1 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 10636961260900458252ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_rdata2 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15331378448277269642ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_raddr1 = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 7381895392169183645ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_raddr2 = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 11950042732427425864ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_csr_raddr = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 13201543273732231890ull);
+    vlSelf->ysyx_26010027__DOT__idu_exu_csr_rdata = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 3001725764313674628ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_csr_waddr = VL_SCOPED_RAND_RESET_I(12, __VscopeHash, 17968410406333646900ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_csr_we = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 3502388183996962664ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_csr_ecall = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 5065913122453563065ull);
     vlSelf->ysyx_26010027__DOT__idu_exu_csr_mret = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15226113198004318595ull);
-    vlSelf->ysyx_26010027__DOT__idu_wbu_raddr1 = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 9848301060194255953ull);
-    vlSelf->ysyx_26010027__DOT__idu_wbu_raddr2 = VL_SCOPED_RAND_RESET_I(5, __VscopeHash, 16324396403594343025ull);
     vlSelf->ysyx_26010027__DOT__exu_lsu_valid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 639115456424750325ull);
     vlSelf->ysyx_26010027__DOT__exu_lsu_pc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 181866840815301909ull);
     vlSelf->ysyx_26010027__DOT__exu_lsu_snpc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 121380045316170611ull);
@@ -804,6 +781,7 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT____VdfgRegularize_hcab2a8af_0_0 = 0;
     vlSelf->ysyx_26010027__DOT____VdfgRegularize_hcab2a8af_0_1 = 0;
     vlSelf->ysyx_26010027__DOT__my_IFU__DOT__idu_ifu_ready = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10355471665306688295ull);
+    vlSelf->ysyx_26010027__DOT__my_IFU__DOT__ifu_idu_inst = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 7564899652205820034ull);
     vlSelf->ysyx_26010027__DOT__my_IFU__DOT__state = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 11740598682316774728ull);
     vlSelf->ysyx_26010027__DOT__my_IFU__DOT__arvalid_q = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11397819476678099890ull);
     vlSelf->ysyx_26010027__DOT__my_IFU__DOT__araddr_q = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 12553570133506040945ull);
@@ -853,9 +831,7 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__my_IDU__DOT__branch = VL_SCOPED_RAND_RESET_I(3, __VscopeHash, 6593982236424343311ull);
     vlSelf->ysyx_26010027__DOT__my_IDU__DOT__imm = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14558413303573885935ull);
     vlSelf->ysyx_26010027__DOT__my_IDU__DOT__illegal = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 8763646981064239078ull);
-    vlSelf->ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4 = 0;
     vlSelf->ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11 = 0;
-    vlSelf->ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12 = 0;
     vlSelf->ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_14 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__exu_idu_ready = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 12712293436018043891ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__lsu_exu_ready = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 11010519764104786328ull);
@@ -865,8 +841,6 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__src2 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 1092417283068433134ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__rdata2 = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 145929544432814695ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__alu_result = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 14460224423710441070ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_data = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11309746603172790315ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 11594733733356132471ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__lts = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 15999578196337033115ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__ltu = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10967149691719714306ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__taken = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14906488193846269921ull);
@@ -878,15 +852,15 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__fwd_2__BRA__0__KET__ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2572901362786158296ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__csr_fwd__BRA__1__KET__ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 16002992531402679202ull);
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT__csr_fwd__BRA__0__KET__ = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9567539919142030520ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_alu = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 18251530912622045516ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_alu = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 4517188277983280743ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_mem = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 10236786751548286061ull);
-    vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_1 = 0;
+    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_flag = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 554760720637274413ull);
+    vlSelf->ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_flag = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 2390920318209063522ull);
+    vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_2 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_3 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_4 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_5 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_7 = 0;
     vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_8 = 0;
+    vlSelf->ysyx_26010027__DOT__my_EXU__DOT____VdfgRegularize_h52da6e6e_0_11 = 0;
     vlSelf->ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_arvalid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 9084188808647540750ull);
     vlSelf->ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rvalid = VL_SCOPED_RAND_RESET_I(1, __VscopeHash, 14446718667811383239ull);
     vlSelf->ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_rresp = VL_SCOPED_RAND_RESET_I(2, __VscopeHash, 18230265003538979564ull);
@@ -917,19 +891,9 @@ VL_ATTR_COLD void Vysyx_26010027___024root___ctor_var_reset(Vysyx_26010027___024
     vlSelf->ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mepc = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 13947810642183976495ull);
     vlSelf->ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mcause = VL_SCOPED_RAND_RESET_I(32, __VscopeHash, 15843491566194004735ull);
     vlSelf->ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc = VL_SCOPED_RAND_RESET_Q(64, __VscopeHash, 8429126434137320316ull);
-    vlSelf->__Vtableidx6 = 0;
+    vlSelf->__VdfgRegularize_he50b618e_0_5 = 0;
     vlSelf->__Vtableidx7 = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__pmem_rvalid = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__pmem_wready = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__pmem_bvalid = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__grant = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__my_IFU__DOT__state = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__ifu_idu_pc = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__my_IFU__DOT__flush_flag = 0;
     vlSelf->__Vdly__ysyx_26010027__DOT__ifu_idu_valid = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__exu_lsu_valid = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_w = 0;
-    vlSelf->__Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_r = 0;
     for (int __Vi0 = 0; __Vi0 < 1; ++__Vi0) {
         vlSelf->__VstlTriggered[__Vi0] = 0;
     }
