@@ -72,7 +72,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__my_IFU__DOT__ar_flag;
         CData/*0:0*/ ysyx_26010027__DOT__my_IFU__DOT__handshake_ar;
         CData/*0:0*/ ysyx_26010027__DOT__my_IFU__DOT__handshake_r;
-        CData/*0:0*/ ysyx_26010027__DOT__my_IFU__DOT__flush_flag;
+        CData/*0:0*/ ysyx_26010027__DOT__my_IFU__DOT__flush_q;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__inst_I;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__inst_U;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__slti;
@@ -157,7 +157,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__handshake_r;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__handshake_b;
         CData/*4:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__waddr;
-        CData/*0:0*/ __VdfgRegularize_he50b618e_0_5;
+        CData/*0:0*/ __VdfgRegularize_he50b618e_0_4;
         CData/*5:0*/ __Vtableidx7;
         CData/*0:0*/ __Vdly__ysyx_26010027__DOT__ifu_idu_valid;
         CData/*0:0*/ __VstlFirstIteration;
@@ -200,6 +200,8 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src2;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__rdata2;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__alu_result;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__lsu_fwd_data;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_mem_addr;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_wdata;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__rdata_shifted;
@@ -213,10 +215,10 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         QData/*63:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc;
         VlUnpacked<IData/*31:0*/, 16> ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__rf;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
-        VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
-        VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
     };
     struct {
+        VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
+        VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
         VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
     };

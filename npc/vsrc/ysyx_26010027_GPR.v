@@ -29,7 +29,6 @@ module ysyx_26010027_GPR #(
         end
     end
 
-    // 写优先：同拍写回时读返回写数据（GPR 读提前到 IDU 后，覆盖 WBU 级 RAW）
     assign rdata1 = (raddr1 == 0) ? 32'b0 :
                     (wen && (waddr[ADDR_WIDTH-1:0] == raddr1[ADDR_WIDTH-1:0])) ? wdata :
                     rf[raddr1[ADDR_WIDTH-1:0]];

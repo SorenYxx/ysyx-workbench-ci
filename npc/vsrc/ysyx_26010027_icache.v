@@ -129,8 +129,8 @@ module ysyx_26010027_icache (
                     valid[i][j] <= 1'b0;
                     tag  [i][j] <= {TAG_W{1'b0}};
                     data [i][j] <= {BLOCK_SIZE*8{1'b0}};
-                repl_cnt[i] <= {WAY_W{1'b0}};
                 end
+                repl_cnt[i] <= {WAY_W{1'b0}};
             end
         end else begin
             if (rvalid_o && ifu_rready) rvalid_o <= 1'b0;

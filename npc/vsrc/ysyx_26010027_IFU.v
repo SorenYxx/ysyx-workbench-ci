@@ -72,7 +72,7 @@ module ysyx_26010027_IFU (
         end
         else if (ar_flag) begin
             arvalid_q <= 1'b1;
-            araddr_q  <= (ifu_idu_valid && !flush_flag) ? next_pc : ifu_idu_pc;
+            araddr_q  <= (ifu_idu_valid && !flush_q) ? next_pc : ifu_idu_pc;
         end
     end
 
@@ -122,21 +122,21 @@ module ysyx_26010027_IFU (
     // end
 
     // 冲刷处理-捕获锁存 flush 信号
-    reg flush_flag;
+    reg flush_q;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            flush_flag    <= 1'b0;
+            flush_q    <= 1'b0;
             flush_ar_sent <= 1'b0;
         end 
         else if (exu_flush) begin
-            flush_flag    <= 1'b1;
+            flush_q    <= 1'b1;
             flush_ar_sent <= 1'b0;
         end 
-        else if (ar_flag && flush_flag) begin
+        else if (ar_flag && flush_q) begin
             flush_ar_sent <= 1'b1;  // 冲刷后的取指 AR 已发出
         end
         else if (handshake_ar) begin
-            if (flush_ar_sent) flush_flag <= 1'b0;  // 冲刷取指完成, 清除
+            if (flush_ar_sent) flush_q <= 1'b0;  // 冲刷取指完成, 清除
             flush_ar_sent <= 1'b0;
         end
     end
@@ -145,7 +145,7 @@ module ysyx_26010027_IFU (
         if (reset) begin
             ifu_idu_valid <= 1'b0;
         end 
-        else if (exu_flush || flush_flag) begin
+        else if (exu_flush || flush_q) begin
             ifu_idu_valid <= 1'b0;
         end
         else if (ifu_idu_valid && idu_ifu_ready) begin
