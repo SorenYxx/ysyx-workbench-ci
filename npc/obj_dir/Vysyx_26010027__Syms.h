@@ -33,6 +33,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027__Syms final : public Verilated
     Vysyx_26010027___024root       TOP;
     Vysyx_26010027___024unit       TOP____024unit;
 
+    // SCOPE NAMES
+    VerilatedScope* __Vscopep_ysyx_26010027__my_IFU;
+
     // CONSTRUCTORS
     Vysyx_26010027__Syms(VerilatedContext* contextp, const char* namep, Vysyx_26010027* modelp);
     ~Vysyx_26010027__Syms();

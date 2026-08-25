@@ -9,7 +9,7 @@ module ysyx_26010027_CLINT (
     output            io_slave_arready,
 
     input             io_slave_rready,
-    output reg [31:0] io_slave_rdata,
+    output     [31:0] io_slave_rdata,
     output reg        io_slave_rvalid,
     output reg [ 1:0] io_slave_rresp,
 
@@ -23,7 +23,7 @@ module ysyx_26010027_CLINT (
     output            io_slave_wready,
 
     output     [ 1:0] io_slave_bresp,
-    output reg        io_slave_bvalid,
+    output            io_slave_bvalid,
     input             io_slave_bready
 );
 

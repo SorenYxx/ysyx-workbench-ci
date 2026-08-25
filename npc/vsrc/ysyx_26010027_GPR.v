@@ -23,13 +23,19 @@ module ysyx_26010027_GPR #(
             end
         end else if (wen && (waddr != 0)) begin
             rf[waddr[ADDR_WIDTH-1:0]] <= wdata;
+`ifndef __ICARUS__
 `ifndef SYNTHESIS
             get_reg({27'b0, waddr}, wdata);
+`endif
 `endif
         end
     end
 
-    assign rdata1 = (raddr1 == 0) ? 0 : rf[raddr1[ADDR_WIDTH-1:0]];
-    assign rdata2 = (raddr2 == 0) ? 0 : rf[raddr2[ADDR_WIDTH-1:0]];
+    assign rdata1 = (raddr1 == 0) ? 32'b0 :
+                    (wen && (waddr[ADDR_WIDTH-1:0] == raddr1[ADDR_WIDTH-1:0])) ? wdata :
+                    rf[raddr1[ADDR_WIDTH-1:0]];
+    assign rdata2 = (raddr2 == 0) ? 32'b0 :
+                    (wen && (waddr[ADDR_WIDTH-1:0] == raddr2[ADDR_WIDTH-1:0])) ? wdata :
+                    rf[raddr2[ADDR_WIDTH-1:0]];
 
 endmodule

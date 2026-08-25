@@ -29,19 +29,26 @@ module ysyx_26010027_IDU (
     output reg        idu_exu_fencei,
     input             exu_flush,
 
-    output reg [11:0] idu_wbu_csr_raddr,
+    output reg [ 4:0] idu_exu_raddr1, idu_exu_raddr2,
+    output reg [31:0] idu_exu_rdata1, idu_exu_rdata2, // 读寄存器数据
+
+    output reg [11:0] idu_exu_csr_raddr,
+    output reg [31:0] idu_exu_csr_rdata, // 读 CSR 数据
     output reg [11:0] idu_exu_csr_waddr,
     output reg        idu_exu_csr_we,
     output reg        idu_exu_csr_ecall,
     output reg        idu_exu_csr_mret,
 
     // IDU - WBU
-    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2
+    input      [31:0] wbu_idu_csr_rdata,
+    input      [31:0] wbu_idu_rdata1, wbu_idu_rdata2,
+    output     [11:0] idu_wbu_csr_raddr,
+    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr（给 WBU 读 GPR，当前指令）
 
 );
 
     // ----- Instruction decoding -----
-    wire [31:0] inst  = ifu_idu_inst;
+    wire [31:0] inst   = ifu_idu_inst;
     wire [ 6:0] opcode = inst[6:0];
     wire [ 2:0] funct3 = inst[14:12];
     wire [ 6:0] funct7 = inst[31:25];
@@ -118,20 +125,24 @@ module ysyx_26010027_IDU (
     wire auipc = (opcode == 7'b0010111);
     wire jal   = inst_J;
 
+    // Immediate generation
+    wire [31:0] imm = (inst_I) ? {{20{inst[31]}}, inst[31:20]} :
+                (inst_S) ? {{20{inst[31]}}, inst[31:25], inst[11:7]} :
+                (inst_B) ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} :
+                (inst_U) ? {inst[31:12], 12'b0} :
+                (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
+                32'b0;
+
     // CSR instructions
     wire csrrw    = I_c && (funct3 == 3'b001);
     wire csrrs    = I_c && (funct3 == 3'b010);
     wire csrrc    = I_c && (funct3 == 3'b011);
-    wire csr_inst = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
     wire csr_ecall = (inst == 32'h00000073);
     wire csr_mret  = (inst == 32'h30200073);
+    wire csr_inst  = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
     wire [11:0] csr_addr  = imm[11:0];
 
     // --------------------------
-
-    // Illegal instruction detection
-    wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
-                     lui || auipc || jal || csr_inst || ebreak || fence_i);
 
     // Control signals
     wire [1:0] jump = (jalr) ? 2'b01 :
@@ -147,7 +158,7 @@ module ysyx_26010027_IDU (
                         bgeu ? 3'd5 :
                         3'd6;
 
-    wire [1:0] rf_res = ld_type               ? 2'b01 :  // memory
+    wire [1:0] rf_res = ld_type                   ? 2'b01 :  // memory
                         (csrrw || csrrs || csrrc) ? 2'b10 :  // CSR
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00; // ALU
@@ -171,9 +182,7 @@ module ysyx_26010027_IDU (
     wire alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
     wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
-    wire reg_w  = (inst_I || inst_R || inst_J || inst_U || csr_we);
-    wire csr_we = csrrw;
-    wire csr_re = csrrs || csrrc;
+    wire reg_w = (inst_I || inst_R || inst_J || inst_U || csrrw);
 
     wire [1:0] mem_w = sw ? 2'b00 :
                        sb ? 2'b01 :
@@ -190,22 +199,15 @@ module ysyx_26010027_IDU (
     wire fence_i = (inst == 32'h0000100F);
     wire ebreak  = (inst == 32'h00100073);
 
-    // Immediate generation
-    wire [31:0] imm = (inst_I) ? {{20{inst[31]}}, inst[31:20]} :
-                (inst_S) ? {{20{inst[31]}}, inst[31:25], inst[11:7]} :
-                (inst_B) ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} :
-                (inst_U) ? {inst[31:12], 12'b0} :
-                (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
-                32'b0;
-
-    wire [31:0] target = ifu_idu_pc + imm;
+    wire [31:0] target = branch != 3'd6 ? ifu_idu_pc + imm : 32'b0;
     wire [ 4:0] raddr1 = inst[19:15];
     wire [ 4:0] raddr2 = inst[24:20];
     wire [ 4:0] waddr  = inst[11:7];
 
-    // always @(*)
-    //     if (ifu_idu_valid && illegal && (inst != 32'b0))
-    //         is_illegal_inst();
+    // to WBU
+    assign idu_wbu_raddr1 = raddr1;
+    assign idu_wbu_raddr2 = raddr2;
+    assign idu_wbu_csr_raddr = csr_addr;
 
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin
@@ -241,14 +243,17 @@ module ysyx_26010027_IDU (
         idu_exu_branch   <= 3'd6;
         idu_exu_fencei   <= 1'd0;
 
-        idu_wbu_csr_raddr <= 12'd0;
+        idu_exu_raddr1    <= 5'd0;
+        idu_exu_raddr2    <= 5'd0;
+        idu_exu_rdata1    <= 32'd0;
+        idu_exu_rdata2    <= 32'd0;
+
+        idu_exu_csr_raddr <= 12'd0;
+        idu_exu_csr_rdata <= 32'd0; 
         idu_exu_csr_waddr <= 12'd0;
         idu_exu_csr_we    <= 1'd0;
         idu_exu_csr_ecall <= 1'd0;
         idu_exu_csr_mret  <= 1'd0;
-
-        idu_wbu_raddr1 <= 5'd0;
-        idu_wbu_raddr2 <= 5'd0;
 
       end 
       else if (ifu_idu_valid && idu_ifu_ready) begin
@@ -268,16 +273,32 @@ module ysyx_26010027_IDU (
         idu_exu_branch   <= branch; // 分支
         idu_exu_fencei   <= fence_i;
 
-        idu_wbu_csr_raddr <= csr_addr;
+        idu_exu_raddr1    <= raddr1;
+        idu_exu_raddr2    <= raddr2;
+        idu_exu_rdata1    <= wbu_idu_rdata1;
+        idu_exu_rdata2    <= wbu_idu_rdata2;
+
+        idu_exu_csr_raddr <= csr_addr;
+        idu_exu_csr_rdata <= wbu_idu_csr_rdata;
         idu_exu_csr_waddr <= csr_addr;
-        idu_exu_csr_we    <= csr_we;
+        idu_exu_csr_we    <= csrrw;
         idu_exu_csr_ecall <= csr_ecall;
         idu_exu_csr_mret  <= csr_mret;
 
-        idu_wbu_raddr1 <= raddr1;
-        idu_wbu_raddr2 <= raddr2;
       end
 
     end
+
+
+`ifndef __ICARUS__
+`ifndef SYNTHESIS
+    // Illegal instruction detection
+    wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
+                     lui || auipc || jal || csr_inst || ebreak || fence_i);
+    always @(posedge clock)
+      if (ifu_idu_valid && idu_ifu_ready && !exu_flush && illegal && (inst != 32'b0))
+        is_illegal_inst();
+`endif
+`endif
 
 endmodule

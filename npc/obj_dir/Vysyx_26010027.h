@@ -34,7 +34,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027 VL_NOT_FINAL : public Verilate
     // propagate new values into/out from the Verilated model.
     VL_IN8(&clock,0,0);
     VL_IN8(&reset,0,0);
-    VL_OUT8(&nothing,0,0);
 
     // CELLS
     // Public to allow access to /* verilator public */ items.

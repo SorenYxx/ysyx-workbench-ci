@@ -1,7 +1,7 @@
 `ifdef TOP_SOC
-  `define PC_START 32'h3000_0000
+  `define ysyx_26010027_PC_START 32'h3000_0000
 `else
-  `define PC_START 32'h8000_0000
+  `define ysyx_26010027_PC_START 32'h8000_0000
 `endif
 
 module ysyx_26010027_IFU (
@@ -20,26 +20,23 @@ module ysyx_26010027_IFU (
     input             cpu_ifu_arready,
     output     [31:0] ifu_cpu_araddr,
     output            ifu_cpu_arvalid,
-    output     [ 3:0] ifu_cpu_arid,
-    output     [ 7:0] ifu_cpu_arlen,
-    output     [ 2:0] ifu_cpu_arsize,
-    output     [ 1:0] ifu_cpu_arburst,
 
     input             cpu_ifu_rvalid,
     output            ifu_cpu_rready,
     input      [31:0] cpu_ifu_rdata,
-    input      [ 1:0] cpu_ifu_rresp,
-    input      [ 3:0] cpu_ifu_rid,
-    input             cpu_ifu_rlast
+    input      [ 1:0] cpu_ifu_rresp
     // --------------------------------
 
 );
-    // Fetch Queue
-    reg fq_valid [1:0];
-    reg [31:0] fq_pc [1:0];
-    reg [31:0] fq_inst [1:0];
+    // 预译码
+    wire [31:0] inst = ifu_idu_inst;
+    wire [ 6:0] opcode = inst[6:0];
+    wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
+    wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
+    wire branch = (opcode == 7'b1100011);
+    wire jump   = (opcode == 7'b1101111); // jal
 
-    // ----- AXI4 -----
+    // state
     reg [1:0] state;
     localparam IDLE = 2'b00;
     localparam WAIT = 2'b01;
@@ -47,9 +44,10 @@ module ysyx_26010027_IFU (
     // AR 事务锁存
     reg        arvalid_q;
     reg [31:0] araddr_q;
+    reg        flush_q;
     reg        flush_ar_sent; // 冲刷后 AR 已发出
 
-    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q;
+    wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q; // 取指flag ready反压
     wire handshake_ar = arvalid_q && cpu_ifu_arready;
     wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
 
@@ -65,6 +63,11 @@ module ysyx_26010027_IFU (
             endcase
     end
 
+    // 预取下一条指令地址（分支预测：branch/jal 一定跳转）
+    wire [31:0] next_pc = branch ? (ifu_idu_pc + imm_B) :
+                          jump   ? (ifu_idu_pc + imm_J) :
+                                   (ifu_idu_pc + 4);
+
     // AR 锁存(避免反压造成毛刺)
     always @(posedge clock, posedge reset) begin
         if (reset) begin
@@ -76,34 +79,18 @@ module ysyx_26010027_IFU (
         end
         else if (ar_flag) begin
             arvalid_q <= 1'b1;
-            araddr_q  <= (ifu_idu_valid && !flush_flag) ? next_pc : ifu_idu_pc;
+            araddr_q  <= (ifu_idu_valid && !flush_q) ? next_pc : ifu_idu_pc;
         end
     end
 
     assign ifu_cpu_araddr  = araddr_q;
     assign ifu_cpu_arvalid = arvalid_q;
     assign ifu_cpu_rready  = (state == WAIT);
-    assign ifu_cpu_arid    = 4'h0;
-    assign ifu_cpu_arlen   = 8'h0;
-    assign ifu_cpu_arsize  = 3'b010;
-    assign ifu_cpu_arburst = 2'b01;
-    // ---------------
 
-    wire [31:0] inst = ifu_idu_inst;
-    wire [ 6:0] opcode = inst[6:0];
-    wire [31:0] imm_B = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
-    wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
-    wire branch = (opcode == 7'b1100011);
-    wire jump   = (opcode == 7'b1101111 || opcode == 7'b1100111); // ret和jalr一样直接flush
-
-    // 预取下一条指令地址（分支预测：branch/jump 一定跳转）
-    wire [31:0] next_pc = branch ? (ifu_idu_pc + imm_B) :
-                          jump   ? (ifu_idu_pc + imm_J) :
-                                   (ifu_idu_pc + 4);
-
+    // 更新pc
     always @(posedge clock or posedge reset) begin
         if (reset) begin
-            ifu_idu_pc <= `PC_START;
+            ifu_idu_pc <= `ysyx_26010027_PC_START;
         end 
         else begin
             if (exu_flush) begin
@@ -125,21 +112,20 @@ module ysyx_26010027_IFU (
     end
 
     // 冲刷处理-捕获锁存 flush 信号
-    reg flush_flag;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            flush_flag    <= 1'b0;
+            flush_q    <= 1'b0;
             flush_ar_sent <= 1'b0;
         end 
         else if (exu_flush) begin
-            flush_flag    <= 1'b1;
+            flush_q    <= 1'b1;
             flush_ar_sent <= 1'b0;
         end 
-        else if (ar_flag && flush_flag) begin
+        else if (ar_flag && flush_q) begin
             flush_ar_sent <= 1'b1;  // 冲刷后的取指 AR 已发出
         end
         else if (handshake_ar) begin
-            if (flush_ar_sent) flush_flag <= 1'b0;  // 冲刷取指完成, 清除
+            if (flush_ar_sent) flush_q <= 1'b0;  // 冲刷取指完成, 清除
             flush_ar_sent <= 1'b0;
         end
     end
@@ -148,7 +134,7 @@ module ysyx_26010027_IFU (
         if (reset) begin
             ifu_idu_valid <= 1'b0;
         end 
-        else if (exu_flush || flush_flag) begin
+        else if (exu_flush || flush_q) begin
             ifu_idu_valid <= 1'b0;
         end
         else if (ifu_idu_valid && idu_ifu_ready) begin
@@ -158,5 +144,13 @@ module ysyx_26010027_IFU (
             ifu_idu_valid <= 1'b1;  // 取到指令
         end
     end
+
+
+// debug
+`ifndef SYNTHESIS
+    always @(*) begin
+        if (cpu_ifu_rresp != 2'b00) $fatal(1, "[IFU] AXI4 rresp ERROR: rresp=%b at ifu_pc=0x%08x", cpu_ifu_rresp, ifu_idu_pc);
+    end
+`endif
 
 endmodule

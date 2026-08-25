@@ -11,7 +11,7 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(660);
+    Verilated::stackCheck(746);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision
@@ -23,12 +23,14 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     TOP.__Vconfigure(true);
     TOP____024unit.__Vconfigure(true);
     // Setup scopes
+    __Vscopep_ysyx_26010027__my_IFU = new VerilatedScope{this, "ysyx_26010027.my_IFU", "my_IFU", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     // Setup export functions - final: 0
     // Setup export functions - final: 1
 }
 
 Vysyx_26010027__Syms::~Vysyx_26010027__Syms() {
     // Tear down scopes
+    VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_IFU, __Vscopep_ysyx_26010027__my_IFU = nullptr);
     // Tear down sub module instances
     TOP____024unit.dtor();
 }

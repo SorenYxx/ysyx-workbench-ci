@@ -147,6 +147,7 @@ void cpu_exec(uint64_t n) {
 
 // 退出模拟
 void sim_exit() {
+  if (npc_state.state == NPC_ABORT) isa_reg_display();
   statistics();
   Log("Simulation already ended at 0x%08x.", npc_state.halt_pc);
 #ifdef CONFIG_WAVE_DUMP
