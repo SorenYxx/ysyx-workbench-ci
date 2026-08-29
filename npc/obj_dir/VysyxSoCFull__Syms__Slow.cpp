@@ -11,7 +11,7 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(1824);
+    Verilated::stackCheck(1870);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision
@@ -29,7 +29,9 @@ VysyxSoCFull__Syms::VysyxSoCFull__Syms(VerilatedContext* contextp, const char* n
     __Vscopep_ysyxSoCFull__asic__axi4xbar_1 = new VerilatedScope{this, "ysyxSoCFull.asic.axi4xbar_1", "axi4xbar_1", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4yank = new VerilatedScope{this, "ysyxSoCFull.asic.axi4yank", "axi4yank", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1 = new VerilatedScope{this, "ysyxSoCFull.asic.axi4yank.unnamedblk1", "unnamedblk1", "<null>", -9, VerilatedScope::SCOPE_OTHER};
+    __Vscopep_ysyxSoCFull__asic__cpu__cpu = new VerilatedScope{this, "ysyxSoCFull.asic.cpu.cpu", "cpu", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_IFU = new VerilatedScope{this, "ysyxSoCFull.asic.cpu.cpu.my_IFU", "my_IFU", "<null>", -9, VerilatedScope::SCOPE_OTHER};
+    __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_WBU__my_csr = new VerilatedScope{this, "ysyxSoCFull.asic.cpu.cpu.my_WBU.my_csr", "my_csr", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__asic__lmrom = new VerilatedScope{this, "ysyxSoCFull.asic.lmrom", "lmrom", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__flash = new VerilatedScope{this, "ysyxSoCFull.flash", "flash", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyxSoCFull__flash__flash_cmd_i = new VerilatedScope{this, "ysyxSoCFull.flash.flash_cmd_i", "flash_cmd_i", "<null>", -9, VerilatedScope::SCOPE_OTHER};
@@ -45,7 +47,9 @@ VysyxSoCFull__Syms::~VysyxSoCFull__Syms() {
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4xbar_1, __Vscopep_ysyxSoCFull__asic__axi4xbar_1 = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4yank, __Vscopep_ysyxSoCFull__asic__axi4yank = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1, __Vscopep_ysyxSoCFull__asic__axi4yank__unnamedblk1 = nullptr);
+    VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__cpu__cpu, __Vscopep_ysyxSoCFull__asic__cpu__cpu = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_IFU, __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_IFU = nullptr);
+    VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_WBU__my_csr, __Vscopep_ysyxSoCFull__asic__cpu__cpu__my_WBU__my_csr = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__asic__lmrom, __Vscopep_ysyxSoCFull__asic__lmrom = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__flash, __Vscopep_ysyxSoCFull__flash = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyxSoCFull__flash__flash_cmd_i, __Vscopep_ysyxSoCFull__flash__flash_cmd_i = nullptr);

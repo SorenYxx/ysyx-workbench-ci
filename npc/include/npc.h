@@ -54,6 +54,10 @@ extern uint32_t marchid;
 extern NPCState npc_state;
 extern CPU_state cpu_n;
 extern int exu_valid;
+extern uint32_t total_inst;
+
+//log
+void init_log(const char *log_file);
 
 int is_exit_status_bad();
 
@@ -67,6 +71,7 @@ extern Vysyx_26010027* top;
 #endif
 
 void itrace_record(int pc, int inst);
+void init_disasm();
 
 //exec
 void sim_init(int argc, char *argv[]);

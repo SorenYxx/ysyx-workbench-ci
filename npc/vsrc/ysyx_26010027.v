@@ -879,6 +879,8 @@ module ysyx_26010027 (
     wire [31:0] miss_count   = 32'b0;
     wire [31:0] miss_latency = 32'b0;
 
+    wire ebreak = (lsu_wbu_inst == 32'h00100073);
+
     always @(posedge clock, posedge reset) begin
         if (!reset) begin
             get_cpu_state({{31{1'b0}}, lsu_wbu_valid && wbu_load},
@@ -901,10 +903,10 @@ module ysyx_26010027 (
             end
 
             // ebreak
-            if ((lsu_wbu_inst == 32'h00100073) || access_fault) begin
+            if (ebreak || access_fault) begin
                 finish_sim();
-                $display("ebreak at PC = 0x%h Inst = 0x%h", lsu_wbu_pc, lsu_wbu_inst);
-                if (access_fault) $display("![Access-FAULT]");
+                if (ebreak) $display("ebreak at PC = 0x%h Inst = 0x%h", lsu_wbu_pc, lsu_wbu_inst);
+                if (access_fault) $fatal(1, "![Access-FAULT]");
             end
         end
     end

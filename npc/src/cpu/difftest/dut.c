@@ -81,6 +81,7 @@ void check_difftest() {
     // 跳过本次对比
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
     is_skip_ref = false;
+    printf("Skip at pc 0x%08x\n", CPU_PC());
     return;
   }
 

@@ -60,7 +60,7 @@ module ysyx_26010027_CSR (
                     default: begin
 `ifndef __ICARUS__
 `ifndef SYNTHESIS
-                        $display("Warning: Write to unknown CSR address %h", csr_waddr);
+                        $fatal(1, "Warning: Write to unknown CSR address %h", csr_waddr);
 `endif
 `endif
                     end

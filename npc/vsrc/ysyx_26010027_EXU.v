@@ -75,6 +75,7 @@ module ysyx_26010027_EXU (
     wire [31:0] snpc = idu_exu_pc + 4;
     wire [31:0] csr_rdata;
     reg  [31:0] src1, src2;
+    reg  [31:0] src1_q, src2_q;
     reg  [31:0] alu_result;
 
     // ----- data forwarding -----
@@ -114,27 +115,37 @@ module ysyx_26010027_EXU (
     assign rdata1 = fwd_1[0] ? lsu_fwd_data : 
                     fwd_1[1] ? wbu_fwd_data : 
                     fwd_1[2] ? lsu_wbu_mem_result : idu_exu_rdata1;
-    assign rdata2 = fwd_2[0] ? lsu_fwd_data : 
+    assign rdata2 = fwd_2[0] ? lsu_fwd_data :
                     fwd_2[1] ? wbu_fwd_data : 
                     fwd_2[2] ? lsu_wbu_mem_result : idu_exu_rdata2;
     assign csr_rdata = csr_fwd[0] ? exu_lsu_csr_wdata : 
                        csr_fwd[1] ? lsu_wbu_csr_wdata : idu_exu_csr_rdata;
 
     // 源操作数选择与处理
-    reg exu_flag;
-    always @(posedge clock, posedge reset) begin
-        if (reset) exu_flag <= 1'b0;
-        else if (idu_exu_valid && exu_idu_ready) exu_flag <= 1'b1;
-        else exu_flag <= 1'b0;
-    end
+    wire latch_flag = idu_exu_valid & !exu_idu_ready;
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            src1 <= 32'b0;
-            src2 <= 32'b0;
+            src1_q <= 32'b0;
+            src2_q <= 32'b0;
         end
-        else if (exu_flag) begin
-            src1 <= idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
-            src2 <= idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+        else if (latch_flag) begin
+            src1_q <= idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
+            src2_q <= idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+        end
+    end
+
+    always @(*) begin
+        if (reset) begin
+            src1 = 0;
+            src2 = 0;
+        end
+        else if (!latch_flag) begin
+            src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
+            src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+        end
+        else begin
+            src1 = src1_q;
+            src2 = src2_q;
         end
     end
 
