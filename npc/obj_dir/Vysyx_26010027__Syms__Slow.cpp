@@ -24,15 +24,19 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     TOP____024unit.__Vconfigure(true);
     // Setup scopes
     __Vscopep_ysyx_26010027 = new VerilatedScope{this, "ysyx_26010027", "ysyx_26010027", "<null>", -9, VerilatedScope::SCOPE_OTHER};
+    __Vscopep_ysyx_26010027__my_EXU = new VerilatedScope{this, "ysyx_26010027.my_EXU", "my_EXU", "<null>", 0, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyx_26010027__my_IFU = new VerilatedScope{this, "ysyx_26010027.my_IFU", "my_IFU", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyx_26010027__my_WBU__my_csr = new VerilatedScope{this, "ysyx_26010027.my_WBU.my_csr", "my_csr", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     // Setup export functions - final: 0
     // Setup export functions - final: 1
+    // Setup public variables
+    __Vscopep_ysyx_26010027__my_EXU->varInsert("dnpc", &(TOP.ysyx_26010027__DOT__my_EXU__DOT__dnpc), false, VLVT_UINT32, VLVD_NODIR|VLVF_PUB_RD, 0, 1 ,31,0);
 }
 
 Vysyx_26010027__Syms::~Vysyx_26010027__Syms() {
     // Tear down scopes
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027, __Vscopep_ysyx_26010027 = nullptr);
+    VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_EXU, __Vscopep_ysyx_26010027__my_EXU = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_IFU, __Vscopep_ysyx_26010027__my_IFU = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_WBU__my_csr, __Vscopep_ysyx_26010027__my_WBU__my_csr = nullptr);
     // Tear down sub module instances

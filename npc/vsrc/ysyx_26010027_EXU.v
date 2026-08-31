@@ -278,4 +278,11 @@ module ysyx_26010027_EXU (
 
     end
 
+`ifndef __ICARUS__
+`ifndef SYNTHESIS
+    wire [31:0] dnpc /*verilator public_flat_rd*/ =
+                      snpc;
+    wire unused = &{dnpc, 1'b1};
+`endif
+`endif
 endmodule

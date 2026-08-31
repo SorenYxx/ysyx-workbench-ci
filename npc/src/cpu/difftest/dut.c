@@ -40,26 +40,26 @@ static bool isa_difftest_checkregs(CPU_state *ref_r) {
   // regs
   for (int i = 0; i < 31; i ++) {
     if (ref_r->gpr[i] != R[i]) {
-      Log("Register (%d)[%s] mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], CPU_PC());
+      Log("Register (%d)[%s] mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", i, reg_name(i), ref_r->gpr[i], R[i], CPU_PC());
       return false;
     }
   }
 
   // csrs
   if (ref_r->mstatus != cpu_n.mstatus) {
-    Log("CSR mstatus mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, CPU_PC());
+    Log("CSR mstatus mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, CPU_PC());
     return false;
   }
   if (ref_r->mtvec != cpu_n.mtvec) {
-    Log("CSR mtvec mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mtvec, cpu_n.mtvec, CPU_PC());
+    Log("CSR mtvec mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", ref_r->mtvec, cpu_n.mtvec, CPU_PC());
     return false;
   }
   if (ref_r->mepc != cpu_n.mepc) {
-    Log("CSR mepc mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mepc, cpu_n.mepc, CPU_PC());
+    Log("CSR mepc mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", ref_r->mepc, cpu_n.mepc, CPU_PC());
     return false;
   }
   if (ref_r->mcause != cpu_n.mcause) {
-    Log("CSR mcause mismatch! [REF] 0x%08x | [DUT] 0x%08x at PC 0x%08x", ref_r->mcause, cpu_n.mcause, CPU_PC());
+    Log("CSR mcause mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", ref_r->mcause, cpu_n.mcause, CPU_PC());
     return false;
   }
 
@@ -81,14 +81,13 @@ void check_difftest() {
     // 跳过本次对比
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
     is_skip_ref = false;
-    printf("Skip at pc 0x%08x\n", CPU_PC());
     return;
   }
 
-  // 流水线对齐
+  // 流水线pc对齐
   ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
   if (ref_regs.pc != CPU_PC()) {
-    Log("PC mismatch! [REF] 0x%08x | [DUT] 0x%08x", ref_regs.pc, CPU_PC());
+    Log("PC mismatch! [NEMU] 0x%08x | [NPC] 0x%08x", ref_regs.pc, CPU_PC());
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = CPU_PC();
     isa_reg_display();

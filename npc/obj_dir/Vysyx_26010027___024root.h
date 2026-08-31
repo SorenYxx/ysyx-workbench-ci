@@ -171,9 +171,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*1:0*/ __Vdly__ysyx_26010027__DOT__my_IFU__DOT__state;
         CData/*0:0*/ __Vdly__ysyx_26010027__DOT__my_IFU__DOT__flush_q;
         CData/*0:0*/ __Vdly__ysyx_26010027__DOT__ifu_idu_valid;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__exu_lsu_valid;
         CData/*2:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_w;
         CData/*1:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_r;
+        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__l_busy;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __VicoFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
@@ -199,6 +199,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__exu_lsu_wdata;
         IData/*31:0*/ ysyx_26010027__DOT__exu_lsu_alu_result;
         IData/*31:0*/ ysyx_26010027__DOT__exu_lsu_csr_wdata;
+        IData/*31:0*/ ysyx_26010027__DOT__exu_flush_pc;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_pc;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_snpc;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_inst;
@@ -214,11 +215,12 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__rdata2;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src1;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src2;
-        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src1_q;
     };
     struct {
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src1_q;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src2_q;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__alu_result;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__dnpc;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_mem_addr;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_wdata;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__rdata_shifted;
@@ -229,7 +231,6 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mepc;
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mcause;
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc;
-        IData/*31:0*/ __Vdly__ysyx_26010027__DOT__ifu_idu_pc;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<IData/*31:0*/, 16> ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__rf;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
