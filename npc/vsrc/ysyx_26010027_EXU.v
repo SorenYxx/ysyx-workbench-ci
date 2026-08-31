@@ -32,6 +32,7 @@ module ysyx_26010027_EXU (
     output reg        exu_lsu_valid,
     output reg [31:0] exu_lsu_pc,
     output reg [31:0] exu_lsu_snpc,
+    output reg [31:0] exu_lsu_dnpc,
     output reg [31:0] exu_lsu_inst,
 
     output reg [ 1:0] exu_lsu_mem_w, 
@@ -221,6 +222,13 @@ module ysyx_26010027_EXU (
         end
     end
 
+    reg  [31:0] dnpc;
+    wire [ 6:0] opcode = idu_exu_inst[6:0];
+    wire branch = (opcode == 7'b1100011);
+    wire jump   = (opcode == 7'b1101111 | opcode == 7'b1100111);
+    assign dnpc = (branch | jump) ? alu_result : 
+                  (idu_exu_csr_ecall | idu_exu_csr_mret) ? trap_pc : snpc;
+
     assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !load_use_stall; // stall 反压
     always @(posedge clock, posedge reset) begin
         if (reset) begin
@@ -238,6 +246,7 @@ module ysyx_26010027_EXU (
         if (reset) begin
             exu_lsu_pc       <= 0;
             exu_lsu_snpc     <= 0;
+            exu_lsu_dnpc     <= 0;
             exu_lsu_inst     <= 0;
             exu_lsu_mem_w    <= 0;
             exu_lsu_mem_r    <= 0;
@@ -258,6 +267,7 @@ module ysyx_26010027_EXU (
         else if (idu_exu_valid && exu_idu_ready) begin
             exu_lsu_pc       <= idu_exu_pc;
             exu_lsu_snpc     <= snpc;
+            exu_lsu_dnpc     <= dnpc;
             exu_lsu_inst     <= idu_exu_inst;
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
@@ -280,9 +290,16 @@ module ysyx_26010027_EXU (
 
 `ifndef __ICARUS__
 `ifndef SYNTHESIS
-    wire [31:0] dnpc /*verilator public_flat_rd*/ =
-                      snpc;
-    wire unused = &{dnpc, 1'b1};
+    // wire [ 6:0] opcode = idu_exu_inst[6:0];
+    // wire branch = (opcode == 7'b1100011);
+    // wire jump   = (opcode == 7'b1101111 | opcode == 7'b1100111);
+    // reg [31:0] dnpc /*verilator public_flat_rd*/;
+    // always @(posedge clock) begin
+    //     dnpc <= (branch | jump) ? alu_result : 
+    //             (idu_exu_csr_ecall | idu_exu_csr_mret) ? trap_pc : snpc;
+    //     if (exu_lsu_valid) $display("DNPC: 0x%08x", dnpc);
+    // end
+    // wire unused = &{dnpc, 1'b1};
 `endif
 `endif
 endmodule

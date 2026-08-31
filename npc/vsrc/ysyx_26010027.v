@@ -444,6 +444,7 @@ module ysyx_26010027 (
     wire [ 1:0] exu_lsu_rf_res;
     wire [ 4:0] exu_lsu_waddr;
     wire [31:0] exu_lsu_alu_result;
+    wire [31:0] exu_lsu_dnpc;
 
     wire [11:0] exu_lsu_csr_waddr;
     wire        exu_lsu_csr_we;
@@ -465,6 +466,7 @@ module ysyx_26010027 (
     wire [ 1:0] lsu_wbu_rf_res;
     wire [ 4:0] lsu_wbu_waddr;
     wire [31:0] lsu_wbu_alu_result;
+    wire [31:0] lsu_wbu_dnpc;
     wire [31:0] lsu_wbu_mem_result;
     wire        lsu_load_inflight;
     wire [11:0] lsu_wbu_csr_waddr;
@@ -472,6 +474,7 @@ module ysyx_26010027 (
     wire        lsu_wbu_csr_ecall;
     wire        lsu_wbu_csr_mret;
     wire [31:0] lsu_wbu_csr_wdata;
+    wire unused = &{lsu_wbu_dnpc, 1'b1};
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -654,6 +657,7 @@ module ysyx_26010027 (
         .exu_lsu_rf_res    (exu_lsu_rf_res),
         .exu_lsu_waddr     (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_dnpc      (exu_lsu_dnpc),
         .exu_lsu_csr_waddr (exu_lsu_csr_waddr),
         .exu_lsu_csr_we    (exu_lsu_csr_we),
         .exu_lsu_csr_ecall (exu_lsu_csr_ecall),
@@ -703,6 +707,7 @@ module ysyx_26010027 (
         .exu_lsu_rf_res    (exu_lsu_rf_res),
         .exu_lsu_waddr     (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
+        .exu_lsu_dnpc      (exu_lsu_dnpc),
         .exu_lsu_csr_waddr (exu_lsu_csr_waddr),
         .exu_lsu_csr_we    (exu_lsu_csr_we),
         .exu_lsu_csr_ecall (exu_lsu_csr_ecall),
@@ -718,6 +723,7 @@ module ysyx_26010027 (
         .lsu_wbu_rf_res    (lsu_wbu_rf_res),
         .lsu_wbu_waddr     (lsu_wbu_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
+        .lsu_wbu_dnpc      (lsu_wbu_dnpc),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
         .lsu_wbu_csr_waddr (lsu_wbu_csr_waddr),
         .lsu_wbu_csr_we    (lsu_wbu_csr_we),

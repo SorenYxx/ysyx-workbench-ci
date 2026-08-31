@@ -45,6 +45,12 @@ static bool isa_difftest_checkregs(CPU_state *ref_r) {
     }
   }
 
+  // pc
+  if (ref_r->pc != CPU_DNPC()) {
+    Log("PC mismatch! [NEMU] 0x%08x | [NPC] 0x%08x", ref_r->pc, CPU_DNPC());
+    return false;
+  }
+
   // csrs
   if (ref_r->mstatus != cpu_n.mstatus) {
     Log("CSR mstatus mismatch! [NEMU] 0x%08x | [NPC] 0x%08x at PC 0x%08x", ref_r->mstatus, cpu_n.mstatus, CPU_PC());
@@ -81,16 +87,6 @@ void check_difftest() {
     // 跳过本次对比
     ref_difftest_regcpy(&cpu_n, DIFFTEST_TO_REF);
     is_skip_ref = false;
-    return;
-  }
-
-  // 流水线pc对齐
-  ref_difftest_regcpy(&ref_regs, DIFFTEST_FROM_REF);
-  if (ref_regs.pc != CPU_PC()) {
-    Log("PC mismatch! [NEMU] 0x%08x | [NPC] 0x%08x", ref_regs.pc, CPU_PC());
-    npc_state.state = NPC_ABORT;
-    npc_state.halt_pc = CPU_PC();
-    isa_reg_display();
     return;
   }
 

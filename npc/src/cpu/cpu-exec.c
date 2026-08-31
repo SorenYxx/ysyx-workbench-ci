@@ -100,7 +100,7 @@ void step_and_eval() {
 
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
-  cpu_n.pc = CPU_PC();
+  cpu_n.pc = CPU_DNPC();
 
   get_cpu_state(lsu_r_valid, lsu_w_valid, exu_valid, alu_valid, csr_valid, jump, branch, icache_hit_counter, icache_miss_counter, icache_miss_latency);
 
