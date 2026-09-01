@@ -15,7 +15,6 @@ module ysyx_26010027_WBU (
     output            wbu_lsu_ready,
     input      [31:0] lsu_wbu_pc,
     input      [31:0] lsu_wbu_snpc,
-    input      [31:0] lsu_wbu_inst,
     input             lsu_wbu_reg_w,
     input      [ 4:0] lsu_wbu_waddr,
     input      [31:0] lsu_wbu_alu_result,

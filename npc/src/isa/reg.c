@@ -15,7 +15,12 @@ extern "C" void get_csr(int csr, int data) {
     case 0x300: cpu_n.mstatus = data; return;
     case 0x305: cpu_n.mtvec = data; return;
     case 0x341: cpu_n.mepc = data; return;
-    case 0x342: cpu_n.mcause = data; return;
+    case 0x342:
+      cpu_n.mcause = data;
+      IFDEF(CONFIG_ETRACE,
+        if (data == 11) log_write("[etrace] ecall at pc = 0x%08x, mepc = 0x%08x\n", CPU_PC(), cpu_n.mepc);
+      );
+      return;
     default: { Log("write unsupported csr addr = 0x%03x", csr); assert(0); }
   }
 }

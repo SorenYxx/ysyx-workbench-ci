@@ -12,6 +12,7 @@ uint32_t marchid   = 0x26010027; // "26010027"
 
 static char *diff_so_file = NULL;
 static char *elf_file = NULL;
+static const char *log_file = NULL;
 
 IFDEF(CONFIG_FTRACE, void init_ftrace(const char *elf_sile));
 void sdb_set_batch_mode();
@@ -20,19 +21,22 @@ static int parse_args(int argc, char *argv[]) {
   const struct option table[] = {
     {"diff"  , required_argument, NULL, 'd'},
     {"elf"   , required_argument, NULL, 'e'},
+    {"log"   , required_argument, NULL, 'l'},
     {"help"  , no_argument      , NULL, 'h'},
     {0       , 0                , NULL,  0 },
   };
   int o;
-  while ((o = getopt_long(argc, argv, "-d:e:h", table, NULL)) != -1) {
+  while ((o = getopt_long(argc, argv, "-d:e:l:h", table, NULL)) != -1) {
     switch (o) {
       case 'd': diff_so_file = optarg; break;
       case 'e': elf_file = optarg; break;
+      case 'l': log_file = optarg; break;
       case 1:   break; // skip positional args (e.g. --img value consumed elsewhere)
       case 'h':
         printf("Usage: %s [OPTION...] --img IMAGE\n\n", argv[0]);
         printf("\t-e,--elf=FILE           load ELF for function trace\n");
         printf("\t-d,--diff=REF_SO          specify diff file\n");
+        printf("\t-l,--log=FILE           output log to FILE\n");
         printf("\n");
         exit(0);
       default: break;
@@ -47,11 +51,7 @@ long img_size = 0;
 static long load_img(const char *filename) {
   if (filename == NULL) return 4096;
   FILE *fp = fopen(filename, "rb");
-
-  if (fp == NULL) {
-    perror("Error opening image file");
-    printf("Path attemped: %s\n", filename);
-  }
+  assert(fp != NULL);  // 打开失败直接报错，避免 fseek(NULL) 段错误
 
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
@@ -101,7 +101,6 @@ static void init_nvboard() {
 #endif
 
 static void init_verilator(int argc, char *argv[]) {
-  Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
 
 #ifdef CONFIG_WAVE_DUMP
@@ -131,11 +130,14 @@ static void welcome() {
 }
 
 void sim_init(int argc, char *argv[]) {
+  /* Load the image to memory*/
+  init_img(argc, argv);
+
   /* Parse arguments. */
   parse_args(argc, argv);
-  
-  /* Load the image to memory. */
-  init_img(argc, argv);
+
+  /* Open the log file. */
+  init_log(log_file);
 
  /* Initialize the verilator */
   init_verilator(argc, argv);
@@ -160,6 +162,8 @@ void sim_init(int argc, char *argv[]) {
 
   /* Initialize the simple debugger. */
   init_sdb();
+
+  IFDEF(CONFIG_ITRACE, init_disasm());
 
   /* Display welcome message. */
   welcome();

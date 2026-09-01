@@ -39,9 +39,7 @@ int pmem_read(int raddr) {
   const mem_region_t *r = find_region(addr);
   if (r) {
     int value = *(int *)(pmem + r->offset + (addr - r->base));
-#ifdef CONFIG_MTRACE
-    printf("read          0x%08x from 0x%08x\n", value, addr);
-#endif
+    IFDEF(CONFIG_MTRACE, log_write("read          0x%08x from 0x%08x\n", value, addr));
     return value;
   }
 #ifdef CONFIG_DEVICE
@@ -60,9 +58,7 @@ extern "C" void mrom_read(int32_t addr, int32_t *data) {
   const mem_region_t *r = find_region(addr32);
   if (r) {
     *data = *(int *)(pmem + r->offset + (addr32 - r->base));
-#ifdef CONFIG_MTRACE                                                                                                                                                                                                                                                                                                                                                                                               
-    printf("[mrom]read          0x%08x from 0x%08x\n", *data, addr32);                                                                                                                                                                                                                                                                                                                                             
-#endif
+    IFDEF(CONFIG_MTRACE, log_write("[mrom] read   0x%08x from 0x%08x\n", *data, addr32));
   }
 }
 
@@ -71,9 +67,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) {
 
   if (addr32 < CONFIG_FLASH_SIZE) {
     *data = *(int32_t *)(flash + addr32);
-    if (addr32 >= 0x1a0 && addr32 < 0x2f0) {
-      // printf("[flash]read addr=0x%08x data=0x%08x\n", addr32, *data);
-    }
+    IFDEF(CONFIG_MTRACE, log_write("[flash] read  0x%08x from 0x%08x\n", *data, addr32));
   }
 }
 
@@ -83,9 +77,7 @@ extern "C" void psram_read(int32_t addr, int32_t *data) {
   const mem_region_t *r = find_region(addr32);
   if (r) {
     *data = *(int *)(pmem + r->offset + (addr32 - r->base));
-#ifdef CONFIG_MTRACE
-    printf("[psram]read         0x%08x from 0x%08x\n", *data, addr32);
-#endif
+    IFDEF(CONFIG_MTRACE, log_write("[psram] read  0x%08x from 0x%08x\n", *data, addr32));
   }
 }
 
@@ -101,7 +93,7 @@ void pmem_write(int waddr, int wdata, int wmask) {
     for (int i = 0; i < 4; i++) {
       if ((wmask >> i) & 0x1) pt[i] = (uint8_t)((wdata >> (i * 8)) & 0xFF);
     }
-    IFDEF(CONFIG_MTRACE, printf("write         0x%08x to   0x%08x\n", wdata, addr));
+    IFDEF(CONFIG_MTRACE, log_write("write         0x%08x to   0x%08x\n", wdata, addr));
     return;
   }
 
@@ -120,7 +112,7 @@ extern "C" void psram_write(int32_t addr, int32_t *data, int32_t *wmask) {
     for (int i = 0; i < 4; i++) {
       if ((wmask[0] >> i) & 0x1) pt[i] = (uint8_t)((data[0] >> (i * 8)) & 0xFF);
     }
-    IFDEF(CONFIG_MTRACE, printf("[psram]write        0x%08x to   0x%08x\n", data[0], addr32));
+    IFDEF(CONFIG_MTRACE, log_write("[psram] write 0x%08x to   0x%08x\n", data[0], addr32));
   }
 }
 

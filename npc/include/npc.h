@@ -12,14 +12,16 @@
 #ifdef CONFIG_SOC
 #include "VysyxSoCFull.h"
 #include "VysyxSoCFull___024root.h"
-#define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_pc)
+#define CPU_PC()    (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_pc) // commit pc
+#define CPU_DNPC()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_dnpc) // dnpc
 #define CPU_INST()  (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_inst)
 #define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_reg_w)
 #define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
 #else
 #include "Vysyx_26010027.h"
 #include "Vysyx_26010027___024root.h"
-#define CPU_PC()    (top->rootp->ysyx_26010027__DOT__lsu_wbu_pc)
+#define CPU_PC()    (top->rootp->ysyx_26010027__DOT__lsu_wbu_pc) // commit pc
+#define CPU_DNPC()  (top->rootp->ysyx_26010027__DOT__lsu_wbu_dnpc) // dnpc
 #define CPU_INST()  (top->rootp->ysyx_26010027__DOT__lsu_wbu_inst)
 #define CPU_REG_W() (top->rootp->ysyx_26010027__DOT__lsu_wbu_reg_w)
 #define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
@@ -54,6 +56,10 @@ extern uint32_t marchid;
 extern NPCState npc_state;
 extern CPU_state cpu_n;
 extern int exu_valid;
+extern uint32_t total_inst;
+
+//log
+void init_log(const char *log_file);
 
 int is_exit_status_bad();
 
@@ -67,6 +73,7 @@ extern Vysyx_26010027* top;
 #endif
 
 void itrace_record(int pc, int inst);
+void init_disasm();
 
 //exec
 void sim_init(int argc, char *argv[]);
@@ -90,6 +97,8 @@ static inline const char* reg_name(int idx) {
 void init_difftest(const char *ref_so_file, long img_size);
 void check_difftest();
 void difftest_skip_ref();
+bool in_soc_device (uint32_t addr);
+void check_device();
 // void difftest_skip_dut(int nr_ref, int nr_dut);
 
 #endif

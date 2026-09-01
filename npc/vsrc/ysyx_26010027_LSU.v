@@ -12,6 +12,7 @@ module ysyx_26010027_LSU (
     output wire       lsu_exu_ready,
     input      [31:0] exu_lsu_pc,
     input      [31:0] exu_lsu_snpc,
+    input      [31:0] exu_lsu_dnpc,
     input      [31:0] exu_lsu_inst,
     input             exu_lsu_reg_w,
     input      [ 1:0] exu_lsu_rf_res,
@@ -29,6 +30,7 @@ module ysyx_26010027_LSU (
     output wire       lsu_wbu_valid,
     output reg [31:0] lsu_wbu_pc,
     output reg [31:0] lsu_wbu_snpc,
+    output reg [31:0] lsu_wbu_dnpc,
     output reg [31:0] lsu_wbu_inst,
     output reg        lsu_wbu_reg_w,
     output reg [ 1:0] lsu_wbu_rf_res,
@@ -42,7 +44,7 @@ module ysyx_26010027_LSU (
     output reg        lsu_wbu_csr_mret,
     output reg [31:0] lsu_wbu_csr_wdata,
 
-    // 前递/停顿: LSU 中正在访存、数据未回的 load
+    // 前递/停顿: LSU 中还在飞的 load
     output wire       lsu_load_inflight,
 
     // ----------- AXI4 -----------
@@ -58,8 +60,6 @@ module ysyx_26010027_LSU (
     input             cpu_lsu_rvalid,
     input      [31:0] cpu_lsu_rdata,
     input      [ 1:0] cpu_lsu_rresp,
-    input      [ 3:0] cpu_lsu_rid,
-    input             cpu_lsu_rlast,
 
     output     [31:0] lsu_cpu_awaddr,
     output            lsu_cpu_awvalid,
@@ -77,8 +77,7 @@ module ysyx_26010027_LSU (
 
     input      [ 1:0] cpu_lsu_bresp,
     input             cpu_lsu_bvalid,
-    output            lsu_cpu_bready,
-    input      [ 3:0] cpu_lsu_bid
+    output            lsu_cpu_bready
 );
 
     // ----- 锁存 -----
@@ -102,20 +101,13 @@ module ysyx_26010027_LSU (
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire load_q  = l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
-    wire store_q = l_busy && is_store && !mem_done;
+    wire load_q  /*verilator public_flat_rd*/= l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
+    wire store_q /*verilator public_flat_rd*/= l_busy && is_store && !mem_done;
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
     wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // ！！桶形移位
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
-    // wire [31:0] wdata_shifted = (l_mem_addr[1:0] == 2'b00) ? (l_wdata << 0) :
-    //                             (l_mem_addr[1:0] == 2'b01) ? (l_wdata << 8) :
-    //                             (l_mem_addr[1:0] == 2'b10) ? (l_wdata << 16) : (l_wdata << 24);
-
-    // wire [31:0] rdata_shifted = (l_mem_addr[1:0] == 2'b00) ? cpu_lsu_rdata :
-    //                             (l_mem_addr[1:0] == 2'b01) ? (cpu_lsu_rdata >> 8) :
-    //                             (l_mem_addr[1:0] == 2'b10) ? (cpu_lsu_rdata >> 16) : (cpu_lsu_rdata >> 24);
 
     assign lsu_cpu_awaddr  = l_mem_addr;
     assign lsu_cpu_araddr  = l_mem_addr;
@@ -207,6 +199,7 @@ module ysyx_26010027_LSU (
         if (reset) begin
             lsu_wbu_pc         <= 32'b0;
             lsu_wbu_snpc       <= 32'b0;
+            lsu_wbu_dnpc       <= 32'b0;
             lsu_wbu_inst       <= 32'b0;
             lsu_wbu_reg_w      <= 1'b0;
             lsu_wbu_rf_res     <= 2'b0;
@@ -228,6 +221,7 @@ module ysyx_26010027_LSU (
                 // 非访存相关数据透传
                 lsu_wbu_pc         <= exu_lsu_pc;
                 lsu_wbu_snpc       <= exu_lsu_snpc;
+                lsu_wbu_dnpc       <= exu_lsu_dnpc;
                 lsu_wbu_inst       <= exu_lsu_inst;
                 lsu_wbu_reg_w      <= exu_lsu_reg_w;
                 lsu_wbu_rf_res     <= exu_lsu_rf_res;
@@ -249,5 +243,5 @@ module ysyx_26010027_LSU (
                 lsu_wbu_mem_result <= mem_rdata;
         end
     end
-
+    
 endmodule

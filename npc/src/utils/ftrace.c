@@ -66,24 +66,23 @@ static const char *get_func(uint32_t addr) {
 int depth = 0;
 
 void ftrace_print(uint32_t pc, uint32_t target, int rd, int rs1) {
-  // printf("pc: 0x%08x rd: %d rs1: %d\n", pc, rd, rs1);
   bool is_call = false;
 
   if (rd == 1) is_call = true;
   else if (rd == 0 && rs1 == 1) is_call = false;
-  
+
   const char *funt_name = get_func(target);
   if (funt_name == NULL) return;
 
 #ifdef CONFIG_FTRACE
   {
     if (is_call) {
-      printf("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
+      log_write("0x%08x: %*s call [%s@0x%08x]\n", pc, depth * 2, "", funt_name, target);
       depth ++;
     } else {
       depth --;
       if (depth < 0) depth = 0;
-      printf("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
+      log_write("0x%08x: %*s ret  [%s]\n", pc, depth * 2, "", funt_name);
     }
   }
 #endif

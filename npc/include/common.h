@@ -34,7 +34,28 @@
 
 
 #define Log(format, ...) \
-    printf(ANSI_FG_BLUE "[ysyxSoC] " format ANSI_NONE "\n", ## __VA_ARGS__)
+    do { \
+      printf(ANSI_FG_BLUE "[ysyxSoC] " format ANSI_NONE "\n", ## __VA_ARGS__); \
+      log_write(format "\n", ## __VA_ARGS__); \
+    } while (0)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool log_enable();
+#ifdef __cplusplus
+}
+#endif
+
+#define log_write(...) IFDEF(CONFIG_TRACE, \
+  do { \
+    extern FILE* log_fp; \
+    if (log_enable() && log_fp != NULL) { \
+      fprintf(log_fp, __VA_ARGS__); \
+      fflush(log_fp); \
+    } \
+  } while (0) \
+)
 
 #define Assert(cond, format, ...) \
   do { \
