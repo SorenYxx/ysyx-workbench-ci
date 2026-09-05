@@ -124,7 +124,7 @@ static void trace_and_difftest() {
   cpu_valid = CPU_VALID();
   in_bootloader = (CPU_PC() >= CONFIG_FLASH_BASE && CPU_PC() < CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE) || (CPU_PC() >= CONFIG_SRAM_BASE && CPU_PC() < CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE);
   if (cpu_valid) {
-    if (!in_bootloader) IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
+    IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
     IFDEF(CONFIG_WATCHPOINT, check_watchpoints());
     IFDEF(CONFIG_DIFFTEST, check_difftest());
     total_inst ++;
@@ -149,7 +149,7 @@ void cpu_exec(uint64_t n) {
     trace_and_difftest();
     if (npc_state.state != NPC_RUNNING) break;
   }
-  
+
   if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
 }
 

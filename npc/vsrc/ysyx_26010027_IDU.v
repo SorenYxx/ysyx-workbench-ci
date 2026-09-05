@@ -173,7 +173,7 @@ module ysyx_26010027_IDU (
                         sltu            ? 4'd8  :
                         (r_xor || xori) ? 4'd9  :
                         (r_and || andi) ? 4'd10 :
-                        (r_or || ori)   ? 4'd11 :
+                        (r_or  || ori)  ? 4'd11 :
                         inst_B          ? 4'd12 :
                         csrrw           ? 4'd13 :
                         csrrs           ? 4'd14 :

@@ -89,7 +89,7 @@ sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 clean:
-	@rm -rf obj_dir $(DUMP) *~ *.log
+	@rm -rf obj_dir build $(DUMP) *~ *.log
 
 # microbench train 性能测试
 PERF_IMG := $(AM_HOME)/../am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin

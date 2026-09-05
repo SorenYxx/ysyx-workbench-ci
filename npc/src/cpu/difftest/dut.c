@@ -8,8 +8,8 @@ void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 #ifdef CONFIG_SOC
-#define SOC_ADDR() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__exu_lsu_mem_addr)
-#define IS_MEM()   (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_LSU__DOT__load_q || top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__my_LSU__DOT__store_q)
+#define SOC_ADDR() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_mem_addr)
+#define IS_MEM()   (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_mem_en)
 
 bool in_soc_device (uint32_t addr) {
   if (addr >= 0x02000000 && addr < 0x02010000
@@ -24,6 +24,7 @@ bool in_soc_device (uint32_t addr) {
 }
 
 void check_device() {
+  // printf("%d %d 0x%08x\n", IS_MEM(), in_soc_device(SOC_ADDR()), SOC_ADDR());
   if (IS_MEM() && in_soc_device(SOC_ADDR())) {
     difftest_skip_ref();
   }

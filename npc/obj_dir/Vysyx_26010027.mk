@@ -41,12 +41,10 @@ VM_USER_CFLAGS = \
   -I/home/soren/ysyx-workbench/nvboard/usr/include \
   -DTOP_NAME="Vysyx_26010027" \
   -DCONFIG_HAS_TIMER \
-  -DCONFIG_FTRACE \
-  -DCONFIG_ITRACE \
   -DCONFIG_WATCHPOINT \
   -DCONFIG_DIFFTEST \
   -DCONFIG_HAS_SERIAL \
-  -DCONFIG_TRACE \
+  -DCONFIG_BATCH_MODE \
   -DCONFIG_DEVICE \
 
 # User LDLIBS (from -LDFLAGS on Verilator command line)

@@ -17,6 +17,7 @@ module ysyx_26010027_GPR #(
 
     integer i;
     always @(posedge clock, posedge reset) begin
+        // if (waddr == 5'd1) $display("$ra: 0x%0h, wdata: 0x%h, waddr: %d, raddr2: %d", rf[1], wdata, waddr, raddr2);
         if (reset) begin
             for (i = 0; i < 16; i = i + 1) begin
                 rf[i] <= 0;
