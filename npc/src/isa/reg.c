@@ -33,7 +33,7 @@ const char *regs[] = {
 };
 
 void isa_reg_display() {
-  printf("pc: 0x%08X\n", npc_state.halt_pc);
+  printf("pc: 0x%08X\n", CPU_PC());
   for (int i = 0; i <= 31; i += 8) {
     printf("%s: 0x%08X  ", regs[i], R[i]);
     if (i == 31) { printf("\n"); break; }

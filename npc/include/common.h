@@ -39,10 +39,17 @@
       log_write(format "\n", ## __VA_ARGS__); \
     } while (0)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+bool log_enable();
+#ifdef __cplusplus
+}
+#endif
+
 #define log_write(...) IFDEF(CONFIG_TRACE, \
   do { \
     extern FILE* log_fp; \
-    extern bool log_enable(); \
     if (log_enable() && log_fp != NULL) { \
       fprintf(log_fp, __VA_ARGS__); \
       fflush(log_fp); \

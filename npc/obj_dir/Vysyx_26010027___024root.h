@@ -59,6 +59,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__lsu_wbu_reg_w;
         CData/*1:0*/ ysyx_26010027__DOT__lsu_wbu_rf_res;
         CData/*4:0*/ ysyx_26010027__DOT__lsu_wbu_waddr;
+        CData/*0:0*/ ysyx_26010027__DOT__lsu_wbu_mem_en;
         CData/*0:0*/ ysyx_26010027__DOT__lsu_wbu_csr_we;
         CData/*0:0*/ ysyx_26010027__DOT__lsu_wbu_csr_ecall;
         CData/*0:0*/ ysyx_26010027__DOT__lsu_wbu_csr_mret;
@@ -82,9 +83,9 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__srli;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__srai;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__sltiu;
-        CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__xori;
     };
     struct {
+        CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__xori;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__ori;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__andi;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__lbu;
@@ -114,14 +115,11 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__csrrs;
         CData/*2:0*/ ysyx_26010027__DOT__my_IDU__DOT__branch;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT__illegal;
-        CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_4;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_11;
-        CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_12;
         CData/*0:0*/ ysyx_26010027__DOT__my_IDU__DOT____VdfgRegularize_hbaaf0796_0_14;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__exu_idu_ready;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__lsu_exu_ready;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__lsu_wbu_valid;
-        CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__lsu_load_inflight;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__2__KET__;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__1__KET__;
         CData/*0:0*/ ysyx_26010027__DOT__my_EXU__DOT__fwd_1__BRA__0__KET__;
@@ -149,31 +147,24 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_awvalid;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__lsu_cpu_wvalid;
         CData/*1:0*/ ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bresp;
-    };
-    struct {
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__cpu_lsu_bvalid;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_busy;
+    };
+    struct {
         CData/*1:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_mem_w;
         CData/*2:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_mem_r;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__mem_done;
+        CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__mem_op;
         CData/*2:0*/ ysyx_26010027__DOT__my_LSU__DOT__state_w;
         CData/*1:0*/ ysyx_26010027__DOT__my_LSU__DOT__state_r;
+        CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__load_q;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__store_q;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__handshake_r;
         CData/*0:0*/ ysyx_26010027__DOT__my_LSU__DOT__handshake_b;
         CData/*4:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__waddr;
-        CData/*5:0*/ __Vtableidx6;
         CData/*5:0*/ __Vtableidx7;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__pmem_rvalid;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__pmem_wready;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__pmem_bvalid;
         CData/*1:0*/ __Vdly__ysyx_26010027__DOT__grant;
-        CData/*1:0*/ __Vdly__ysyx_26010027__DOT__my_IFU__DOT__state;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__my_IFU__DOT__flush_q;
         CData/*0:0*/ __Vdly__ysyx_26010027__DOT__ifu_idu_valid;
-        CData/*2:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_w;
-        CData/*1:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__state_r;
-        CData/*0:0*/ __Vdly__ysyx_26010027__DOT__my_LSU__DOT__l_busy;
         CData/*0:0*/ __VstlFirstIteration;
         CData/*0:0*/ __VicoFirstIteration;
         CData/*0:0*/ __Vtrigprevexpr___TOP__clock__0;
@@ -206,6 +197,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_alu_result;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_dnpc;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_mem_result;
+        IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_mem_addr;
         IData/*31:0*/ ysyx_26010027__DOT__lsu_wbu_csr_wdata;
         IData/*31:0*/ ysyx_26010027__DOT__my_IFU__DOT__imm_B;
         IData/*31:0*/ ysyx_26010027__DOT__my_IFU__DOT__imm_J;
@@ -215,14 +207,16 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__rdata1;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__rdata2;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src1;
-    };
-    struct {
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src2;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__alu_result;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__wbu_fwd_data;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src1_q;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__src2_q;
-        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__alu_result;
+        IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__rdata2_q;
         IData/*31:0*/ ysyx_26010027__DOT__my_EXU__DOT__trap_pc;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_mem_addr;
+    };
+    struct {
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__l_wdata;
         IData/*31:0*/ ysyx_26010027__DOT__my_LSU__DOT__rdata_shifted;
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__wdata;
@@ -232,14 +226,14 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027___024root final {
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mepc;
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mcause;
         IData/*31:0*/ ysyx_26010027__DOT__my_WBU__DOT__my_csr__DOT__mc;
-        IData/*31:0*/ __Vdly__ysyx_26010027__DOT__ifu_idu_pc;
+        IData/*31:0*/ __Vdly__ysyx_26010027__DOT__pmem_read_data;
         IData/*31:0*/ __VactIterCount;
         VlUnpacked<IData/*31:0*/, 16> ysyx_26010027__DOT__my_WBU__DOT__my_gpr__DOT__rf;
         VlUnpacked<QData/*63:0*/, 1> __VstlTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VicoTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VactTriggered;
         VlUnpacked<QData/*63:0*/, 1> __VnbaTriggered;
-        VlUnpacked<CData/*0:0*/, 4> __Vm_traceActivity;
+        VlUnpacked<CData/*0:0*/, 3> __Vm_traceActivity;
     };
 
     // INTERNAL VARIABLES

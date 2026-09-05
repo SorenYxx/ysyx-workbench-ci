@@ -4,8 +4,9 @@ CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c") $(SRC_AUTO_BIND) # 
 INC_PATH  = $(NPC_HOME)/include
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 DUMP      = wave.fst
-LIBS      += -lcapstone -lreadline -ldl
-NPCFLAGS  += -e $(ELF) -d $(REF_SO)
+LOGFILE   = obj_dir/npc-log.txt
+LIBS      += -L$(NEMU_HOME)/tools/capstone/repo -lcapstone -lreadline -ldl
+NPCFLAGS  += -e $(ELF) -d $(REF_SO) -l $(LOGFILE)
 VERILATOR_FLAGS += --output-split 15000 --decorations none -O0
 
 # ----- Kconfig -----
@@ -88,7 +89,7 @@ sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 clean:
-	@rm -rf obj_dir $(DUMP) *~ *.log
+	@rm -rf obj_dir build $(DUMP) *~ *.log
 
 # microbench train 性能测试
 PERF_IMG := $(AM_HOME)/../am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin

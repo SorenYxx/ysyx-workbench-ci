@@ -11,7 +11,7 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     , TOP{this, namep}
 {
     // Check resources
-    Verilated::stackCheck(660);
+    Verilated::stackCheck(722);
     // Setup sub module instances
     TOP____024unit.ctor(this, "$unit");
     // Configure time unit / time precision
@@ -25,15 +25,20 @@ Vysyx_26010027__Syms::Vysyx_26010027__Syms(VerilatedContext* contextp, const cha
     // Setup scopes
     __Vscopep_ysyx_26010027 = new VerilatedScope{this, "ysyx_26010027", "ysyx_26010027", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyx_26010027__my_IFU = new VerilatedScope{this, "ysyx_26010027.my_IFU", "my_IFU", "<null>", -9, VerilatedScope::SCOPE_OTHER};
+    __Vscopep_ysyx_26010027__my_LSU = new VerilatedScope{this, "ysyx_26010027.my_LSU", "my_LSU", "<null>", 0, VerilatedScope::SCOPE_OTHER};
     __Vscopep_ysyx_26010027__my_WBU__my_csr = new VerilatedScope{this, "ysyx_26010027.my_WBU.my_csr", "my_csr", "<null>", -9, VerilatedScope::SCOPE_OTHER};
     // Setup export functions - final: 0
     // Setup export functions - final: 1
+    // Setup public variables
+    __Vscopep_ysyx_26010027__my_LSU->varInsert("load_q", &(TOP.ysyx_26010027__DOT__my_LSU__DOT__load_q), false, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RD, 0, 0);
+    __Vscopep_ysyx_26010027__my_LSU->varInsert("store_q", &(TOP.ysyx_26010027__DOT__my_LSU__DOT__store_q), false, VLVT_UINT8, VLVD_NODIR|VLVF_PUB_RD, 0, 0);
 }
 
 Vysyx_26010027__Syms::~Vysyx_26010027__Syms() {
     // Tear down scopes
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027, __Vscopep_ysyx_26010027 = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_IFU, __Vscopep_ysyx_26010027__my_IFU = nullptr);
+    VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_LSU, __Vscopep_ysyx_26010027__my_LSU = nullptr);
     VL_DO_CLEAR(delete __Vscopep_ysyx_26010027__my_WBU__my_csr, __Vscopep_ysyx_26010027__my_WBU__my_csr = nullptr);
     // Tear down sub module instances
     TOP____024unit.dtor();

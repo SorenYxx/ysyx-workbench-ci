@@ -45,7 +45,9 @@ module ysyx_26010027_LSU (
     output reg [31:0] lsu_wbu_csr_wdata,
 
     // 前递/停顿: LSU 中还在飞的 load
-    output wire       lsu_load_inflight,
+    output wire       lsu_inflight,
+    output reg [31:0] lsu_wbu_mem_addr,
+    output reg        lsu_wbu_mem_en,
 
     // ----------- AXI4 -----------
     input             cpu_lsu_arready,
@@ -101,8 +103,8 @@ module ysyx_26010027_LSU (
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire load_q  = l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
-    wire store_q = l_busy && is_store && !mem_done;
+    wire load_q  /*verilator public_flat_rd*/= l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
+    wire store_q /*verilator public_flat_rd*/= l_busy && is_store && !mem_done;
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
@@ -192,7 +194,7 @@ module ysyx_26010027_LSU (
     
     assign lsu_exu_ready     = !l_busy; // 不忙 向上游要数据
     assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 忙 & (非访存或访存完成)
-    assign lsu_load_inflight = l_busy && (is_load) && !mem_done; // 忙 & 未完成 load线还在飞
+    assign lsu_inflight = l_busy && (is_load | is_store) && !mem_done; // 忙 & 未完成 load|store线还在飞
 
     // ----- 锁存 -----
     always @(posedge clock, posedge reset) begin
@@ -211,7 +213,8 @@ module ysyx_26010027_LSU (
             lsu_wbu_csr_ecall  <= 1'b0;
             lsu_wbu_csr_mret   <= 1'b0;
             lsu_wbu_csr_wdata  <= 32'b0;
-
+            lsu_wbu_mem_en     <= 1'b0;
+            lsu_wbu_mem_addr   <= 32'b0;
             l_mem_w            <= 2'b11;
             l_mem_r            <= 3'd5;
             l_mem_addr         <= 32'b0;
@@ -233,12 +236,19 @@ module ysyx_26010027_LSU (
                 lsu_wbu_csr_ecall  <= exu_lsu_csr_ecall;
                 lsu_wbu_csr_mret   <= exu_lsu_csr_mret;
                 lsu_wbu_csr_wdata  <= exu_lsu_csr_wdata;
+
+                // ----- DIFFTEST DEVICE -----
+                lsu_wbu_mem_en     <= (exu_lsu_mem_r != 3'd5) | (exu_lsu_mem_w != 2'b11); // 访存相关标志
+                lsu_wbu_mem_addr   <= exu_lsu_mem_addr; // 访存地址
+                // ---------------------------
+
                 // 访存相关锁存
                 l_mem_w            <= exu_lsu_mem_w;
                 l_mem_r            <= exu_lsu_mem_r;
                 l_mem_addr         <= exu_lsu_mem_addr;
                 l_wdata            <= exu_lsu_wdata;
             end
+            // 单独写回load值 缩短访存时间 
             if (handshake_r)
                 lsu_wbu_mem_result <= mem_rdata;
         end

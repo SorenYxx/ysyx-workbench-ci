@@ -3,7 +3,7 @@
 
 FILE *log_fp = NULL;
 
-bool log_enable() {
+extern "C" bool log_enable() {
   return MUXDEF(CONFIG_TRACE, (total_inst >= CONFIG_TRACE_START) &&
          (total_inst <= CONFIG_TRACE_END), false);
 }

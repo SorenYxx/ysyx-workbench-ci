@@ -1,4 +1,4 @@
-`define ICACHE
+// `define ICACHE
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
@@ -27,7 +27,7 @@ module ysyx_26010027_icache (
     output [ 1:0] arb_arburst
 );
 
-`ifndef ICACHE
+`ifdef ICACHE
     // ----- cache parameters -----
     parameter BLOCK_SIZE = 8; // 块大小 8B
     parameter BLOCK_NUMS = 4; // cache 块数

@@ -97,6 +97,8 @@ static inline const char* reg_name(int idx) {
 void init_difftest(const char *ref_so_file, long img_size);
 void check_difftest();
 void difftest_skip_ref();
+bool in_soc_device (uint32_t addr);
+void check_device();
 // void difftest_skip_dut(int nr_ref, int nr_dut);
 
 #endif

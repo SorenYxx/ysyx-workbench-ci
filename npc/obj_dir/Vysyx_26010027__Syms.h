@@ -36,6 +36,7 @@ class alignas(VL_CACHE_LINE_BYTES) Vysyx_26010027__Syms final : public Verilated
     // SCOPE NAMES
     VerilatedScope* __Vscopep_ysyx_26010027;
     VerilatedScope* __Vscopep_ysyx_26010027__my_IFU;
+    VerilatedScope* __Vscopep_ysyx_26010027__my_LSU;
     VerilatedScope* __Vscopep_ysyx_26010027__my_WBU__my_csr;
 
     // CONSTRUCTORS

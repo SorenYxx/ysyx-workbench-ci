@@ -5,10 +5,10 @@
 static csh handle = 0;
 
 void init_disasm() {
-  // if (cs_open(CS_ARCH_RISCV, CS_MODE_RISCV32 | CS_MODE_RISCVC, &handle) != CS_ERR_OK) {
-  //   handle = 0;
-  //   Log("capstone init failed, itrace disabled");
-  // }
+  if (cs_open(CS_ARCH_RISCV, (cs_mode)(CS_MODE_RISCV32 | CS_MODE_RISCVC), &handle) != CS_ERR_OK) {
+    handle = 0;
+    Log("capstone init failed, itrace disabled");
+  }
 }
 
 void itrace_record(int pc, int inst) {

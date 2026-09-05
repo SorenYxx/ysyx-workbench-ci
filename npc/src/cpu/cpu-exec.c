@@ -11,8 +11,9 @@ VerilatedFstC* tfp = new VerilatedFstC;
 vluint64_t main_time = 0;
 
 bool en[COUNTER] = {0};
+bool cpu_valid = false;
+bool in_bootloader = false;
 
-int cpu_valid   = 0;
 int lsu_r_valid = 0;
 int lsu_w_valid = 0;
 int exu_valid   = 0;
@@ -88,22 +89,27 @@ static void dead_loop() {
 }
 
 void step_and_eval() {
+  // eval
   top->clock = 0; top->eval();
   top->clock = 1; top->eval();
 
+  // wave dump
   IFDEF(CONFIG_WAVE_DUMP, tfp->dump(main_time));
-
   main_time ++;
 
+  // check dead loop
   lp->loop_time ++;
   if (lp->loop_time > MAX_LOOP) dead_loop();
 
+  // nvboard
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
+  // difftest with SoC
   cpu_n.pc = CPU_DNPC();
+  IFDEF(CONFIG_SOC, check_device());
 
+  // statistics
   get_cpu_state(lsu_r_valid, lsu_w_valid, exu_valid, alu_valid, csr_valid, jump, branch, icache_hit_counter, icache_miss_counter, icache_miss_latency);
-
   if (en[0] && lsu_r_valid) { lsu_r_counter++;  en[0] = 0; }
   if (en[1] && lsu_w_valid) { lsu_w_counter++;  en[1] = 0; }
   if (en[2] && exu_valid)   { exu_counter++;    en[2] = 0; }
@@ -114,9 +120,11 @@ void step_and_eval() {
 }
 
 // debug相关
-static void debug() {
+static void trace_and_difftest() {
   cpu_valid = CPU_VALID();
+  in_bootloader = (CPU_PC() >= CONFIG_FLASH_BASE && CPU_PC() < CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE) || (CPU_PC() >= CONFIG_SRAM_BASE && CPU_PC() < CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE);
   if (cpu_valid) {
+    IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
     IFDEF(CONFIG_WATCHPOINT, check_watchpoints());
     IFDEF(CONFIG_DIFFTEST, check_difftest());
     total_inst ++;
@@ -129,19 +137,19 @@ static void debug() {
 
 // 执行相关
 void cpu_exec(uint64_t n) {
+  switch (npc_state.state) {
+    case NPC_END: case NPC_ABORT: case NPC_QUIT:
+    printf("Program execution has ended. To restart the program, exit NPC and run again.\n");
+    return;
+    default: npc_state.state = NPC_RUNNING;
+  }
+
   for (uint64_t i = 0; i < n; i ++) {
     step_and_eval();
-    debug();
-
-    IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
-    switch (npc_state.state) {
-      case NPC_END: case NPC_ABORT: case NPC_QUIT:
-      return; // 直接跳转检查状态结束
-      default: npc_state.state = NPC_RUNNING;
-    }
-
-    if (npc_state.state == NPC_END || npc_state.state == NPC_ABORT) break; 
+    trace_and_difftest();
+    if (npc_state.state != NPC_RUNNING) break;
   }
+
   if (npc_state.state == NPC_RUNNING) npc_state.state = NPC_STOP;
 }
 

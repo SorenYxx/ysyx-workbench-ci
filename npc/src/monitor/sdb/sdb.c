@@ -52,13 +52,15 @@ static int cmd_si(char *args) {
 }
 
 static int cmd_info(char *args) {
+  if (args == NULL) {
+    printf("Error: Unknown usage: '%s'\nUsage: info r -- print registers\n       info w -- print watchpoints\n", args);
+    return 0;
+  }
   switch (args[0]) {
     case 'r': isa_reg_display(); return 0;
     case 'w': return c_print();
+    default: printf("Unknown usage: '%s'\n", args); return 0;
   }
-
-  printf("Unknown usage: '%s'\n", args);
-  return 0;
 }
 
 static int cmd_x(char *args) {
@@ -69,7 +71,7 @@ static int cmd_x(char *args) {
   bool success;
 
   if (args == NULL) {
-    printf("Now: 0x%08X: %08x\n", CPU_PC(), pmem_read(CPU_PC()));
+    printf("Now: 0x%08X: %08x\n", CPU_PC(), CPU_INST());
     return 0;
   }
 

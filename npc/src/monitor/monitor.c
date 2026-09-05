@@ -51,11 +51,7 @@ long img_size = 0;
 static long load_img(const char *filename) {
   if (filename == NULL) return 4096;
   FILE *fp = fopen(filename, "rb");
-
-  if (fp == NULL) {
-    perror("Error opening image file");
-    printf("Path attemped: %s\n", filename);
-  }
+  assert(fp != NULL);  // 打开失败直接报错，避免 fseek(NULL) 段错误
 
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
@@ -105,7 +101,6 @@ static void init_nvboard() {
 #endif
 
 static void init_verilator(int argc, char *argv[]) {
-  Verilated::commandArgs(argc, argv);
   Verilated::traceEverOn(true);
 
 #ifdef CONFIG_WAVE_DUMP
@@ -135,14 +130,14 @@ static void welcome() {
 }
 
 void sim_init(int argc, char *argv[]) {
+  /* Load the image to memory*/
+  init_img(argc, argv);
+
   /* Parse arguments. */
   parse_args(argc, argv);
 
   /* Open the log file. */
   init_log(log_file);
-
-  /* Load the image to memory. */
-  init_img(argc, argv);
 
  /* Initialize the verilator */
   init_verilator(argc, argv);

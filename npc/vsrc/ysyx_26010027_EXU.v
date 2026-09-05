@@ -56,7 +56,7 @@ module ysyx_26010027_EXU (
 
     // data forwarding 旁路转发
     input             lsu_wbu_valid,
-    input             lsu_load_inflight,
+    input             lsu_inflight,
     input             lsu_wbu_reg_w,
     input             lsu_wbu_csr_we,
     input      [ 1:0] lsu_wbu_rf_res,
@@ -64,8 +64,9 @@ module ysyx_26010027_EXU (
     input      [11:0] idu_exu_csr_raddr,
     input      [ 4:0] lsu_wbu_waddr,
     input      [11:0] lsu_wbu_csr_waddr,
-    input      [31:0] lsu_wbu_alu_result, // RAW
-    input      [31:0] lsu_wbu_mem_result, // Load-Use
+    input      [31:0] lsu_wbu_alu_result, // RAW 前递
+    input      [31:0] lsu_wbu_mem_result, // Load-Use 前递
+    input      [31:0] lsu_wbu_snpc, // SNPC 跳转前递
     input      [31:0] lsu_wbu_csr_wdata,
     input      [31:0] idu_exu_rdata1, idu_exu_rdata2, idu_exu_csr_rdata,// Normal
     input      [31:0] exu_mtvec, exu_mepc // ecall/mret
@@ -76,7 +77,6 @@ module ysyx_26010027_EXU (
     wire [31:0] snpc = idu_exu_pc + 4;
     wire [31:0] csr_rdata;
     reg  [31:0] src1, src2;
-    reg  [31:0] src1_q, src2_q;
     reg  [31:0] alu_result;
 
     // ----- data forwarding -----
@@ -87,7 +87,7 @@ module ysyx_26010027_EXU (
 
     // raw 前递
     wire lsu_fwd_alu = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b00); // rf_res选ALU
-    wire wbu_fwd_alu = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b00);
+    wire wbu_fwd_alu = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01); // 非 MEM ！！
     assign fwd_1[0] = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_alu); // 读地址等于邻级写地址且不为0、当前rf_res来源为 ALU
     assign fwd_2[0] = (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_alu);
     assign fwd_1[1] = (|idu_exu_raddr1 && idu_exu_raddr1 == lsu_wbu_waddr && wbu_fwd_alu);
@@ -101,9 +101,7 @@ module ysyx_26010027_EXU (
 
     // 等 load 数据
     assign load_use_stall = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_mem)
-                         || (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_mem)
-                         || (|idu_exu_raddr1 && idu_exu_raddr1 == lsu_wbu_waddr && lsu_load_inflight)
-                         || (|idu_exu_raddr2 && idu_exu_raddr2 == lsu_wbu_waddr && lsu_load_inflight);
+                         || (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_mem);
 
     assign csr_fwd[0] = (|idu_exu_csr_raddr && idu_exu_csr_raddr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR
     assign csr_fwd[1] = (|idu_exu_csr_raddr && idu_exu_csr_raddr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
@@ -111,7 +109,7 @@ module ysyx_26010027_EXU (
 
     // 前递值
     wire [31:0] lsu_fwd_data = exu_lsu_alu_result; // 一拍
-    wire [31:0] wbu_fwd_data = lsu_wbu_alu_result; // 两拍
+    wire [31:0] wbu_fwd_data = (wbu_fwd_alu & lsu_wbu_rf_res == 2'b00) ? lsu_wbu_alu_result : lsu_wbu_snpc; // 两拍
 
     assign rdata1 = fwd_1[0] ? lsu_fwd_data : 
                     fwd_1[1] ? wbu_fwd_data : 
@@ -123,32 +121,39 @@ module ysyx_26010027_EXU (
                        csr_fwd[1] ? lsu_wbu_csr_wdata : idu_exu_csr_rdata;
 
     // 源操作数选择与处理
-    wire latch_flag = idu_exu_valid & !exu_idu_ready;
+    reg [31:0] src1_q, src2_q; // 锁存alu操作数 
+    reg [31:0] rdata2_q;       // 锁存访存wdata
+    reg latch_flag;            // 锁存标志
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            src1_q <= 32'b0;
-            src2_q <= 32'b0;
+            src1_q     <= 32'b0;
+            src2_q     <= 32'b0;
+            rdata2_q   <= 32'b0;
+            latch_flag <= 1'b0;
         end
-        else if (latch_flag) begin
-            src1_q <= idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
-            src2_q <= idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+        // 注意: reset 必须与后续逻辑排他(else), 否则 yosys proc 报 multiple edge sensitive events
+        else if (idu_exu_valid & exu_idu_ready) begin
+            latch_flag <= 1'b0;
+        end
+        // 锁存（除 load-use 数据返回需要更新）
+        else if (latch_flag & !(fwd_1[2] | fwd_2[2])) begin
+            src1_q   <= src1_q;
+            src2_q   <= src2_q;
+            rdata2_q <= rdata2_q;
+        end
+        else if ((idu_exu_valid & !exu_idu_ready) | (fwd_1[2] | fwd_2[2])) begin // 第一个周期检测阻塞更新锁存值 or load-use更新
+            src1_q     <= idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
+            src2_q     <= idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+            rdata2_q   <= rdata2;
+            latch_flag <= 1'b1;
         end
     end
 
-    always @(*) begin
-        if (reset) begin
-            src1 = 0;
-            src2 = 0;
-        end
-        else if (!latch_flag) begin
-            src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
-            src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
-        end
-        else begin
-            src1 = src1_q;
-            src2 = src2_q;
-        end
-    end
+    // 非锁存 or load-use返回 正常选择
+    assign src1 = (latch_flag & !fwd_1[2]) ? src1_q :
+                  idu_exu_alu_arc1 ? idu_exu_pc : rdata1;
+    assign src2 = (latch_flag & !fwd_2[2]) ? src2_q :
+                  idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
 
     // branch
     wire eq  = (src1 == src2);
@@ -222,14 +227,17 @@ module ysyx_26010027_EXU (
         end
     end
 
+    // ----- DIFFTEST DNPC -----
     reg  [31:0] dnpc;
     wire [ 6:0] opcode = idu_exu_inst[6:0];
     wire branch = (opcode == 7'b1100011);
     wire jump   = (opcode == 7'b1101111 | opcode == 7'b1100111);
     assign dnpc = (branch | jump) ? alu_result : 
                   (idu_exu_csr_ecall | idu_exu_csr_mret) ? trap_pc : snpc;
+    // -------------------------
 
-    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !load_use_stall; // stall 反压
+    // handshake
+    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !(load_use_stall | lsu_inflight); // stall 反压
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             exu_lsu_valid <= 1'b0;
@@ -272,7 +280,7 @@ module ysyx_26010027_EXU (
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
             exu_lsu_mem_addr <= alu_result; // ALU-访存地址
-            exu_lsu_wdata    <= rdata2; // 直接传rs2寄存器的值
+            exu_lsu_wdata    <= (latch_flag & !fwd_2[2]) ? rdata2_q : rdata2; // rdata2寄存器
 
             exu_lsu_reg_w      <= idu_exu_reg_w;
             exu_lsu_rf_res     <= idu_exu_rf_res;
@@ -290,16 +298,7 @@ module ysyx_26010027_EXU (
 
 `ifndef __ICARUS__
 `ifndef SYNTHESIS
-    // wire [ 6:0] opcode = idu_exu_inst[6:0];
-    // wire branch = (opcode == 7'b1100011);
-    // wire jump   = (opcode == 7'b1101111 | opcode == 7'b1100111);
-    // reg [31:0] dnpc /*verilator public_flat_rd*/;
-    // always @(posedge clock) begin
-    //     dnpc <= (branch | jump) ? alu_result : 
-    //             (idu_exu_csr_ecall | idu_exu_csr_mret) ? trap_pc : snpc;
-    //     if (exu_lsu_valid) $display("DNPC: 0x%08x", dnpc);
-    // end
-    // wire unused = &{dnpc, 1'b1};
+
 `endif
 `endif
 endmodule

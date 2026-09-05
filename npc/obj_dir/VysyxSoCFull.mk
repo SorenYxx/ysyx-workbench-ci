@@ -51,6 +51,7 @@ VM_USER_CFLAGS = \
 # User LDLIBS (from -LDFLAGS on Verilator command line)
 VM_USER_LDLIBS = \
   -lz \
+  -L/home/soren/ysyx-workbench/nemu/tools/capstone/repo \
   -lcapstone \
   -lreadline \
   -ldl \

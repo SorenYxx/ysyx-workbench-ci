@@ -269,6 +269,7 @@ module ysyx_26010027 (
     // ----- unused -----
     wire unused_ok = &{arb_arlen, arb_arsize, arb_arburst, arb_rid, arb_rlast,
                        arb_awlen, arb_awsize, arb_awburst, arb_wlast, arb_bid, 1'b1}; // 突发 & id
+    // ------------------
 // iverilog
 `ifdef __ICARUS__
     reg [31:0] pmem_read_data;
@@ -468,13 +469,17 @@ module ysyx_26010027 (
     wire [31:0] lsu_wbu_alu_result;
     wire [31:0] lsu_wbu_dnpc;
     wire [31:0] lsu_wbu_mem_result;
-    wire        lsu_load_inflight;
+    wire [31:0] lsu_wbu_mem_addr;
+    wire        lsu_wbu_mem_en;
+    wire        lsu_inflight;
     wire [11:0] lsu_wbu_csr_waddr;
     wire        lsu_wbu_csr_we;
     wire        lsu_wbu_csr_ecall;
     wire        lsu_wbu_csr_mret;
     wire [31:0] lsu_wbu_csr_wdata;
-    wire unused = &{lsu_wbu_dnpc, 1'b1};
+    // ----- unused -----
+    wire unused = &{lsu_wbu_dnpc, lsu_wbu_mem_en, lsu_wbu_mem_addr, 1'b1};
+    // ------------------
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -678,8 +683,9 @@ module ysyx_26010027 (
         .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_snpc      (lsu_wbu_snpc),
         .lsu_wbu_csr_wdata (lsu_wbu_csr_wdata),
-        .lsu_load_inflight (lsu_load_inflight),
+        .lsu_inflight (lsu_inflight),
         .idu_exu_rdata1    (idu_exu_rdata1),
         .idu_exu_rdata2    (idu_exu_rdata2),
         .idu_exu_csr_rdata (idu_exu_csr_rdata),
@@ -725,12 +731,14 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_dnpc      (lsu_wbu_dnpc),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
+        .lsu_wbu_mem_en    (lsu_wbu_mem_en),
+        .lsu_wbu_mem_addr  (lsu_wbu_mem_addr),
         .lsu_wbu_csr_waddr (lsu_wbu_csr_waddr),
         .lsu_wbu_csr_we    (lsu_wbu_csr_we),
         .lsu_wbu_csr_ecall (lsu_wbu_csr_ecall),
         .lsu_wbu_csr_mret  (lsu_wbu_csr_mret),
         .lsu_wbu_csr_wdata (lsu_wbu_csr_wdata),
-        .lsu_load_inflight (lsu_load_inflight),
+        .lsu_inflight      (lsu_inflight),
 
         // AXI
         .cpu_lsu_arready (cpu_lsu_arready),
