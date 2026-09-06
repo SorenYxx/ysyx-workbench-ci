@@ -105,6 +105,9 @@ module top (
     );
 
     // ----- 存储器 -----
+    localparam [31:0] UART_BASE = 32'h1000_0000;
+    localparam [31:0] UART_END  = 32'h1000_0fff;
+
 `ifdef __ICARUS__
     // 行为级内存（iverilog / 网表仿真）
     localparam [31:0] MEM_BASE  = 32'h8000_0000;
@@ -123,14 +126,18 @@ module top (
     import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
 `endif
 
+    wire ar_is_uart = (axi_araddr >= UART_BASE) && (axi_araddr <= UART_END);
+    wire aw_is_uart = (axi_awaddr >= UART_BASE) && (axi_awaddr <= UART_END);
+
     // ----- 读状态机 -----
     reg [1:0] rd_state;
     localparam RD_IDLE  = 2'd0;
     localparam RD_BURST = 2'd1;
 
-    reg [31:0] rd_addr;       // 当前拍地址
-    reg [ 7:0] rd_beats_left; // 剩余拍数（含当前拍）
-    reg [31:0] rd_data;       // 当前拍数据
+    reg [31:0] rd_addr;        // 当前拍地址
+    reg [ 7:0] rd_beats_left;  // 剩余拍数（含当前拍）
+    reg        rd_uart;        // 当前突发是否命中 UART
+    reg [31:0] rd_data;        // 当前拍数据
 
     assign axi_rdata = rd_data;
     assign axi_rid   = 4'b0;
@@ -145,6 +152,7 @@ module top (
             rd_state      <= RD_IDLE;
             rd_addr       <= 32'b0;
             rd_beats_left <= 8'd0;
+            rd_uart       <= 1'b0;
             rd_data       <= 32'b0;
             axi_rvalid    <= 1'b0;
             axi_rlast     <= 1'b0;
@@ -155,8 +163,9 @@ module top (
                     if (axi_arvalid && axi_arready) begin
                         rd_addr       <= axi_araddr;
                         rd_beats_left <= axi_arlen + 8'd1;
+                        rd_uart       <= ar_is_uart;
 `ifdef __ICARUS__
-                        rd_data       <= pmem[(axi_araddr - MEM_BASE) >> 2];
+                        rd_data       <= ar_is_uart ? 32'b0 : pmem[(axi_araddr - MEM_BASE) >> 2];
 `else
                         rd_data       <= pmem_read(axi_araddr);
 `endif
@@ -174,7 +183,7 @@ module top (
                             rd_addr       <= rd_addr + 32'd4;
                             rd_beats_left <= rd_beats_left - 8'd1;
 `ifdef __ICARUS__
-                            rd_data       <= pmem[(rd_addr + 32'd4 - MEM_BASE) >> 2];
+                            rd_data       <= rd_uart ? 32'b0 : pmem[(rd_addr + 32'd4 - MEM_BASE) >> 2];
 `else
                             rd_data       <= pmem_read(rd_addr + 32'd4);
 `endif
@@ -202,17 +211,22 @@ module top (
 
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            wr_state   <= WR_IDLE;
+            wr_state  <= WR_IDLE;
             axi_bvalid <= 1'b0;
         end else begin
             case (wr_state)
                 WR_IDLE: begin
                     if (axi_awvalid && axi_awready && axi_wvalid && axi_wready) begin
 `ifdef __ICARUS__
-                        if (axi_wstrb[0]) pmem[(axi_awaddr - MEM_BASE) >> 2][ 7: 0] <= axi_wdata[ 7: 0];
-                        if (axi_wstrb[1]) pmem[(axi_awaddr - MEM_BASE) >> 2][15: 8] <= axi_wdata[15: 8];
-                        if (axi_wstrb[2]) pmem[(axi_awaddr - MEM_BASE) >> 2][23:16] <= axi_wdata[23:16];
-                        if (axi_wstrb[3]) pmem[(axi_awaddr - MEM_BASE) >> 2][31:24] <= axi_wdata[31:24];
+                        if (aw_is_uart) begin
+                            $write("%c", axi_wdata[7:0]);
+                            $fflush();
+                        end else begin
+                            if (axi_wstrb[0]) pmem[(axi_awaddr - MEM_BASE) >> 2][ 7: 0] <= axi_wdata[ 7: 0];
+                            if (axi_wstrb[1]) pmem[(axi_awaddr - MEM_BASE) >> 2][15: 8] <= axi_wdata[15: 8];
+                            if (axi_wstrb[2]) pmem[(axi_awaddr - MEM_BASE) >> 2][23:16] <= axi_wdata[23:16];
+                            if (axi_wstrb[3]) pmem[(axi_awaddr - MEM_BASE) >> 2][31:24] <= axi_wdata[31:24];
+                        end
 `else
                         pmem_write(axi_awaddr, axi_wdata, {{28{1'b0}}, axi_wstrb});
 `endif
@@ -231,6 +245,6 @@ module top (
         end
     end
 
-    wire _unused_ok = &{1'b0, axi_arid, axi_arsize, axi_arburst, axi_awid, axi_awlen, axi_awsize, axi_awburst, axi_wlast};
+    wire _unused_ok = &{1'b0, axi_arid, axi_arsize, axi_arburst, axi_awid, axi_awlen, axi_awsize, axi_awburst, axi_wlast, aw_is_uart, rd_uart};
 
 endmodule
