@@ -18,12 +18,12 @@
 #define CPU_REG_W() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_reg_w)
 #define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
 #else
-#include "Vysyx_26010027.h"
-#include "Vysyx_26010027___024root.h"
-#define CPU_PC()    (top->rootp->ysyx_26010027__DOT__lsu_wbu_pc) // commit pc
-#define CPU_DNPC()  (top->rootp->ysyx_26010027__DOT__lsu_wbu_dnpc) // dnpc
-#define CPU_INST()  (top->rootp->ysyx_26010027__DOT__lsu_wbu_inst)
-#define CPU_REG_W() (top->rootp->ysyx_26010027__DOT__lsu_wbu_reg_w)
+#include "Vtop.h"
+#include "Vtop___024root.h"
+#define CPU_PC()    (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_pc) // commit pc
+#define CPU_DNPC()  (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_dnpc) // dnpc
+#define CPU_INST()  (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_inst)
+#define CPU_REG_W() (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_reg_w)
 #define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
 #endif
 
@@ -69,7 +69,7 @@ extern VerilatedFstC* tfp;
 #ifdef CONFIG_SOC
 extern VysyxSoCFull* top;
 #else
-extern Vysyx_26010027* top;
+extern Vtop* top;
 #endif
 
 void itrace_record(int pc, int inst);

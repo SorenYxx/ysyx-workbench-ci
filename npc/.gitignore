@@ -6,6 +6,7 @@
 !*.mk
 !*.[cSh]
 !*.v
+!*.py
 !*.cc
 !*.cpp
 !.gitignore

@@ -103,8 +103,8 @@ module ysyx_26010027_LSU (
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
-    wire load_q  /*verilator public_flat_rd*/= l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
-    wire store_q /*verilator public_flat_rd*/= l_busy && is_store && !mem_done;
+    wire load_q  = l_busy && is_load  && !mem_done; // 寄存访存信号 避免重复达成请求条件
+    wire store_q = l_busy && is_store && !mem_done;
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r

@@ -3,11 +3,12 @@ NPC_HOME  = $(shell pwd)
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c") $(SRC_AUTO_BIND) # auto_bind 文件
 INC_PATH  = $(NPC_HOME)/include
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
-DUMP      = wave.fst
-LOGFILE   = obj_dir/npc-log.txt
+OBJ_DIR   = build/obj_dir
+DUMP      = build/wave.fst
+LOGFILE   = $(OBJ_DIR)/npc-log.txt
 LIBS      += -L$(NEMU_HOME)/tools/capstone/repo -lcapstone -lreadline -ldl
 NPCFLAGS  += -e $(ELF) -d $(REF_SO) -l $(LOGFILE)
-VERILATOR_FLAGS += --output-split 15000 --decorations none -O0
+VERILATOR_FLAGS += --output-split 15000 --decorations none
 
 # ----- Kconfig -----
 -include $(NPC_HOME)/include/config/auto.conf
@@ -29,20 +30,20 @@ ifeq ($(CONFIG_SOC),y)
   TOP       = ysyxSoCFull
   VFLAGS    = $(shell find ./vsrc -name "*.v") $(shell find ../ysyxSoC/perip -name "*.v") ../ysyxSoC/build/ysyxSoCFull.v
   VINCS     = -I../ysyxSoC/perip/uart16550/rtl -I../ysyxSoC/perip/spi/rtl
-  VERILATOR_DEFS = +define+TOP_SOC # -> define TOP_SOC
+  VERILATOR_DEFS = +define+TOP_SOC +define+NPC_SIM # -> define TOP_SOC / NPC_SIM
   SOCFLAGS += -Wno-UNUSED -Wno-PINCONNECTEMPTY -Wno-DEFPARAM -Wno-ASSIGNDLY -Wno-PROCASSINIT -Wno-SYNCASYNCNET -Wno-UNDRIVEN 
 else
-  TOP       = ysyx_26010027
-  VFLAGS    = $(shell find ./vsrc -name "*.v")
+  TOP       = top
+  VFLAGS    = $(shell find ./vsrc -name "*.v") NPC_SIM/top.v
   VINCS     =
-  VERILATOR_DEFS =
+  VERILATOR_DEFS = +define+NPC_SIM
   SOCFLAGS =
 endif
 # ------------------
 
 # ----- NVBoard -----
 ifeq ($(CONFIG_NVBOARD),y)
-BUILD_DIR = obj_dir
+BUILD_DIR = $(OBJ_DIR)
 NXDC_FILES = constr/ysyxsoc.nxdc # 引脚绑定
 
 # constraint file
@@ -65,19 +66,21 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP)\""
 all: sim compile run
 
 compile: $(SRC_AUTO_BIND)
-	@verilator -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
-	    -Wno-DECLFILENAME \
-        --timescale "1ns/1ns" --no-timing \
+	@mkdir -p $(OBJ_DIR)
+	@$(SIMULATOR) $(VERILATOR_FLAGS) -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
+		-Wno-DECLFILENAME \
+		--timescale "1ns/1ns" --no-timing \
+		--Mdir $(OBJ_DIR) \
 		$(SOCFLAGS) \
-        $(VERILATOR_DEFS) \
-        $(VFLAGS) $(VINCS) $(CSRC) $(NVBOARD_ARCHIVE)\
+		$(VERILATOR_DEFS) \
+		$(VFLAGS) $(VINCS) $(CSRC) $(NVBOARD_ARCHIVE) \
 		$(addprefix -CFLAGS , $(CXXFLAGS) $(NPC_CFLAGS)) \
 		$(addprefix -LDFLAGS , $(LDFLAGS) $(LIBS)) \
 		--o V$(TOP)
 
 run: compile
 	@echo "--- NPC Running with IMG: $(IMG) ---"
-	./obj_dir/V$(TOP) --fst-trace $(DUMP) --img $(IMG) $(NPCFLAGS)
+	./$(OBJ_DIR)/V$(TOP) --fst-trace $(DUMP) --img $(IMG) $(NPCFLAGS)
 
 surwave:
 	surfer $(DUMP) &
@@ -89,7 +92,7 @@ sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 clean:
-	@rm -rf obj_dir build $(DUMP) *~ *.log
+	@rm -rf obj_dir build *~ *.log
 
 # microbench train 性能测试
 PERF_IMG := $(AM_HOME)/../am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
@@ -99,7 +102,7 @@ perf: compile
 	@echo "date:   $$(date '+%Y-%m-%d %H:%M:%S')"
 	@echo "---"
 	@$(MAKE) -C $(AM_HOME)/../am-kernels/benchmarks/microbench ARCH=riscv32e-ysyxsoc mainargs=train insert-arg
-	@./obj_dir/V$(TOP) --img $(PERF_IMG) $(NPCFLAGS) --batch 2>&1 | tee perf.log
+	@./$(OBJ_DIR)/V$(TOP) --img $(PERF_IMG) $(NPCFLAGS) --batch 2>&1 | tee perf.log
 	@echo "---"
 	@echo "[perf]Copy the line below to your performance spreadsheet:"
 	@grep -oP '(?<=Total cycles = )\d+' perf.log | tr '\n' ' '
@@ -113,23 +116,25 @@ perf: compile
 	@grep -oP '(?<=Branch insts = )\d+' perf.log
 	@echo ""
 	@echo "# Then edit this line with freq/area from yosys-sta:"
-	@echo "# cd ../yosys-sta && make syn DESIGN=ysyx_26010027_synth ... && make sta ..."
+	@echo "# cd ../yosys-sta && make syn DESIGN=ysyx_26010027 RTL_FILES=build/ysyx_26010027.v && make sta ..."
 
 include ../Makefile
-
-
 
 # ---------- CI: verilog 合并 / iverilog 四值仿真 ----------
 CI_DIR    = $(NPC_HOME)/CI
 CI_TB     = $(CI_DIR)/tb.v
+CI_TB_NET = $(CI_DIR)/tb_netlist.v
+TOP_SIM   = $(NPC_HOME)/NPC_SIM/top.v
+SIM_BUILD = $(NPC_HOME)/build/iverilog
+NET_BUILD = $(NPC_HOME)/build/iverilog-netlist
 MERGED    = build/ysyx_26010027.v
-CI_RTL    = vsrc/ysyx_26010027_CLINT.v vsrc/ysyx_26010027_CSR.v \
+CI_RTL    = vsrc/ysyx_26010027_CSR.v \
             vsrc/ysyx_26010027_GPR.v vsrc/ysyx_26010027_IFU.v \
             vsrc/ysyx_26010027_IDU.v vsrc/ysyx_26010027_EXU.v \
             vsrc/ysyx_26010027_LSU.v vsrc/ysyx_26010027_WBU.v \
             vsrc/ysyx_26010027_icache.v vsrc/ysyx_26010027.v
 
-# 合并 RTL 成单文件（子模块在前、顶层在后），输出到 build/ 供 CI 检查
+# 合并 RTL
 verilog: $(MERGED)
 
 $(MERGED): $(CI_RTL)
@@ -138,11 +143,19 @@ $(MERGED): $(CI_RTL)
 
 # iverilog
 sim-iverilog: verilog
-	@python3 $(CI_DIR)/bin2hex.py $(IMG) $(CI_DIR)/rtt.hex
-	@iverilog -g2012 -o $(CI_DIR)/sim.vvp $(CI_TB) $(MERGED)
-	@cd $(CI_DIR) && vvp sim.vvp
+	@mkdir -p $(SIM_BUILD)
+	@python3 $(CI_DIR)/bin2hex.py $(IMG) $(SIM_BUILD)/img.hex
+	@iverilog -g2012 -o $(SIM_BUILD)/sim.vvp $(CI_TB) $(TOP_SIM) $(MERGED)
+	@cd $(SIM_BUILD) && vvp sim.vvp +IMG=img.hex 2>&1 | tee sim.log
+	@grep -q "HIT GOOD TRAP" $(SIM_BUILD)/sim.log
 
-# 网表仿真
+# iverilog-netlist
 sim-iverilog-netlist:
-	@iverilog -g2012 -o $(CI_DIR)/sim_net.vvp $(CI_TB) $(NETLIST) $(CELLS)
-	@cd $(CI_DIR) && vvp sim_net.vvp
+	@mkdir -p $(NET_BUILD)
+	@python3 $(CI_DIR)/bin2hex.py $(IMG) $(NET_BUILD)/img.hex
+	@netlist_sim="$(NETLIST)"; \
+	if [ "$${netlist_sim##*.}" != "sim" ] && [ -f "$$netlist_sim.sim" ]; then \
+		netlist_sim="$$netlist_sim.sim"; \
+	fi; \
+	iverilog -g2012 -o $(NET_BUILD)/sim_net.vvp $(CI_TB_NET) $(TOP_SIM) $$netlist_sim $(CELLS)
+	@cd $(NET_BUILD) && vvp sim_net.vvp +IMG=img.hex

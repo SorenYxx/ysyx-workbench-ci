@@ -1,9 +1,6 @@
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
 import "DPI-C" function void finish_sim();
 import "DPI-C" function void ftrace_print(int pc, int target, int rd, int rs1);
-import "DPI-C" function int  pmem_read(input int raddr);
-import "DPI-C" function void pmem_write(input int waddr, input int wdata, input int wmask);
 import "DPI-C" function void is_illegal_inst();
 import "DPI-C" function void get_reg(input int waddr, input int r);
 import "DPI-C" function void get_csr(input int csr, input int data);
@@ -11,12 +8,10 @@ import "DPI-C" function void get_cpu_state(input int lsu_get_data, input int lsu
 import "DPI-C" function void cpu_trace(input int pc, input int inst);
 import "DPI-C" function void ifu_trace(input int pc, input int inst);
 `endif
-`endif
 
 `define ysyx_26010027_RTC_BASE 32'h0200_0000
 `define ysyx_26010027_RTC_END  32'h0200_ffff
 module ysyx_26010027 (
-`ifdef TOP_SOC
     // ----- MASTER -----
     // AR
     input         io_master_arready,
@@ -91,7 +86,6 @@ module ysyx_26010027 (
 
     input         io_interrupt,
 
-`endif
     input         clock,
     input         reset
 );
@@ -144,18 +138,8 @@ module ysyx_26010027 (
     wire [31:0] cpu_ifu_rdata;
     wire [ 1:0] cpu_ifu_rresp;
 
-// SOC
-`ifdef TOP_SOC // 截断CLINT地址
-
-    // CLINT 接口信号与地址译码
-    wire            io_clint_arready;
-    wire            io_clint_rvalid;
-    wire     [31:0] io_clint_rdata;
-    wire     [ 1:0] io_clint_rresp;
-    wire            io_clint_awready;
-    wire            io_clint_wready;
-    wire            io_clint_bvalid;
-    wire     [ 1:0] io_clint_bresp;
+// ----- 内存路由 -----
+`ifdef TOP_SOC // CLINT 本地拦截
 
     // 地址译码
     wire addr_is_clint_ar = (arb_araddr >= `ysyx_26010027_RTC_BASE) && (arb_araddr <= `ysyx_26010027_RTC_END);
@@ -168,17 +152,64 @@ module ysyx_26010027 (
             addr_is_clint_r <= addr_is_clint_ar;
     end
 
-    // AR
-    wire io_clint_arvalid = arb_arvalid && addr_is_clint_ar;
-    wire [31:0] io_clint_araddr  = arb_araddr;
-    wire io_clint_rready  = arb_rready && addr_is_clint_r;
+    // CLINT 内联
+    reg [31:0] mtime_low, mtime_high;
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            mtime_low  <= 32'h0;
+            mtime_high <= 32'h0;
+        end else begin
+            mtime_low <= mtime_low + 32'h1;
+            if (mtime_low == 32'hFFFF_FFFF)
+                mtime_high <= mtime_high + 32'h1;
+        end
+    end
 
-    wire io_clint_awvalid = 1'b0;
-    wire [31:0] io_clint_awaddr  = 32'b0;
-    wire [31:0] io_clint_wdata  = 32'b0;
-    wire [ 3:0] io_clint_wstrb  = 4'b0;
-    wire io_clint_wvalid = 1'b0;
-    wire io_clint_bready = 1'b0;
+    // 只读响应状态机
+    reg [1:0] clint_state;
+    localparam CLINT_IDLE = 2'b00;
+    localparam CLINT_BUSY = 2'b01;
+    reg [31:0] clint_rdata;
+    reg        io_clint_rvalid;
+    reg [ 1:0] io_clint_rresp;
+    wire            io_clint_arready;
+    wire     [31:0] io_clint_rdata;
+
+    wire io_clint_arvalid = arb_arvalid && addr_is_clint_ar;
+    wire io_clint_rready  = arb_rready && addr_is_clint_r;
+    assign io_clint_arready = (clint_state == CLINT_IDLE);
+    assign io_clint_rdata   = clint_rdata;
+
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            clint_state     <= CLINT_IDLE;
+            io_clint_rvalid <= 1'b0;
+            clint_rdata     <= 32'b0;
+            io_clint_rresp  <= 2'b0;
+        end else begin
+            case (clint_state)
+                CLINT_IDLE: begin
+                    if (io_clint_arvalid && io_clint_arready) begin
+                        clint_state     <= CLINT_BUSY;
+                        io_clint_rvalid <= 1'b1;
+                        io_clint_rresp  <= 2'b0;
+                        case (arb_araddr[3:2])
+                            2'b00: clint_rdata <= mtime_low;
+                            2'b01: clint_rdata <= mtime_high;
+                            default: clint_rdata <= 32'b0;
+                        endcase
+                    end
+                end
+                CLINT_BUSY: begin
+                    if (io_clint_rvalid && io_clint_rready) begin
+                        clint_state     <= CLINT_IDLE;
+                        io_clint_rvalid <= 1'b0;
+                    end
+                end
+                default: clint_state <= CLINT_IDLE;
+            endcase
+        end
+    end
 
     // AR 通道输出 (IO pads) —— reset 期间关闭，防止 CPU 复位时误发 AXI 请求
     assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar && !reset;
@@ -224,7 +255,42 @@ module ysyx_26010027 (
 
     assign io_master_bready = arb_bready;
 
-    // slave output 置零
+`else // 非 SoC：AXI 出到 top.v 存储器（纯 NPC/iverilog/网表共用）
+    assign io_master_arvalid = arb_arvalid;
+    assign io_master_araddr  = arb_araddr;
+    assign io_master_arid    = arb_arid;
+    assign io_master_arlen   = arb_arlen;
+    assign io_master_arsize  = arb_arsize;
+    assign io_master_arburst = arb_arburst;
+    assign io_master_rready  = arb_rready;
+    assign arb_arready = io_master_arready;
+    assign arb_rvalid  = io_master_rvalid;
+    assign arb_rdata   = io_master_rdata;
+    assign arb_rresp   = io_master_rresp;
+    assign arb_rid     = io_master_rid;
+    assign arb_rlast   = io_master_rlast;
+
+    assign io_master_awvalid = arb_awvalid;
+    assign io_master_awaddr  = arb_awaddr;
+    assign io_master_awid    = arb_awid;
+    assign io_master_awlen   = arb_awlen;
+    assign io_master_awsize  = arb_awsize;
+    assign io_master_awburst = arb_awburst;
+    assign arb_awready = io_master_awready;
+
+    assign io_master_wvalid = arb_wvalid;
+    assign io_master_wdata  = arb_wdata;
+    assign io_master_wstrb  = arb_wstrb;
+    assign io_master_wlast  = arb_wlast;
+    assign arb_wready = io_master_wready;
+
+    assign arb_bvalid = io_master_bvalid;
+    assign arb_bresp  = io_master_bresp;
+    assign arb_bid    = io_master_bid;
+    assign io_master_bready = arb_bready;
+`endif
+
+    // io_slave 输出恒 0（CPU 不是 AXI 从设备）
     assign io_slave_arready = 1'b0;
     assign io_slave_rvalid  = 1'b0;
     assign io_slave_rdata   = 32'b0;
@@ -237,151 +303,13 @@ module ysyx_26010027 (
     assign io_slave_bresp   = 2'b0;
     assign io_slave_bid     = 4'b0;
 
-
-    ysyx_26010027_CLINT my_CLINT (
-        .clock     (clock),
-        .reset     (reset),
-
-        .io_slave_araddr (io_clint_araddr),
-        .io_slave_arvalid(io_clint_arvalid),
-        .io_slave_arready(io_clint_arready),
-
-        .io_slave_rready (io_clint_rready),
-        .io_slave_rvalid (io_clint_rvalid),
-        .io_slave_rdata  (io_clint_rdata),
-        .io_slave_rresp  (io_clint_rresp),
-
-        .io_slave_awaddr (io_clint_awaddr),
-        .io_slave_awvalid(io_clint_awvalid),
-        .io_slave_awready(io_clint_awready),
-
-        .io_slave_wdata (io_clint_wdata),
-        .io_slave_wstrb (io_clint_wstrb),
-        .io_slave_wvalid(io_clint_wvalid),
-        .io_slave_wready(io_clint_wready),
-
-        .io_slave_bresp (io_clint_bresp),
-        .io_slave_bvalid(io_clint_bvalid),
-        .io_slave_bready(io_clint_bready)
-    );
-
-`else
-    // ----- unused -----
-    wire unused_ok = &{arb_arlen, arb_arsize, arb_arburst, arb_rid, arb_rlast,
-                       arb_awlen, arb_awsize, arb_awburst, arb_wlast, arb_bid, 1'b1}; // 突发 & id
-    // ------------------
-// iverilog
-`ifdef __ICARUS__
-    reg [31:0] pmem_read_data;
-    reg        pmem_rvalid;
-    reg        pmem_wready;
-    reg        pmem_bvalid;
-    reg [ 1:0] pmem_bresp;
-    reg [ 1:0] pmem_rresp;
-
-    assign arb_arready = arb_arvalid;
-    assign arb_awready = arb_awvalid;
-    assign arb_rdata   = pmem_read_data;
-    assign arb_rvalid  = pmem_rvalid;
-    assign arb_wready  = pmem_wready;
-    assign arb_bvalid  = pmem_bvalid;
-    assign arb_bresp   = pmem_bresp;
-    assign arb_rresp   = pmem_rresp;
-    assign arb_rid     = arb_arid;
-    assign arb_rlast   = 1'b1;
-    assign arb_bid     = arb_awid;
-
-    localparam MEM_BASE = 32'h8000_0000;
-    localparam MEM_WORDS = 16*1024*1024;
-
-    wire [31:0] mem_raddr = (arb_araddr - MEM_BASE) >> 2;
-    wire [31:0] mem_waddr = (arb_awaddr - MEM_BASE) >> 2;
-    reg  [31:0] ram [0:MEM_WORDS-1];
-    initial begin
-        $readmemh("rtt.hex", ram);
-    end
-    
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            pmem_rvalid    <= 1'b0;
-            pmem_wready    <= 1'b0;
-            pmem_bvalid    <= 1'b0;
-        end else begin
-            if (arb_rvalid && arb_rready) pmem_rvalid <= 1'b0;
-            if (arb_wvalid && arb_wready) pmem_wready <= 1'b0;
-            if (arb_bvalid && arb_bready) pmem_bvalid <= 1'b0;
-
-            if (arb_arvalid && !pmem_rvalid) begin
-                pmem_read_data <= ram[mem_raddr];
-                pmem_rvalid    <= 1'b1;
-                pmem_rresp     <= 2'b0;
-            end
-            else if (arb_awvalid && !pmem_wready) begin
-                case(arb_wstrb)
-                    4'b0001: ram[mem_waddr] <= {ram[mem_waddr][31:8], arb_wdata[7:0]};
-                    4'b0010: ram[mem_waddr] <= {ram[mem_waddr][31:16], arb_wdata[15:8], ram[mem_waddr][7:0]};
-                    4'b0100: ram[mem_waddr] <= {ram[mem_waddr][31:24], arb_wdata[23:16], ram[mem_waddr][15:0]};
-                    4'b1000: ram[mem_waddr] <= {arb_wdata[31:24], ram[mem_waddr][23:0]};
-                    4'b0011: ram[mem_waddr] <= {ram[mem_waddr][31:16], arb_wdata[15:0]};
-                    4'b1100: ram[mem_waddr] <= {arb_wdata[31:16], ram[mem_waddr][15:0]};
-                    4'b1111: ram[mem_waddr] <= arb_wdata;
-                    default: ram[mem_waddr] <= ram[mem_waddr];
-                endcase
-                pmem_wready <= 1'b1;
-                pmem_bvalid <= 1'b1;
-                pmem_bresp  <= 2'b0;
-            end
-        end
-    end
-
-`else
-    // 纯 NPC
-    // pmem (访问模拟内存)
-    reg [31:0] pmem_read_data;
-    reg        pmem_rvalid;
-    reg        pmem_wready;
-    reg        pmem_bvalid;
-    reg [ 1:0] pmem_bresp;
-    reg [ 1:0] pmem_rresp;
-
-    assign arb_arready = arb_arvalid;
-    assign arb_awready = arb_awvalid;
-    assign arb_rdata   = pmem_read_data;
-    assign arb_rvalid  = pmem_rvalid;
-    assign arb_wready  = pmem_wready;
-    assign arb_bvalid  = pmem_bvalid;
-    assign arb_bresp   = pmem_bresp;
-    assign arb_rresp   = pmem_rresp;
-    assign arb_rid     = arb_arid;
-    assign arb_rlast   = 1'b1;
-    assign arb_bid     = arb_awid;
-
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            pmem_rvalid    <= 1'b0;
-            pmem_wready    <= 1'b0;
-            pmem_bvalid    <= 1'b0;
-        end else begin
-            if (arb_rvalid && arb_rready) pmem_rvalid <= 1'b0;
-            if (arb_wvalid && arb_wready) pmem_wready <= 1'b0;
-            if (arb_bvalid && arb_bready) pmem_bvalid <= 1'b0;
-
-            if (arb_arvalid && !pmem_rvalid) begin
-                pmem_read_data <= pmem_read(arb_araddr);
-                pmem_rvalid    <= 1'b1;
-                pmem_rresp     <= 2'b0;
-            end
-            else if (arb_awvalid && !pmem_wready) begin
-                pmem_write(arb_awaddr, arb_wdata, {{28{1'b0}}, arb_wstrb});
-                pmem_wready <= 1'b1;
-                pmem_bvalid <= 1'b1;
-                pmem_bresp  <= 2'b0;
-            end
-        end
-    end
-
-`endif
-`endif
+    // io_slave 输入 + io_interrupt 未用（CPU 不是 AXI 从设备），显式引用避免 lint 报错
+    wire unused_ok = &{io_slave_arvalid, io_slave_araddr, io_slave_arid, io_slave_arlen,
+                       io_slave_arsize, io_slave_arburst, io_slave_rready,
+                       io_slave_awvalid, io_slave_awaddr, io_slave_awid, io_slave_awlen,
+                       io_slave_awsize, io_slave_awburst, io_slave_wvalid, io_slave_wdata,
+                       io_slave_wstrb, io_slave_wlast, io_slave_bready, io_interrupt,
+                       arb_rid, arb_rlast, arb_bid, 1'b1};
 
     // --- icache -> arbiter ---
     wire        icache_arvalid;
@@ -848,7 +776,7 @@ module ysyx_26010027 (
     assign arb_awlen    = lsu_cpu_awlen;
     assign arb_awsize   = lsu_cpu_awsize;
     assign arb_awburst  = lsu_cpu_awburst;
-    assign arb_wvalid   = lsu_cpu_wvalid;
+    assign arb_wvalid   = (grant == LSU_GRANT) ? lsu_cpu_wvalid : 1'b0;
     assign arb_wdata    = lsu_cpu_wdata;
     assign arb_wstrb    = lsu_cpu_wstrb;
     assign arb_wlast    = lsu_cpu_wlast;
@@ -874,8 +802,7 @@ module ysyx_26010027 (
         end
     end
 
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
     wire access_fault = (cpu_ifu_rvalid && ifu_cpu_rready && cpu_ifu_rresp != 2'b00)
                      || (cpu_lsu_rvalid && lsu_cpu_rready && cpu_lsu_rresp != 2'b00)
                      || (cpu_lsu_bvalid && lsu_cpu_bready && cpu_lsu_bresp != 2'b00);
@@ -924,7 +851,6 @@ module ysyx_26010027 (
             end
         end
     end
-`endif
 `endif
 
 endmodule

@@ -5,7 +5,7 @@
 #define COUNTER 7
 #define MAX_LOOP 1000000
 
-MUXDEF(CONFIG_SOC, VysyxSoCFull *top = new VysyxSoCFull;, Vysyx_26010027 *top = new Vysyx_26010027;)
+MUXDEF(CONFIG_SOC, VysyxSoCFull *top = new VysyxSoCFull;, Vtop *top = new Vtop;)
 
 VerilatedFstC* tfp = new VerilatedFstC;
 vluint64_t main_time = 0;

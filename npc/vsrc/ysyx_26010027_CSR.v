@@ -21,22 +21,16 @@ module ysyx_26010027_CSR (
     reg [31:0] mtvec;
     reg [31:0] mepc;
     reg [31:0] mcause;
-    reg [31:0] mc;
-
-    wire [31:0] mcycle  = mc;
-    wire [31:0] mcycleh = 0;
+    // reg [63:0] mc;
 
     // Write
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            mc      <= 0;
             mstatus <= 0;
             mtvec   <= 0;
             mepc    <= 0;
             mcause  <= 0;
         end else begin
-            mc <= mc + 1;
-
             if (csr_ecall) begin  // ecall
                 mepc   <= pc;
                 mcause <= 32'd11;  // M-mode
@@ -70,11 +64,8 @@ module ysyx_26010027_CSR (
     end
 
     // Read
-    assign csr_rdata = (csr_raddr == csr_waddr && csr_we) ? csr_wdata : // 写回前递
-                       (csr_raddr == 12'hf11) ? mvendorid :
+    assign csr_rdata = (csr_raddr == 12'hf11) ? mvendorid :
                        (csr_raddr == 12'hf12) ? marchid :
-                       (csr_raddr == 12'hB00) ? mcycle :
-                       (csr_raddr == 12'hB80) ? mcycleh :
                        (csr_raddr == 12'h300) ? mstatus :
                        (csr_raddr == 12'h305) ? mtvec :
                        (csr_raddr == 12'h341) ? mepc :
