@@ -1,0 +1,411 @@
+From 3b45fca11b6cc24c90eaeba4ac8d292c9cd32329 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Sat, 1 Aug 2026 16:50:52 +0800
+Subject: [PATCH 1/7] =?UTF-8?q?=E5=8A=A0=E5=85=A5psram?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ .mill-jvm-opts              |   1 +
+ perip/bitrev/bitrev.v       |  25 +++++-
+ perip/psram/psram.v         | 115 +++++++++++++++++++++++++++-
+ perip/spi/rtl/spi_top_apb.v | 149 +++++++++++++++++++++++++++++++++---
+ spec/cpu-interface.md       |  11 ++-
+ 5 files changed, 285 insertions(+), 16 deletions(-)
+ create mode 100644 .mill-jvm-opts
+
+diff --git a/.mill-jvm-opts b/.mill-jvm-opts
+new file mode 100644
+index 00000000..3d9287d6
+--- /dev/null
++++ b/.mill-jvm-opts
+@@ -0,0 +1 @@
++-Xmx8G
+diff --git a/perip/bitrev/bitrev.v b/perip/bitrev/bitrev.v
+index f1c3b363..5d28ad4f 100644
+--- a/perip/bitrev/bitrev.v
++++ b/perip/bitrev/bitrev.v
+@@ -2,7 +2,28 @@ module bitrev (
+   input  sck,
+   input  ss,
+   input  mosi,
+-  output miso
++  output reg miso
+ );
+-  assign miso = 1'b1;
++
++  reg [7:0] data;
++  reg [3:0] cnt0, cnt1;
++
++  always @(posedge sck or posedge ss) begin
++    if (ss) begin
++      miso <= 1'b1;
++      data <= 8'd0;
++      cnt0 <= 4'd0;
++      cnt1 <= 4'd0;
++    end else begin
++      if (cnt0 == 4'd8) begin
++        miso <= data[3'd7 - cnt1[2:0]];
++        cnt1 <= cnt1 + 4'd1;
++      end
++      else begin
++        data[cnt0[2:0]] <= mosi;
++        cnt0       <= cnt0 + 4'd1;
++      end
++    end
++  end
++
+ endmodule
+diff --git a/perip/psram/psram.v b/perip/psram/psram.v
+index d9bdd882..0d244e4b 100644
+--- a/perip/psram/psram.v
++++ b/perip/psram/psram.v
+@@ -1,9 +1,120 @@
+ module psram(
+   input sck,
+-  input ce_n,
++  input ce_n,          // SS, active low
+   inout [3:0] dio
+ );
+ 
+-  assign dio = 4'bz;
++  reg [7:0] mem [0:16777215];
++
++  // ----- state -----
++  reg [2:0] state;
++  localparam cmd_t   = 3'd0;
++  localparam addr_t  = 3'd1;
++  localparam dummy_t = 3'd2;
++  localparam rdata_t = 3'd3;
++  localparam wdata_t = 3'd4;
++
++  // ----- internal registers -----
++  reg [ 7:0] cmd;
++  reg [23:0] addr;
++  reg [ 7:0] counter;
++  reg [31:0] rdata;
++  reg [31:0] wbuf;
++
++  // ----- dio 状态机 -----
++  reg [ 3:0] dio_out;
++  wire       dio_oe;
++  assign dio = dio_oe ? dio_out : 4'bz;
++
++  always @(posedge sck or posedge ce_n) begin
++    if (ce_n) begin
++      state   <= cmd_t;
++      counter <= 8'd0;
++    end else begin
++      counter <= counter + 8'd1;
++
++      case (state)
++        // cmd 传输 [0 - 7]
++        cmd_t: begin
++          cmd <= {cmd[6:0], dio[0]};
++          if (counter == 8'd7)
++            state <= addr_t;
++        end
++
++        // addr 传输 [8 - 13]
++        addr_t: begin
++          addr <= {addr[19:0], dio};
++          if (counter == 8'd13) begin
++            case (cmd)
++              8'hEB: state <= dummy_t;
++              8'h38: state <= wdata_t;
++              default: state <= cmd_t;
++            endcase
++          end
++        end
++
++        // psram准备数据 [14 - 19]
++        dummy_t: begin
++          if (counter == 8'd14) begin
++            rdata[ 7: 0] <= mem[{addr[23:2], 2'b00}];
++            rdata[15: 8] <= mem[{addr[23:2], 2'b01}];
++            rdata[23:16] <= mem[{addr[23:2], 2'b10}];
++            rdata[31:24] <= mem[{addr[23:2], 2'b11}];
++          end
++          if (counter == 8'd19)
++            state <= rdata_t;
++        end
++
++        // 读取数据 [20 - 27]
++        rdata_t: begin
++          if (counter == 8'd27)
++            state <= cmd_t;
++        end
++
++        // 写入数据 [14 - 21]
++        wdata_t: begin
++          if (counter == 8'd21)
++            state <= cmd_t;
++        end
++
++        default: state <= cmd_t;
++      endcase
++    end
++  end
++
++  // ----- Read -----
++  wire [1:0] r_byte_idx = {counter[7:1] - 8'd10}[1:0];   // byte 0,1,2,3
++  wire       r_high     = !counter[0]; // 20开始 奇偶位判断
++
++  always @(posedge sck or posedge ce_n) begin
++    if (ce_n) begin
++      rdata <= 32'd0;
++    end else if (dio_oe) begin
++      if (r_high)
++        dio_out <= rdata[r_byte_idx*8 + 4 +: 4];
++      else
++        dio_out <= rdata[r_byte_idx*8 +: 4];
++    end
++  end
++  
++  assign dio_oe  = (state == rdata_t);
++
++  // ----- Write -----
++  wire [ 1:0] w_byte_idx = {counter[7:1] - 8'd7}[1:0];   // byte 0,1,2,3
++  wire        w_high     = !counter[0]; // 14开始 奇偶位判断
++  wire [23:0] waddr      = addr + {22'b0, w_byte_idx};
++
++  always @(posedge sck or posedge ce_n) begin
++    if (ce_n) begin
++      wbuf  <= 32'd0;
++    end else if (state == wdata_t) begin
++      if (w_high)
++        wbuf[w_byte_idx*8 + 4 +: 4] <= dio;
++      else begin
++        wbuf[w_byte_idx*8 +: 4] <= dio;
++        mem[waddr] <= {wbuf[w_byte_idx*8 + 4 +: 4], dio};
++      end
++    end
++  end
+ 
+ endmodule
+diff --git a/perip/spi/rtl/spi_top_apb.v b/perip/spi/rtl/spi_top_apb.v
+index 92d37516..b642bdc5 100644
+--- a/perip/spi/rtl/spi_top_apb.v
++++ b/perip/spi/rtl/spi_top_apb.v
+@@ -1,6 +1,6 @@
+ // define this macro to enable fast behavior simulation
+ // for flash by skipping SPI transfers
+-//`define FAST_FLASH
++// `define FAST_FLASH
+ 
+ module spi_top_apb #(
+   parameter flash_addr_start = 32'h30000000,
+@@ -48,17 +48,20 @@ assign in_prdata  = data[31:0];
+ 
+ `else
+ 
++wire        wb_ack;
++wire [31:0] wb_rdata;
++
+ spi_top u0_spi_top (
+   .wb_clk_i(clock),
+   .wb_rst_i(reset),
+-  .wb_adr_i(in_paddr[4:0]),
+-  .wb_dat_i(in_pwdata),
+-  .wb_dat_o(in_prdata),
+-  .wb_sel_i(in_pstrb),
+-  .wb_we_i (in_pwrite),
+-  .wb_stb_i(in_psel),
+-  .wb_cyc_i(in_penable),
+-  .wb_ack_o(in_pready),
++  .wb_adr_i(wb_adr),
++  .wb_dat_i(wb_dat_i),
++  .wb_dat_o(wb_rdata),
++  .wb_sel_i(wb_sel),
++  .wb_we_i (wb_we),
++  .wb_stb_i(wb_stb),
++  .wb_cyc_i(wb_cyc),
++  .wb_ack_o(wb_ack),
+   .wb_err_o(in_pslverr),
+   .wb_int_o(spi_irq_out),
+ 
+@@ -68,6 +71,134 @@ spi_top u0_spi_top (
+   .miso_pad_i(spi_miso)
+ );
+ 
++// ----- XPI 状态机 -----
++reg [ 3:0] xip_state;
++reg [31:0] xip_rdata;
++
++wire is_xip     = (in_paddr >= flash_addr_start) && (in_paddr <= flash_addr_end);
++wire xip_active = (xip_state != 4'd0);
++wire xip_trig   = is_xip && in_psel && !in_penable && !in_pwrite;
++
++reg [ 4:0] xip_wb_adr;
++reg [31:0] xip_wb_dat;
++reg        xip_wb_we;
++reg        xip_wb_stb;
++reg        xip_wb_cyc;
++
++wire [ 4:0] wb_adr   = xip_active ? xip_wb_adr : in_paddr[4:0];
++wire [31:0] wb_dat_i = xip_active ? xip_wb_dat : in_pwdata;
++wire [ 3:0] wb_sel   = xip_active ? 4'b1111    : in_pstrb;
++wire        wb_we    = xip_active ? xip_wb_we  : in_pwrite;
++wire        wb_stb   = xip_active ? xip_wb_stb : in_psel;
++wire        wb_cyc   = xip_active ? xip_wb_cyc : in_penable;
++
++assign in_pready = xip_active ? (xip_state == 4'd8) : wb_ack;
++assign in_prdata = xip_active ? {wb_rdata[7:0], wb_rdata[15:8], wb_rdata[23:16], wb_rdata[31:24]} : wb_rdata;
++
++// XIP 状态编码
++localparam IDLE    = 4'd0;
++localparam WR_DIV  = 4'd1;
++localparam WR_SS   = 4'd2;
++localparam WR_TX1  = 4'd3;
++localparam WR_TX0  = 4'd4;
++localparam WR_CTRL = 4'd5;
++localparam POLL_GO = 4'd6;
++localparam RD_RX   = 4'd7;
++localparam DONE    = 4'd8;
++
++always @(posedge clock, posedge reset) begin
++  if (reset) begin
++    xip_state   <= IDLE;
++    xip_rdata   <= 32'd0;
++    xip_wb_adr  <= 5'd0;
++    xip_wb_dat  <= 32'd0;
++    xip_wb_we   <= 1'b0;
++    xip_wb_stb  <= 1'b0;
++    xip_wb_cyc  <= 1'b0;
++  end else begin
++    case (xip_state)
++      IDLE: begin
++        xip_wb_stb <= 1'b0;
++        xip_wb_cyc <= 1'b0;
++        if (xip_trig) begin
++          xip_state <= WR_DIV;
++        end
++      end
++
++      WR_DIV: begin
++        xip_wb_adr <= 5'd20;
++        xip_wb_dat <= 32'd0;
++        xip_wb_we  <= 1'b1;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) xip_state <= WR_SS;
++      end
++
++      WR_SS: begin
++        xip_wb_adr <= 5'd24;
++        xip_wb_dat <= 32'd1;
++        xip_wb_we  <= 1'b1;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) xip_state <= WR_TX1;
++      end
++
++      WR_TX1: begin
++        xip_wb_adr <= 5'd4;
++        xip_wb_dat <= {8'h03, in_paddr[23:0]};
++        xip_wb_we  <= 1'b1;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) xip_state <= WR_TX0;
++      end
++
++      WR_TX0: begin
++        xip_wb_adr <= 5'd0;
++        xip_wb_dat <= 32'd0;
++        xip_wb_we  <= 1'b1;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) xip_state <= WR_CTRL;
++      end
++
++      WR_CTRL: begin
++        xip_wb_adr <= 5'd16;
++        xip_wb_dat <= (1 << 13) | (0 << 11) | (1 << 10) | (0 << 9) | (1 << 8) | 64;
++        xip_wb_we  <= 1'b1;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) xip_state <= POLL_GO;
++      end
++
++      POLL_GO: begin
++        xip_wb_adr <= 5'd16;
++        xip_wb_we  <= 1'b0;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack && !wb_rdata[8]) xip_state <= RD_RX;
++      end
++
++      RD_RX: begin
++        xip_wb_adr <= 5'd0;
++        xip_wb_we  <= 1'b0;
++        xip_wb_stb <= 1'b1;
++        xip_wb_cyc <= 1'b1;
++        if (wb_ack) begin
++          xip_state <= DONE;
++        end
++      end
++
++      DONE: begin
++        xip_wb_stb <= 1'b0;
++        xip_wb_cyc <= 1'b0;
++        if (!in_psel) xip_state <= IDLE;
++      end
++
++      default: xip_state <= IDLE;
++    endcase
++  end
++end
++
+ `endif // FAST_FLASH
+ 
+ endmodule
+diff --git a/spec/cpu-interface.md b/spec/cpu-interface.md
+index a8d70cc4..28358f28 100644
+--- a/spec/cpu-interface.md
++++ b/spec/cpu-interface.md
+@@ -1,10 +1,11 @@
+ # CPU接口命名规范
+ 
++学号: 26010027
+ | | | | | | |
+ | --- | --- | --- | --- | --- | --- |
+-| CPU文件名 | | `ysyx_8位学号.v`          | 如`ysyx_23060000.v`   |
+-| CPU顶层模块名 | | `ysyx_8位学号`        | 如`ysyx_23060000`     |
+-| CPU内部模块名 | | `ysyx_8位学号_模块名` | 如`ysyx_23060000_ALU` |
++| CPU文件名 | | `ysyx_8位学号.v`
++| CPU顶层模块名 | | `ysyx_8位学号`
++| CPU内部模块名 | | `ysyx_8位学号_模块名`
+ | 时钟 | input | `clock` |
+ | 复位(高电平有效) | input | `reset` |
+ | 外部中断 | input | `io_interrupt` |
+@@ -16,15 +17,18 @@
+ | `output` | `[7:0]`  | `io_master_awlen`   | `input`  | `[7:0]`  | `io_slave_awlen`   |
+ | `output` | `[2:0]`  | `io_master_awsize`  | `input`  | `[2:0]`  | `io_slave_awsize`  |
+ | `output` | `[1:0]`  | `io_master_awburst` | `input`  | `[1:0]`  | `io_slave_awburst` |
++
+ | `input`  |          | `io_master_wready`  | `output` |          | `io_slave_wready`  |
+ | `output` |          | `io_master_wvalid`  | `input`  |          | `io_slave_wvalid`  |
+ | `output` | `[31:0]` | `io_master_wdata`   | `input`  | `[31:0]` | `io_slave_wdata`   |
+ | `output` | `[3:0]`  | `io_master_wstrb`   | `input`  | `[3:0]`  | `io_slave_wstrb`   |
+ | `output` |          | `io_master_wlast`   | `input`  |          | `io_slave_wlast`   |
++
+ | `output` |          | `io_master_bready`  | `input`  |          | `io_slave_bready`  |
+ | `input`  |          | `io_master_bvalid`  | `output` |          | `io_slave_bvalid`  |
+ | `input`  | `[1:0]`  | `io_master_bresp`   | `output` | `[1:0]`  | `io_slave_bresp`   |
+ | `input`  | `[3:0]`  | `io_master_bid`     | `output` | `[3:0]`  | `io_slave_bid`     |
++
+ | `input`  |          | `io_master_arready` | `output` |          | `io_slave_arready` |
+ | `output` |          | `io_master_arvalid` | `input`  |          | `io_slave_arvalid` |
+ | `output` | `[31:0]` | `io_master_araddr`  | `input`  | `[31:0]` | `io_slave_araddr`  |
+@@ -32,6 +36,7 @@
+ | `output` | `[7:0]`  | `io_master_arlen`   | `input`  | `[7:0]`  | `io_slave_arlen`   |
+ | `output` | `[2:0]`  | `io_master_arsize`  | `input`  | `[2:0]`  | `io_slave_arsize`  |
+ | `output` | `[1:0]`  | `io_master_arburst` | `input`  | `[1:0]`  | `io_slave_arburst` |
++
+ | `output` |          | `io_master_rready`  | `input`  |          | `io_slave_rready`  |
+ | `input`  |          | `io_master_rvalid`  | `output` |          | `io_slave_rvalid`  |
+ | `input`  | `[1:0]`  | `io_master_rresp`   | `output` | `[1:0]`  | `io_slave_rresp`   |
+-- 
+2.43.0
+

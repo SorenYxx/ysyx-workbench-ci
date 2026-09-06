@@ -1,0 +1,56 @@
+From a917e5b650f93bb922a19aa35424c82bb2dbd907 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Sun, 16 Aug 2026 23:53:27 +0800
+Subject: [PATCH 5/7] =?UTF-8?q?=E5=88=9D=E7=89=88=E6=B5=81=E6=B0=B4?=
+ =?UTF-8?q?=E7=BA=BF?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ perip/amba/axi4_delayer.v | 1 -
+ perip/sdram/sdram.v       | 5 +++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index 841084cd..c8f7a07b 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -71,7 +71,6 @@ module axi4_delayer(
+   assign out_arsize  = in_arsize;
+   assign out_arburst = in_arburst;
+   assign in_arready  = out_arready;
+-
+   assign out_awvalid = in_awvalid;
+   assign out_awid    = in_awid;
+   assign out_awaddr  = in_awaddr;
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index 018f87ea..c1fddc01 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -1,3 +1,6 @@
++import "DPI-C" function void sdram_trace(input int addr, input int data, input int is_write);
++/* verilator lint_off WIDTHEXPAND */
++
+ module sdram(
+   input        clk,
+   input        cke,
+@@ -161,6 +164,7 @@ module sdram(
+       case (read_cnt)
+         3'd0: begin
+           read_buf <= mem[read_addr];
++          // sdram_trace(read_addr, mem[read_addr], 1'b0);
+         end
+         3'd1: begin
+           if (cmd == CMD_READ) begin
+@@ -178,6 +182,7 @@ module sdram(
+     else if (state == STATE_WRITE) begin
+       if (!l_dqm[0]) mem[write_addr][7:0]  <= l_wdata[7:0];
+       if (!l_dqm[1]) mem[write_addr][15:8] <= l_wdata[15:8];
++      // sdram_trace(write_addr, l_wdata, 1'b1);
+       state <= STATE_IDLE;
+     end
+ 
+-- 
+2.43.0
+
