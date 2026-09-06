@@ -1,8 +1,12 @@
 *.*
 *
+!/abstract-machine/
 !/abstract-machine/**
+!/nemu/
 !/nemu/**
+!/npc/
 !/npc/**
+!/patch/
 !/patch/**
 !Makefile
 !README.md
