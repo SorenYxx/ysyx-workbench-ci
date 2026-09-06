@@ -1,0 +1,374 @@
+From e2decc0a6b965bc5ddf818f5c8b1accc1499bcd2 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Sun, 2 Aug 2026 21:30:36 +0800
+Subject: [PATCH 2/7] =?UTF-8?q?=E5=8A=A0=E5=85=A5psram?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ perip/psram/efabless/EF_PSRAM_CTRL.v    | 61 ++++++++++++-----------
+ perip/psram/efabless/EF_PSRAM_CTRL_wb.v | 52 +++++++++++++++-----
+ perip/psram/psram.v                     | 65 ++++++++++++++++---------
+ perip/sdram/sdram.v                     | 14 +++---
+ 4 files changed, 119 insertions(+), 73 deletions(-)
+
+diff --git a/perip/psram/efabless/EF_PSRAM_CTRL.v b/perip/psram/efabless/EF_PSRAM_CTRL.v
+index b6e737e9..6d298097 100644
+--- a/perip/psram/efabless/EF_PSRAM_CTRL.v
++++ b/perip/psram/efabless/EF_PSRAM_CTRL.v
+@@ -60,7 +60,7 @@ module PSRAM_READER (
+     localparam  IDLE = 1'b0,
+                 READ = 1'b1;
+ 
+-    wire [7:0]  FINAL_COUNT = 19 + size*2; // was 27: Always read 1 word
++    wire [7:0]  FINAL_COUNT = 13 + size*2; // was 27: Always read 1 word
+ 
+     reg         state, nstate;
+     reg [7:0]   counter;
+@@ -113,22 +113,23 @@ module PSRAM_READER (
+             saddr <= {addr[23:0]};
+ 
+     // Sample with the negedge of sck
+-    wire[1:0] byte_index = {counter[7:1] - 8'd10}[1:0];
++    wire[1:0] byte_index = {counter[7:1] - 8'd7}[1:0];
+     always @ (posedge clk)
+-        if(counter >= 20 && counter <= FINAL_COUNT)
++        if(counter >= 14 && counter <= FINAL_COUNT)
+             if(sck)
+-                data[byte_index] <= {data[byte_index][3:0], din}; // Optimize!
+-
+-    assign dout     =   (counter < 8)   ?   {3'b0, CMD_EBH[7 - counter]}:
+-                        (counter == 8)  ?   saddr[23:20]        :
+-                        (counter == 9)  ?   saddr[19:16]        :
+-                        (counter == 10) ?   saddr[15:12]        :
+-                        (counter == 11) ?   saddr[11:8]         :
+-                        (counter == 12) ?   saddr[7:4]          :
+-                        (counter == 13) ?   saddr[3:0]          :
++                data[byte_index] <= {data[byte_index][3:0], din};
++
++    assign dout     =   (counter == 0)  ? CMD_EBH[7:4] :
++                        (counter == 1)  ? CMD_EBH[3:0] :
++                        (counter == 2)  ? saddr[23:20] :
++                        (counter == 3)  ? saddr[19:16] :
++                        (counter == 4)  ? saddr[15:12] :
++                        (counter == 5)  ? saddr[11:8]  :
++                        (counter == 6)  ? saddr[7:4]   :
++                        (counter == 7)  ? saddr[3:0]   :
+                         4'h0;
+ 
+-    assign douten   = (counter < 14);
++    assign douten   = (counter < 8);
+ 
+     assign done     = (counter == FINAL_COUNT+1);
+ 
+@@ -161,7 +162,7 @@ module PSRAM_WRITER (
+     localparam  IDLE = 1'b0,
+                 WRITE = 1'b1;
+ 
+-    wire[7:0]        FINAL_COUNT = 13 + size*2;
++    wire[7:0]   FINAL_COUNT = 7 + size*2;  // QPI: 15 for size=4
+ 
+     reg         state, nstate;
+     reg [7:0]   counter;
+@@ -212,21 +213,23 @@ module PSRAM_WRITER (
+         else if((state == IDLE) && wr)
+             saddr <= addr;
+ 
+-    assign dout     =   (counter < 8)   ?   {3'b0, CMD_38H[7 - counter]}:
+-                        (counter == 8)  ?   saddr[23:20]        :
+-                        (counter == 9)  ?   saddr[19:16]        :
+-                        (counter == 10) ?   saddr[15:12]        :
+-                        (counter == 11) ?   saddr[11:8]         :
+-                        (counter == 12) ?   saddr[7:4]          :
+-                        (counter == 13) ?   saddr[3:0]          :
+-                        (counter == 14) ?   line[7:4]           :
+-                        (counter == 15) ?   line[3:0]           :
+-                        (counter == 16) ?   line[15:12]         :
+-                        (counter == 17) ?   line[11:8]          :
+-                        (counter == 18) ?   line[23:20]         :
+-                        (counter == 19) ?   line[19:16]         :
+-                        (counter == 20) ?   line[31:28]         :
+-                        line[27:24];
++    // QPI: 2-cycle command, 6-cycle address, 8-cycle data
++    assign dout     =   (counter == 0)  ? CMD_38H[7:4] :
++                        (counter == 1)  ? CMD_38H[3:0] :
++                        (counter == 2)  ? saddr[23:20] :
++                        (counter == 3)  ? saddr[19:16] :
++                        (counter == 4)  ? saddr[15:12] :
++                        (counter == 5)  ? saddr[11:8]  :
++                        (counter == 6)  ? saddr[7:4]   :
++                        (counter == 7)  ? saddr[3:0]   :
++                        (counter == 8)  ? line[7:4]    :
++                        (counter == 9)  ? line[3:0]    :
++                        (counter == 10) ? line[15:12]  :
++                        (counter == 11) ? line[11:8]   :
++                        (counter == 12) ? line[23:20]  :
++                        (counter == 13) ? line[19:16]  :
++                        (counter == 14) ? line[31:28]  :
++                        line[27:24];  // counter == 15
+ 
+     assign douten   = (~ce_n);
+ 
+diff --git a/perip/psram/efabless/EF_PSRAM_CTRL_wb.v b/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
+index 7b5296db..cdfd36cd 100644
+--- a/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
++++ b/perip/psram/efabless/EF_PSRAM_CTRL_wb.v
+@@ -39,8 +39,9 @@ module EF_PSRAM_CTRL_wb (
+     output  wire [3:0]      douten
+ );
+ 
+-    localparam  ST_IDLE = 1'b0,
+-                ST_WAIT = 1'b1;
++    localparam  ST_INIT_QPI = 2'd0,
++                ST_IDLE     = 2'd1,
++                ST_WAIT     = 2'd2;
+ 
+     wire        mr_sck;
+     wire        mr_ce_n;
+@@ -60,35 +61,60 @@ module EF_PSRAM_CTRL_wb (
+     wire        mw_wr;
+     wire        mw_done;
+ 
+-    //wire        doe;
+-
+     // WB Control Signals
+     wire        wb_valid        =   cyc_i & stb_i;
+     wire        wb_we           =   we_i & wb_valid;
+     wire        wb_re           =   ~we_i & wb_valid;
+-    //wire[3:0]   wb_byte_sel     =   sel_i & {4{wb_we}};
++
++    // -------- QPI Initialization --------
++    reg         qpi_mode;
++    reg  [4:0]  init_cnt;
++
++    wire        init_sck  = init_cnt[0];
++    wire        init_ce_n = 1'b0;
++    wire [7:0]  init_shift = (8'h35 >> (3'd7 - init_cnt[4:1]));
++    wire [3:0]  init_dout  = {3'b0, init_shift[0]};
++
++    always @(posedge clk_i or posedge rst_i) begin
++        if (rst_i) begin
++            init_cnt <= 5'd0;
++            qpi_mode <= 1'b0;
++        end else if (!qpi_mode) begin
++            init_cnt <= init_cnt + 5'd1;
++            if (init_cnt == 5'd15)
++                qpi_mode <= 1'b1;
++        end
++    end
+ 
+     // The FSM
+-    reg         state, nstate;
++    reg  [1:0]  state, nstate;
+     always @ (posedge clk_i or posedge rst_i)
+         if(rst_i)
+-            state <= ST_IDLE;
++            state <= ST_INIT_QPI;
+         else
+             state <= nstate;
+ 
+     always @* begin
+         case(state)
+-            ST_IDLE :
++            ST_INIT_QPI:
++                if(qpi_mode)
++                    nstate = ST_IDLE;
++                else
++                    nstate = ST_INIT_QPI;
++
++            ST_IDLE:
+                 if(wb_valid)
+                     nstate = ST_WAIT;
+                 else
+                     nstate = ST_IDLE;
+ 
+-            ST_WAIT :
++            ST_WAIT:
+                 if((mw_done & wb_we) | (mr_done & wb_re))
+                     nstate = ST_IDLE;
+                 else
+                     nstate = ST_WAIT;
++
++            default: nstate = ST_IDLE;
+         endcase
+     end
+ 
+@@ -161,10 +187,10 @@ module EF_PSRAM_CTRL_wb (
+         .douten(mw_doe)
+     );
+ 
+-    assign sck  = wb_we ? mw_sck  : mr_sck;
+-    assign ce_n = wb_we ? mw_ce_n : mr_ce_n;
+-    assign dout = wb_we ? mw_dout : mr_dout;
+-    assign douten  = wb_we ? {4{mw_doe}}  : {4{mr_doe}};
++    assign sck     = (!qpi_mode) ? init_sck  : (wb_we ? mw_sck  : mr_sck);
++    assign ce_n    = (!qpi_mode) ? init_ce_n : (wb_we ? mw_ce_n : mr_ce_n);
++    assign dout    = (!qpi_mode) ? init_dout : (wb_we ? mw_dout : mr_dout);
++    assign douten  = (!qpi_mode) ? 4'b0001   : (wb_we ? {4{mw_doe}} : {4{mr_doe}});
+ 
+     assign mw_din = din;
+     assign mr_din = din;
+diff --git a/perip/psram/psram.v b/perip/psram/psram.v
+index 0d244e4b..b45e0bda 100644
+--- a/perip/psram/psram.v
++++ b/perip/psram/psram.v
+@@ -14,15 +14,26 @@ module psram(
+   localparam rdata_t = 3'd3;
+   localparam wdata_t = 3'd4;
+ 
+-  // ----- internal registers -----
+   reg [ 7:0] cmd;
+   reg [23:0] addr;
+   reg [ 7:0] counter;
+   reg [31:0] rdata;
+   reg [31:0] wbuf;
+ 
+-  // ----- dio 状态机 -----
+-  reg [ 3:0] dio_out;
++  reg qpi_mode;
++
++  // ----- QPI -----
++  localparam CMD_END      = 8'd1;
++  localparam ADDR_END     = 8'd7;
++  localparam DUMMY_END    = 8'd13;
++  localparam RDATA_END    = 8'd21;
++  localparam WDATA_END    = 8'd15;
++  localparam RDATA_LATCH  = 8'd8;
++  localparam R_BYTE_BASE  = 8'd7;
++  localparam W_BYTE_BASE  = 8'd4;
++
++  // ----- dio -----
++  reg  [3:0] dio_out;
+   wire       dio_oe;
+   assign dio = dio_oe ? dio_out : 4'bz;
+ 
+@@ -34,17 +45,26 @@ module psram(
+       counter <= counter + 8'd1;
+ 
+       case (state)
+-        // cmd 传输 [0 - 7]
+         cmd_t: begin
+-          cmd <= {cmd[6:0], dio[0]};
+-          if (counter == 8'd7)
+-            state <= addr_t;
++          if (qpi_mode) begin
++            cmd <= {cmd[3:0], dio};
++            if (counter == CMD_END)
++              state <= addr_t;
++          end else begin
++            cmd <= {cmd[6:0], dio[0]};
++            if (counter == 8'd7) begin
++              if ({cmd[6:0], dio[0]} == 8'h35) begin
++                qpi_mode <= 1'b1;
++                counter  <= 8'd0;
++              end else
++                state <= addr_t;
++            end
++          end
+         end
+ 
+-        // addr 传输 [8 - 13]
+         addr_t: begin
+           addr <= {addr[19:0], dio};
+-          if (counter == 8'd13) begin
++          if (counter == ADDR_END) begin
+             case (cmd)
+               8'hEB: state <= dummy_t;
+               8'h38: state <= wdata_t;
+@@ -53,27 +73,24 @@ module psram(
+           end
+         end
+ 
+-        // psram准备数据 [14 - 19]
+         dummy_t: begin
+-          if (counter == 8'd14) begin
++          if (counter == RDATA_LATCH) begin
+             rdata[ 7: 0] <= mem[{addr[23:2], 2'b00}];
+             rdata[15: 8] <= mem[{addr[23:2], 2'b01}];
+             rdata[23:16] <= mem[{addr[23:2], 2'b10}];
+             rdata[31:24] <= mem[{addr[23:2], 2'b11}];
+           end
+-          if (counter == 8'd19)
++          if (counter == DUMMY_END)
+             state <= rdata_t;
+         end
+ 
+-        // 读取数据 [20 - 27]
+         rdata_t: begin
+-          if (counter == 8'd27)
++          if (counter == RDATA_END)
+             state <= cmd_t;
+         end
+ 
+-        // 写入数据 [14 - 21]
+         wdata_t: begin
+-          if (counter == 8'd21)
++          if (counter == WDATA_END)
+             state <= cmd_t;
+         end
+ 
+@@ -83,26 +100,26 @@ module psram(
+   end
+ 
+   // ----- Read -----
+-  wire [1:0] r_byte_idx = {counter[7:1] - 8'd10}[1:0];   // byte 0,1,2,3
+-  wire       r_high     = !counter[0]; // 20开始 奇偶位判断
++  wire [1:0] r_byte_idx = {counter[7:1] - R_BYTE_BASE}[1:0];
++  wire       r_high     = !counter[0];
+ 
+   always @(posedge sck or posedge ce_n) begin
+     if (ce_n) begin
+       rdata <= 32'd0;
+-    end else if (dio_oe) begin
++    end else if (state == rdata_t) begin
+       if (r_high)
+         dio_out <= rdata[r_byte_idx*8 + 4 +: 4];
+       else
+         dio_out <= rdata[r_byte_idx*8 +: 4];
+     end
+   end
+-  
+-  assign dio_oe  = (state == rdata_t);
++
++  assign dio_oe = (state == rdata_t) || (counter == (RDATA_END + 8'd1));
+ 
+   // ----- Write -----
+-  wire [ 1:0] w_byte_idx = {counter[7:1] - 8'd7}[1:0];   // byte 0,1,2,3
+-  wire        w_high     = !counter[0]; // 14开始 奇偶位判断
+-  wire [23:0] waddr      = addr + {22'b0, w_byte_idx};
++  wire [1:0] w_byte_idx = {counter[7:1] - W_BYTE_BASE}[1:0];
++  wire       w_high     = !counter[0];
++  wire [23:0] waddr     = addr + {22'b0, w_byte_idx};
+ 
+   always @(posedge sck or posedge ce_n) begin
+     if (ce_n) begin
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index 3613b231..8be0a843 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -1,14 +1,14 @@
+ module sdram(
+   input        clk,
+   input        cke,
+-  input        cs,
+-  input        ras,
+-  input        cas,
++  input        cs, // ss
++  input        ras, // 行地址选通
++  input        cas, // 列地址选通
+   input        we,
+-  input [12:0] a,
+-  input [ 1:0] ba,
+-  input [ 1:0] dqm,
+-  inout [15:0] dq
++  input [12:0] a, // 地址总线
++  input [ 1:0] ba, // bank地址
++  input [ 1:0] dqm, // 字节掩码
++  inout [15:0] dq // 数据总线
+ );
+ 
+   assign dq = 16'bz;
+-- 
+2.43.0
+

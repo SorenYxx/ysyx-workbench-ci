@@ -1,0 +1,112 @@
+From c520c3fb2166aebb978a13cc04b061ec6d4b3169 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Sun, 23 Aug 2026 16:02:56 +0800
+Subject: [PATCH 6/7] =?UTF-8?q?delayer=20=E5=8A=A0=20UNDELAY=20=E7=9B=B4?=
+ =?UTF-8?q?=E9=80=9A=E5=AE=8F=E5=B9=B6=E4=BF=AE=E5=A4=8D=20apb=20prdata=20?=
+ =?UTF-8?q?=E6=97=B6=E5=BA=8F?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+---
+ perip/amba/apb_delayer.v  | 19 ++++++++++++++-----
+ perip/amba/axi4_delayer.v | 14 +++++++++++++-
+ 2 files changed, 27 insertions(+), 6 deletions(-)
+
+diff --git a/perip/amba/apb_delayer.v b/perip/amba/apb_delayer.v
+index 2bb09c11..cd791f77 100644
+--- a/perip/amba/apb_delayer.v
++++ b/perip/amba/apb_delayer.v
+@@ -1,3 +1,4 @@
++`define UNDELAY
+ module apb_delayer(
+   input         clock,
+   input         reset,
+@@ -31,10 +32,14 @@ module apb_delayer(
+   assign out_pwrite  = in_pwrite;
+   assign out_pwdata  = in_pwdata;
+   assign out_pstrb   = in_pstrb;
+-  assign in_prdata   = out_prdata;
+   assign in_pslverr  = out_pslverr;
+ 
+-  parameter integer r    = 500 / 100;   // 处理器频率 / 设备频率
++`ifdef UNDELAY
++  assign in_pready = out_pready;
++  assign in_prdata = out_prdata;
++`else
++
++  parameter integer r    = 100 / 100;   // 处理器频率 / 设备频率
+   parameter integer s    = 1;    // 用于处理 r 为小数时的放大系数
+   parameter integer base = r * s; // 硬编码常数
+ 
+@@ -48,7 +53,8 @@ module apb_delayer(
+   wire start  = in_psel && !in_penable;
+   wire finish = out_pready;
+ 
+-  reg pready;
++  reg        pready;
++  reg [31:0] prdata_q;
+ 
+   always @(posedge clock, posedge reset) begin
+     if (reset) begin
+@@ -68,8 +74,9 @@ module apb_delayer(
+         WAIT: begin
+           pready <= 1'b0;
+           if (finish) begin
+-            state   <= DELAY;
+-            counter <= counter >> $clog2(s);
++            state    <= DELAY;
++            prdata_q <= out_prdata;
++            counter  <= counter >> $clog2(s);
+           end else begin
+             counter <= counter + base;
+           end
+@@ -88,6 +95,8 @@ module apb_delayer(
+     end
+   end
+ 
++  assign in_prdata = pready ? prdata_q : 32'b0;
+   assign in_pready = pready;
+ 
++`endif
+ endmodule
+diff --git a/perip/amba/axi4_delayer.v b/perip/amba/axi4_delayer.v
+index c8f7a07b..70ae1d0d 100644
+--- a/perip/amba/axi4_delayer.v
++++ b/perip/amba/axi4_delayer.v
+@@ -1,3 +1,4 @@
++`define UNDELAY
+ module axi4_delayer(
+   input         clock,
+   input         reset,
+@@ -89,9 +90,19 @@ module axi4_delayer(
+   assign out_bready  = in_bready;
+   // ----------------------------
+ 
++`ifdef UNDELAY
++  assign in_rvalid = out_rvalid;
++  assign in_rid    = out_rid;
++  assign in_rdata  = out_rdata;
++  assign in_rresp  = out_rresp;
++  assign in_rlast  = out_rlast;
++  assign in_bvalid = out_bvalid;
++  assign in_bid    = out_bid;
++  assign in_bresp  = out_bresp;
++`else
+   localparam RBUF_DEPTH = 4;  // burst 拍数 ≤ 8 (icache 当前 4 拍)
+ 
+-  parameter integer r    = 500 / 100;   // 处理器频率 / 设备频率
++  parameter integer r    = 100 / 100;   // 处理器频率 / 设备频率
+   parameter integer s    = 1;     // r 为整数时 s=1
+   parameter integer base = r * s;
+ 
+@@ -235,4 +246,5 @@ module axi4_delayer(
+   assign in_bid    = b_id;
+   assign in_bresp  = b_resp;
+ 
++`endif
+ endmodule
+-- 
+2.43.0
+

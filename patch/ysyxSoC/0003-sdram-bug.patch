@@ -1,0 +1,301 @@
+From b8584c8208c55d82865949d8e7f4df98b85e5b75 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Tue, 4 Aug 2026 21:07:34 +0800
+Subject: [PATCH 3/7] =?UTF-8?q?=E5=8A=A0=E5=85=A5sdram=20=E4=BF=AE?=
+ =?UTF-8?q?=E5=A4=8D=E9=83=A8=E5=88=86=E5=86=97=E4=BD=99=E4=BB=A3=E7=A0=81?=
+ =?UTF-8?q?=E5=92=8Cbug?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+---
+ perip/sdram/core_sdram_axi4/sdram_axi_core.v |  14 +-
+ perip/sdram/sdram.v                          | 212 ++++++++++++++++++-
+ perip/spi/rtl/spi_top_apb.v                  |   2 +-
+ 3 files changed, 213 insertions(+), 15 deletions(-)
+
+diff --git a/perip/sdram/core_sdram_axi4/sdram_axi_core.v b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+index cedbf77b..c954510b 100644
+--- a/perip/sdram/core_sdram_axi4/sdram_axi_core.v
++++ b/perip/sdram/core_sdram_axi4/sdram_axi_core.v
+@@ -37,18 +37,20 @@ module sdram_axi_core
+     // Inputs
+      input           clk_i
+     ,input           rst_i
+-    ,input  [  3:0]  inport_wr_i
+-    ,input           inport_rd_i
++    ,input  [  3:0]  inport_wr_i // 写选通
++    ,input           inport_rd_i // 读请求
+     ,input  [  7:0]  inport_len_i
+     ,input  [ 31:0]  inport_addr_i
+     ,input  [ 31:0]  inport_write_data_i
+-    ,input  [ 15:0]  sdram_data_input_i
++    ,input  [ 15:0]  sdram_data_input_i // 读数据 <- sdram
+ 
+     // Outputs
+     ,output          inport_accept_o
+     ,output          inport_ack_o
+     ,output          inport_error_o
+     ,output [ 31:0]  inport_read_data_o
++
++    // to SDRAM
+     ,output          sdram_clk_o
+     ,output          sdram_cke_o
+     ,output          sdram_cs_o
+@@ -58,12 +60,14 @@ module sdram_axi_core
+     ,output [  1:0]  sdram_dqm_o
+     ,output [ 12:0]  sdram_addr_o
+     ,output [  1:0]  sdram_ba_o
+-    ,output [ 15:0]  sdram_data_output_o
+-    ,output          sdram_data_out_en_o
++    ,output [ 15:0]  sdram_data_output_o // 写数据 -> sdram
++    ,output          sdram_data_out_en_o // 写
+ );
+ 
+ 
+ 
++
++
+ //-----------------------------------------------------------------
+ // Key Params
+ //-----------------------------------------------------------------
+diff --git a/perip/sdram/sdram.v b/perip/sdram/sdram.v
+index 8be0a843..11eaf4f4 100644
+--- a/perip/sdram/sdram.v
++++ b/perip/sdram/sdram.v
+@@ -1,16 +1,210 @@
+ module sdram(
+   input        clk,
+   input        cke,
+-  input        cs, // ss
+-  input        ras, // 行地址选通
+-  input        cas, // 列地址选通
+-  input        we,
+-  input [12:0] a, // 地址总线
+-  input [ 1:0] ba, // bank地址
+-  input [ 1:0] dqm, // 字节掩码
+-  inout [15:0] dq // 数据总线
++  input        cs,   // 片选, 低有效
++  input        ras,  // 行地址选通
++  input        cas,  // 列地址选通
++  input        we,   // 写使能
++  input [12:0] a,    // 地址总线 (行/列/模式复用)
++  input [ 1:0] ba,   // bank 地址
++  input [ 1:0] dqm,  // 字节掩码 (高=屏蔽对应字节)
++  inout [15:0] dq    // 数据总线
+ );
+ 
+-  assign dq = 16'bz;
++  reg [15:0] mem [0:16777215];
++
++  // ----- dp -----
++  wire       dq_oe;
++  reg [15:0] dq_out;
++  assign dq = dq_oe ? dq_out : 16'bz;
++
++  // ----- cmd -----
++  wire [3:0] cmd = {cs, ras, cas, we};
++  localparam CMD_NOP       = 4'b0111;
++  localparam CMD_ACTIVE    = 4'b0011;
++  localparam CMD_READ      = 4'b0101;
++  localparam CMD_WRITE     = 4'b0100;
++  localparam CMD_PRECHARGE = 4'b0010;
++  localparam CMD_REFRESH   = 4'b0001;
++  localparam CMD_LOAD_MODE = 4'b0000;
++
++  // ----- bank 行缓冲 -----
++  reg [12:0] active_row [0:3];
++  reg [ 3:0] row_open;
++
++  // ----- mode 寄存器 -----
++  reg [12:0] mode_reg;
++
++  // ----- STATE -----
++  reg [3:0] state;
++  localparam STATE_IDLE      = 4'd0;
++  localparam STATE_ACTIVATE  = 4'd1;
++  localparam STATE_READ      = 4'd2;
++  localparam STATE_WRITE    = 4'd3;
++  localparam STATE_PRECHARGE = 4'd5;
++  localparam STATE_REFRESH   = 4'd6;
++  localparam STATE_INIT      = 4'd7;
++  localparam STATE_LOAD_MODE = 4'd8;
++
++  // ----- read -----
++  reg [23:0] read_addr;      // {row, bank, col}
++  reg [15:0] read_buf [0:1]; // Beat0, Beat1
++  reg [ 2:0] read_cnt;       // 0=CL wait, 1=mem latch, 2=drv Beat0, 3=drv Beat1, 4=done
++
++  // ----- write -----
++  reg [23:0] write_addr;
++  reg [15:0] write_buf0;     // Beat0, 在 WRITE 命令当拍锁存
++  reg [ 1:0] dqm0;           // Beat0 的 DQM, 同样在 WRITE 当拍锁存
++
++  // ----- 刷新 -----
++  reg [2:0] refresh_cnt; // tRFC
++
++  wire [23:0] word_addr = {active_row[ba], ba, a[8:0]};
++
++  // -----  FSM -----
++  always @(posedge clk) begin
++
++    if (!cke) begin
++      ;
++    end
++
++    // INIT
++    else if (state == STATE_INIT) begin
++      case (cmd)
++        CMD_PRECHARGE: begin
++          row_open <= 4'b0; // 预充电 bank
++        end
++        CMD_REFRESH: begin
++          ; // NOP
++        end
++        CMD_LOAD_MODE: begin
++          mode_reg <= a;  // MODE_REG = 0x0021
++          state    <= STATE_IDLE;
++        end
++        default: ;
++      endcase
++    end
++
++    // IDLE
++    else if (state == STATE_IDLE) begin
++      case (cmd)
++        CMD_ACTIVE: begin
++          // 打开对应 bank 的行
++          active_row[ba] <= a;
++          row_open[ba]   <= 1'b1;
++          state          <= STATE_ACTIVATE;
++        end
++
++        CMD_READ: begin
++          // Row hit
++          read_addr <= word_addr;
++          read_cnt  <= 3'd0;
++          state     <= STATE_READ;
++        end
++
++        CMD_WRITE: begin
++          // 控制器同时发 WRITE 命令 + Beat0, 当拍锁存
++          write_addr <= word_addr;
++          write_buf0 <= dq;
++          dqm0       <= dqm;
++          state      <= STATE_WRITE;
++        end
++
++        CMD_PRECHARGE: begin
++          if (a[10]) row_open <= 4'b0; // all banks
++          else row_open[ba]   <= 1'b0; // specific bank
++          state <= STATE_PRECHARGE;
++        end
++
++        CMD_REFRESH: begin
++          refresh_cnt <= 3'd0;
++          state       <= STATE_REFRESH;
++        end
++
++        CMD_LOAD_MODE: begin
++          mode_reg <= a;
++          state    <= STATE_LOAD_MODE;
++        end
++
++        default: ;
++      endcase
++    end
++
++    // ACTIVATE
++    else if (state == STATE_ACTIVATE) begin
++      case (cmd)
++        CMD_READ: begin
++          read_addr <= word_addr;
++          read_cnt  <= 3'd0;
++          state     <= STATE_READ;
++        end
++        CMD_WRITE: begin
++          // 控制器同时发 WRITE 命令 + Beat0, 当拍锁存
++          write_addr <= word_addr;
++          write_buf0 <= dq;
++          dqm0       <= dqm;
++          state      <= STATE_WRITE;
++        end
++        CMD_PRECHARGE: begin
++          if (a[10]) row_open <= 4'b0;
++          else       row_open[ba] <= 1'b0;
++          state <= STATE_PRECHARGE;
++        end
++        CMD_NOP: ; // 等待 tRCD
++        default: ;
++      endcase
++    end
++
++    // READ
++    else if (state == STATE_READ) begin
++      read_cnt <= read_cnt + 3'd1;
++      case (read_cnt)
++        3'd0: begin
++          read_buf[0] <= mem[read_addr];
++          read_buf[1] <= mem[read_addr + 1];
++        end
++        3'd3: ;
++        3'd4: state <= STATE_IDLE;
++        default: ;
++      endcase
++    end
++
++    // WRITE
++    else if (state == STATE_WRITE) begin
++      if (!dqm0[0]) mem[write_addr][7:0]      <= write_buf0[7:0];
++      if (!dqm0[1]) mem[write_addr][15:8]     <= write_buf0[15:8];
++      if (!dqm[0])  mem[write_addr + 1][7:0]  <= dq[7:0];
++      if (!dqm[1])  mem[write_addr + 1][15:8] <= dq[15:8];
++      state <= STATE_IDLE;
++    end
++
++    // PRECHARGE
++    else if (state == STATE_PRECHARGE) begin
++      state <= STATE_IDLE;
++    end
++
++    // REFRESH
++    else if (state == STATE_REFRESH) begin
++      refresh_cnt <= refresh_cnt + 3'd1;
++      if (refresh_cnt == 3'd5) // 6 cycles (tRFC)
++        state <= STATE_IDLE;
++    end
++
++    // LOAD_MODE
++    else if (state == STATE_LOAD_MODE) begin
++      state <= STATE_IDLE;
++    end
++  end
++
++
++  always @(*) begin
++    dq_out = 16'b0;
++    if (state == STATE_READ) begin
++      if (read_cnt == 3'd1)      dq_out = read_buf[0];
++      else if (read_cnt == 3'd2) dq_out = read_buf[1];
++    end
++  end
++
++  assign dq_oe = (state == STATE_READ) && (read_cnt == 3'd1 || read_cnt == 3'd2);
+ 
+ endmodule
+diff --git a/perip/spi/rtl/spi_top_apb.v b/perip/spi/rtl/spi_top_apb.v
+index b642bdc5..11962d92 100644
+--- a/perip/spi/rtl/spi_top_apb.v
++++ b/perip/spi/rtl/spi_top_apb.v
+@@ -71,7 +71,7 @@ spi_top u0_spi_top (
+   .miso_pad_i(spi_miso)
+ );
+ 
+-// ----- XPI 状态机 -----
++// ----- XIP 状态机 -----
+ reg [ 3:0] xip_state;
+ reg [31:0] xip_rdata;
+ 
+-- 
+2.43.0
+
