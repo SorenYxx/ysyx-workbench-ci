@@ -1,12 +1,12 @@
 SIMULATOR = verilator
 NPC_HOME  = $(shell pwd)
-CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c") $(SRC_AUTO_BIND) # auto_bind 文件
-INC_PATH  = $(NPC_HOME)/include
+CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c" | grep -v '/tools/capstone/repo/') $(SRC_AUTO_BIND) # auto_bind 文件
+INC_PATH  = $(NPC_HOME)/include $(NPC_HOME)/src/tools/capstone/repo/include
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 OBJ_DIR   = build/obj_dir
 DUMP      = build/wave.fst
 LOGFILE   = $(OBJ_DIR)/npc-log.txt
-LIBS      += -L$(NEMU_HOME)/tools/capstone/repo -lcapstone -lreadline -ldl
+LIBS      += -L$(NPC_HOME)/src/tools/capstone/repo -lcapstone -lreadline -ldl
 NPCFLAGS  += -e $(ELF) -d $(REF_SO) -l $(LOGFILE)
 VERILATOR_FLAGS += --output-split 15000 --decorations none
 
@@ -65,7 +65,12 @@ CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOP)\""
 
 all: sim compile run
 
-compile: $(SRC_AUTO_BIND)
+# capstone
+.PHONY: capstone
+capstone:
+	$(MAKE) -C $(NPC_HOME)/src/tools/capstone
+
+compile: $(SRC_AUTO_BIND) capstone
 	@mkdir -p $(OBJ_DIR)
 	@$(SIMULATOR) $(VERILATOR_FLAGS) -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
 		-Wno-DECLFILENAME \

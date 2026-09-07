@@ -1,6 +1,6 @@
 #include <npc.h>
 #include <common.h>
-#include <../../../nemu/tools/capstone/repo/include/capstone/capstone.h>
+#include <capstone/capstone.h>
 
 static csh handle = 0;
 
