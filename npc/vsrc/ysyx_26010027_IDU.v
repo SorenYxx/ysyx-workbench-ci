@@ -218,7 +218,7 @@ module ysyx_26010027_IDU (
     always @(posedge clock or posedge reset) begin
       if (reset) begin
         idu_exu_pc       <= 32'd0;
-        idu_exu_inst     <= 32'd0;
+        idu_exu_inst     <= 32'b0;
         idu_exu_target   <= 32'd0;
         idu_exu_imm      <= 32'd0;
         idu_exu_alu_op   <= 4'd0;

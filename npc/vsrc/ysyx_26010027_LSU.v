@@ -12,7 +12,6 @@ module ysyx_26010027_LSU (
     output wire       lsu_exu_ready,
     input      [31:0] exu_lsu_pc,
     input      [31:0] exu_lsu_snpc,
-    input      [31:0] exu_lsu_dnpc,
     input      [31:0] exu_lsu_inst,
     input             exu_lsu_reg_w,
     input      [ 1:0] exu_lsu_rf_res,
@@ -24,13 +23,13 @@ module ysyx_26010027_LSU (
     input             exu_lsu_csr_ecall,
     input             exu_lsu_csr_mret,
     input      [31:0] exu_lsu_csr_wdata,
+    output wire       lsu_exu_inflight, // 前递/停顿: LSU 中还在飞的 load
 
     // LSU - WBU
     input             wbu_lsu_ready,
     output wire       lsu_wbu_valid,
     output reg [31:0] lsu_wbu_pc,
     output reg [31:0] lsu_wbu_snpc,
-    output reg [31:0] lsu_wbu_dnpc,
     output reg [31:0] lsu_wbu_inst,
     output reg        lsu_wbu_reg_w,
     output reg [ 1:0] lsu_wbu_rf_res,
@@ -44,10 +43,12 @@ module ysyx_26010027_LSU (
     output reg        lsu_wbu_csr_mret,
     output reg [31:0] lsu_wbu_csr_wdata,
 
-    // 前递/停顿: LSU 中还在飞的 load
-    output wire       lsu_inflight,
-    output reg [31:0] lsu_wbu_mem_addr,
+`ifdef NPC_SIM
+    input      [31:0] exu_lsu_dnpc,
+    output reg [31:0] lsu_wbu_dnpc,
     output reg        lsu_wbu_mem_en,
+    output reg [31:0] lsu_wbu_mem_addr,
+`endif
 
     // ----------- AXI4 -----------
     input             cpu_lsu_arready,
@@ -108,13 +109,8 @@ module ysyx_26010027_LSU (
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
-    wire [31:0] wdata_shifted = (l_mem_addr[1:0] == 2'b00) ? (l_wdata << 0) :
-                                (l_mem_addr[1:0] == 2'b01) ? (l_wdata << 8) :
-                                (l_mem_addr[1:0] == 2'b10) ? (l_wdata << 16) : (l_wdata << 24);
-
-    wire [31:0] rdata_shifted = (l_mem_addr[1:0] == 2'b00) ? cpu_lsu_rdata :
-                                (l_mem_addr[1:0] == 2'b01) ? (cpu_lsu_rdata >> 8) :
-                                (l_mem_addr[1:0] == 2'b10) ? (cpu_lsu_rdata >> 16) : (cpu_lsu_rdata >> 24);
+    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // ！！桶形移位
+    wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
 
     assign lsu_cpu_awaddr  = l_mem_addr;
     assign lsu_cpu_araddr  = l_mem_addr;
@@ -199,14 +195,13 @@ module ysyx_26010027_LSU (
     
     assign lsu_exu_ready     = !l_busy; // 不忙 向上游要数据
     assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 忙 & (非访存或访存完成)
-    assign lsu_inflight = l_busy && (is_load | is_store) && !mem_done; // 忙 & 未完成 load|store线还在飞
+    assign lsu_exu_inflight  = l_busy && (is_load | is_store) && !mem_done; // 忙 & 未完成 load|store线还在飞
 
     // ----- 锁存 -----
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             lsu_wbu_pc         <= 32'b0;
             lsu_wbu_snpc       <= 32'b0;
-            lsu_wbu_dnpc       <= 32'b0;
             lsu_wbu_inst       <= 32'b0;
             lsu_wbu_reg_w      <= 1'b0;
             lsu_wbu_rf_res     <= 2'b0;
@@ -218,8 +213,6 @@ module ysyx_26010027_LSU (
             lsu_wbu_csr_ecall  <= 1'b0;
             lsu_wbu_csr_mret   <= 1'b0;
             lsu_wbu_csr_wdata  <= 32'b0;
-            lsu_wbu_mem_en     <= 1'b0;
-            lsu_wbu_mem_addr   <= 32'b0;
             l_mem_w            <= 2'b11;
             l_mem_r            <= 3'd5;
             l_mem_addr         <= 32'b0;
@@ -229,6 +222,7 @@ module ysyx_26010027_LSU (
                 // 非访存相关数据透传
                 lsu_wbu_pc         <= exu_lsu_pc;
                 lsu_wbu_snpc       <= exu_lsu_snpc;
+                lsu_wbu_inst       <= exu_lsu_inst;
                 lsu_wbu_reg_w      <= exu_lsu_reg_w;
                 lsu_wbu_rf_res     <= exu_lsu_rf_res;
                 lsu_wbu_waddr      <= exu_lsu_waddr;
@@ -258,19 +252,15 @@ module ysyx_26010027_LSU (
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             lsu_wbu_dnpc     <= 32'b0;
-            lsu_wbu_inst     <= 32'b0;
             lsu_wbu_mem_en   <= 1'b0;
             lsu_wbu_mem_addr <= 32'b0;
         end else if (exu_lsu_valid && lsu_exu_ready) begin
             lsu_wbu_dnpc     <= exu_lsu_dnpc;
-            lsu_wbu_inst     <= exu_lsu_inst;
             lsu_wbu_mem_en   <= (exu_lsu_mem_r != 3'd5) | (exu_lsu_mem_w != 2'b11); // 访存相关标志
             lsu_wbu_mem_addr <= exu_lsu_mem_addr; // 访存地址
         end
     end
 
-`else
-    wire unused_ok = &{exu_lsu_dnpc, exu_lsu_inst, lsu_wbu_mem_en, lsu_wbu_mem_addr};
 `endif
 
 endmodule

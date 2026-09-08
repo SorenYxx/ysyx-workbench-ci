@@ -1,5 +1,5 @@
 module ysyx_26010027_GPR #(
-    parameter ADDR_WIDTH = 4,
+    // parameter ADDR_WIDTH = 4,
     parameter DATA_WIDTH = 32
 ) (
     input               clock,

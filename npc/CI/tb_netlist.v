@@ -18,8 +18,8 @@ module tb_iverilog_netlist;
     assign ifu_ar_fire = dut.axi_arvalid && dut.axi_arready;
 
     top dut (
-        .clock                  (clock),
-        .reset                  (reset)
+        .clock (clock),
+        .reset (reset)
     );
 
     initial begin

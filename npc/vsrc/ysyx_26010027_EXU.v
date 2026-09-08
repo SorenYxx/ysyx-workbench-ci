@@ -32,7 +32,6 @@ module ysyx_26010027_EXU (
     output reg        exu_lsu_valid,
     output reg [31:0] exu_lsu_pc,
     output reg [31:0] exu_lsu_snpc,
-    output reg [31:0] exu_lsu_dnpc,
     output reg [31:0] exu_lsu_inst,
 
     output reg [ 1:0] exu_lsu_mem_w, 
@@ -54,9 +53,13 @@ module ysyx_26010027_EXU (
     output reg        exu_flush,
     output reg [31:0] exu_flush_pc,
 
+`ifdef NPC_SIM
+    output reg [31:0] exu_lsu_dnpc,
+`endif
+
     // data forwarding 旁路转发
     input             lsu_wbu_valid,
-    input             lsu_inflight,
+    input             lsu_exu_inflight,
     input             lsu_wbu_reg_w,
     input      [ 1:0] lsu_wbu_rf_res,
     input      [ 3:0] idu_exu_raddr1, idu_exu_raddr2,
@@ -111,13 +114,11 @@ module ysyx_26010027_EXU (
     assign csr_rdata = idu_exu_csr_rdata;
 
     // 源操作数选择与处理
-    reg [31:0] src1_q, src2_q; // 锁存alu操作数 
-    reg [31:0] rdata2_q;       // 锁存访存wdata
-    reg latch_flag;            // 锁存标志
+    reg [31:0] rdata1_q, rdata2_q; // 锁存rdata
+    reg latch_flag;                // 锁存标志
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            src1_q     <= 32'b0;
-            src2_q     <= 32'b0;
+            rdata1_q   <= 32'b0;
             rdata2_q   <= 32'b0;
             latch_flag <= 1'b0;
         end
@@ -126,23 +127,23 @@ module ysyx_26010027_EXU (
         end
         // 锁存（除 load-use 数据返回需要更新）
         else if (latch_flag & !(fwd_1[2] | fwd_2[2])) begin
-            src1_q   <= src1_q;
-            src2_q   <= src2_q;
+            rdata1_q <= rdata1_q;
             rdata2_q <= rdata2_q;
         end
         else if ((idu_exu_valid & !exu_idu_ready) | (fwd_1[2] | fwd_2[2])) begin // 第一个周期检测阻塞更新锁存值 or load-use更新
-            src1_q     <= idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
-            src2_q     <= idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+            rdata1_q   <= rdata1;
             rdata2_q   <= rdata2;
             latch_flag <= 1'b1;
         end
     end
 
     // 非锁存 or load-use返回 正常选择
-    assign src1 = (latch_flag & !fwd_1[2]) ? src1_q :
-                  idu_exu_alu_arc1 ? idu_exu_pc : rdata1;
-    assign src2 = (latch_flag & !fwd_2[2]) ? src2_q :
-                  idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
+    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc : 
+                  (latch_flag & !fwd_1[2]) ? rdata1_q : 
+                  rdata1;
+    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : 
+                  (latch_flag & !fwd_2[2]) ? rdata2_q : 
+                  rdata2;
 
     // branch
     wire eq  = (src1 == src2);
@@ -216,7 +217,7 @@ module ysyx_26010027_EXU (
     end
 
     // handshake
-    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !(load_use_stall | lsu_inflight); // stall 反压
+    assign exu_idu_ready = (lsu_exu_ready | !exu_lsu_valid) && !(load_use_stall | lsu_exu_inflight); // stall 反压
     always @(posedge clock, posedge reset) begin
         if (reset) begin
             exu_lsu_valid <= 1'b0;
@@ -233,6 +234,7 @@ module ysyx_26010027_EXU (
         if (reset) begin
             exu_lsu_pc       <= 0;
             exu_lsu_snpc     <= 0;
+            exu_lsu_inst     <= 0;
             exu_lsu_mem_w    <= 0;
             exu_lsu_mem_r    <= 0;
             exu_lsu_mem_addr <= 0;
@@ -252,6 +254,7 @@ module ysyx_26010027_EXU (
         else if (idu_exu_valid && exu_idu_ready) begin
             exu_lsu_pc       <= idu_exu_pc;
             exu_lsu_snpc     <= snpc;
+            exu_lsu_inst     <= idu_exu_inst;
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
             exu_lsu_mem_addr <= alu_result; // ALU-访存地址
@@ -282,19 +285,10 @@ module ysyx_26010027_EXU (
                   (idu_exu_csr_ecall | idu_exu_csr_mret) ? trap_pc : snpc;
                   
     always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            exu_lsu_dnpc <= 32'b0;
-            exu_lsu_inst <= 32'b0;
-
-        end else if (idu_exu_valid && exu_idu_ready) begin
-            exu_lsu_dnpc <= dnpc;
-            exu_lsu_inst <= idu_exu_inst;
-
-        end
+        if (reset) exu_lsu_dnpc <= 32'b0;
+        else if (idu_exu_valid && exu_idu_ready) exu_lsu_dnpc <= dnpc;
     end
 
-`else
-    wire unused_ok = &{exu_lsu_dnpc};
 `endif
 
 endmodule

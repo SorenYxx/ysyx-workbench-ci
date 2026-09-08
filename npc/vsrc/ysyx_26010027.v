@@ -373,7 +373,6 @@ module ysyx_26010027 (
     wire [ 1:0] exu_lsu_rf_res;
     wire [ 3:0] exu_lsu_waddr;
     wire [31:0] exu_lsu_alu_result;
-    wire [31:0] exu_lsu_dnpc;
 
     wire [11:0] exu_lsu_csr_waddr;
     wire        exu_lsu_csr_we;
@@ -395,19 +394,24 @@ module ysyx_26010027 (
     wire [ 1:0] lsu_wbu_rf_res;
     wire [ 3:0] lsu_wbu_waddr;
     wire [31:0] lsu_wbu_alu_result;
-    wire [31:0] lsu_wbu_dnpc;
     wire [31:0] lsu_wbu_mem_result;
-    wire [31:0] lsu_wbu_mem_addr;
-    wire        lsu_wbu_mem_en;
-    wire        lsu_inflight;
+
+    wire        lsu_exu_inflight;
     wire [11:0] lsu_wbu_csr_waddr;
     wire        lsu_wbu_csr_we;
     wire        lsu_wbu_csr_ecall;
     wire        lsu_wbu_csr_mret;
     wire [31:0] lsu_wbu_csr_wdata;
+
+`ifdef NPC_SIM
+    wire [31:0] exu_lsu_dnpc;
+    wire [31:0] lsu_wbu_dnpc;
+    wire        lsu_wbu_mem_en;
+    wire [31:0] lsu_wbu_mem_addr;
     // ----- unused -----
     wire unused = &{lsu_wbu_dnpc, lsu_wbu_mem_en, lsu_wbu_mem_addr, 1'b1};
     // ------------------
+`endif
 
     // LSU 侧 AXI（连接 arbiter）
     wire        cpu_lsu_arready;
@@ -588,7 +592,6 @@ module ysyx_26010027 (
         .exu_lsu_rf_res    (exu_lsu_rf_res),
         .exu_lsu_waddr     (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
-        .exu_lsu_dnpc      (exu_lsu_dnpc),
         .exu_lsu_csr_waddr (exu_lsu_csr_waddr),
         .exu_lsu_csr_we    (exu_lsu_csr_we),
         .exu_lsu_csr_ecall (exu_lsu_csr_ecall),
@@ -597,6 +600,10 @@ module ysyx_26010027 (
 
         .exu_flush         (exu_flush),
         .exu_flush_pc      (exu_flush_pc),
+
+`ifdef NPC_SIM
+        .exu_lsu_dnpc      (exu_lsu_dnpc),
+`endif
 
         .lsu_wbu_valid     (lsu_wbu_valid),
         .lsu_wbu_reg_w     (lsu_wbu_reg_w),
@@ -608,7 +615,7 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
         .lsu_wbu_snpc      (lsu_wbu_snpc),
-        .lsu_inflight      (lsu_inflight),
+        .lsu_exu_inflight      (lsu_exu_inflight),
         .idu_exu_rdata1    (idu_exu_rdata1),
         .idu_exu_rdata2    (idu_exu_rdata2),
         .idu_exu_csr_rdata (idu_exu_csr_rdata),
@@ -636,7 +643,6 @@ module ysyx_26010027 (
         .exu_lsu_rf_res    (exu_lsu_rf_res),
         .exu_lsu_waddr     (exu_lsu_waddr),
         .exu_lsu_alu_result(exu_lsu_alu_result),
-        .exu_lsu_dnpc      (exu_lsu_dnpc),
         .exu_lsu_csr_waddr (exu_lsu_csr_waddr),
         .exu_lsu_csr_we    (exu_lsu_csr_we),
         .exu_lsu_csr_ecall (exu_lsu_csr_ecall),
@@ -652,16 +658,20 @@ module ysyx_26010027 (
         .lsu_wbu_rf_res    (lsu_wbu_rf_res),
         .lsu_wbu_waddr     (lsu_wbu_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
-        .lsu_wbu_dnpc      (lsu_wbu_dnpc),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
-        .lsu_wbu_mem_en    (lsu_wbu_mem_en),
-        .lsu_wbu_mem_addr  (lsu_wbu_mem_addr),
         .lsu_wbu_csr_waddr (lsu_wbu_csr_waddr),
         .lsu_wbu_csr_we    (lsu_wbu_csr_we),
         .lsu_wbu_csr_ecall (lsu_wbu_csr_ecall),
         .lsu_wbu_csr_mret  (lsu_wbu_csr_mret),
         .lsu_wbu_csr_wdata (lsu_wbu_csr_wdata),
-        .lsu_inflight      (lsu_inflight),
+        .lsu_exu_inflight  (lsu_exu_inflight),
+
+`ifdef NPC_SIM
+        .exu_lsu_dnpc      (exu_lsu_dnpc),
+        .lsu_wbu_dnpc      (lsu_wbu_dnpc),
+        .lsu_wbu_mem_en    (lsu_wbu_mem_en),
+        .lsu_wbu_mem_addr  (lsu_wbu_mem_addr),
+`endif
 
         // AXI
         .cpu_lsu_arready (cpu_lsu_arready),
