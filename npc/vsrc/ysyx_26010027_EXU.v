@@ -84,25 +84,25 @@ module ysyx_26010027_EXU (
     wire [1:0] csr_fwd;
     wire load_use_stall;
 
-    // raw 前递（非 MEM：ALU / CSR / SNPC）
-    wire lsu_fwd_raw = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01);
-    wire wbu_fwd_raw = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01);
+    // raw 前递
+    wire lsu_fwd_raw = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b00); // rf_res选ALU-00
+    wire wbu_fwd_raw = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b00);
     assign fwd_1[0] = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_raw);
     assign fwd_2[0] = (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_raw);
     assign fwd_1[1] = (|idu_exu_raddr1 && idu_exu_raddr1 == lsu_wbu_waddr && wbu_fwd_raw);
     assign fwd_2[1] = (|idu_exu_raddr2 && idu_exu_raddr2 == lsu_wbu_waddr && wbu_fwd_raw);
 
     // load-use 前递
-    wire lsu_fwd_mem = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b01); // rf_res选MEM
+    wire lsu_fwd_mem = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res == 2'b01); // rf_res选MEM-01
     wire wbu_fwd_mem = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res == 2'b01);
-    assign fwd_1[2] = (|idu_exu_raddr1 && idu_exu_raddr1 == lsu_wbu_waddr && wbu_fwd_mem); // rf_res选memory
+    assign fwd_1[2] = (|idu_exu_raddr1 && idu_exu_raddr1 == lsu_wbu_waddr && wbu_fwd_mem);
     assign fwd_2[2] = (|idu_exu_raddr2 && idu_exu_raddr2 == lsu_wbu_waddr && wbu_fwd_mem);
 
-    // 等 load 数据
     assign load_use_stall = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_mem)
                          || (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_mem);
 
-    assign csr_fwd[0] = (|idu_exu_csr_addr && idu_exu_csr_addr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR
+    // CSR 前递
+    assign csr_fwd[0] = (|idu_exu_csr_addr && idu_exu_csr_addr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR-10
     assign csr_fwd[1] = (|idu_exu_csr_addr && idu_exu_csr_addr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
     // ----------------------------
 
@@ -180,7 +180,7 @@ module ysyx_26010027_EXU (
             4'd9:  alu_result = src1 & src2; // and/andi
             4'd10: alu_result = src1 | src2; // or/ori
             4'd11: alu_result = taken ? idu_exu_target : snpc; // branch
-            4'd12: alu_result = src1;       // csrrw
+            4'd12: alu_result = src1; // csrrw
             4'd13: alu_result = src1 | csr_rdata; // csrrs
             default: alu_result = 0;
         endcase

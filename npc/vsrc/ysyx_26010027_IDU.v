@@ -42,7 +42,7 @@ module ysyx_26010027_IDU (
     input      [31:0] wbu_idu_csr_rdata,
     input      [31:0] wbu_idu_rdata1, wbu_idu_rdata2,
     output     [11:0] idu_wbu_csr_raddr,
-    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr（给 WBU 读 GPR，当前指令）
+    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr
 
 );
 
@@ -83,8 +83,6 @@ module ysyx_26010027_IDU (
     wire lb    = I_b && (funct3 == 3'b000);
     wire jalr  = (opcode == 7'b1100111);
 
-    wire i_inst  = addi || slti || slli || srli || srai || sltiu ||
-                   xori || ori || andi || lbu || lhu || lw || lh || lb || jalr;
     wire ld_type = lbu || lhu || lw || lh || lb;
 
     // R-type instructions
@@ -99,15 +97,10 @@ module ysyx_26010027_IDU (
     wire r_or  = inst_R && (funct3 == 3'b110);
     wire r_and = inst_R && (funct3 == 3'b111);
 
-    wire r_inst = add || sub || sll || slt || sltu || srl || sra ||
-                  r_xor || r_or || r_and;
-
     // S-type instructions
     wire sw = inst_S && (funct3 == 3'b010);
     wire sb = inst_S && (funct3 == 3'b000);
     wire sh = inst_S && (funct3 == 3'b001);
-
-    wire s_inst = sw || sb || sh;
 
     // B-type instructions
     wire bne  = inst_B && (funct3 == 3'b001);
@@ -116,8 +109,6 @@ module ysyx_26010027_IDU (
     wire bge  = inst_B && (funct3 == 3'b101);
     wire bltu = inst_B && (funct3 == 3'b110);
     wire bgeu = inst_B && (funct3 == 3'b111);
-
-    wire b_inst = bne || beq || blt || bge || bltu || bgeu;
 
     // U-type & J-type
     wire lui   = (opcode == 7'b0110111);
@@ -138,13 +129,13 @@ module ysyx_26010027_IDU (
     wire csrrc    = I_c && (funct3 == 3'b011);
     wire csr_ecall = (inst == 32'h00000073);
     wire csr_mret  = (inst == 32'h30200073);
-    wire csr_inst  = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
-    wire [11:0] csr_addr  = imm[11:0];
+    wire [11:0] csr_addr = imm[11:0];
 
     // --------------------------
 
+
     // Control signals
-    wire [1:0] jump = (jalr) ? 2'b01 :
+    wire [1:0] jump = jalr      ? 2'b01 :
                       csr_ecall ? 2'b10 :
                       csr_mret  ? 2'b11 :
                       2'b00; // jal
@@ -162,7 +153,7 @@ module ysyx_26010027_IDU (
                         (jal || jalr)             ? 2'b11 :  // PC+4
                         2'b00; // ALU
 
-    wire [3:0] alu_op = (sub)           ? 4'd1  :
+    wire [3:0] alu_op = sub             ? 4'd1  :
                         lui             ? 4'd2  :
                         (sll || slli)   ? 4'd3  :
                         (srl || srli)   ? 4'd4  :
@@ -194,10 +185,7 @@ module ysyx_26010027_IDU (
                        lhu ? 3'd4 :
                        3'd5;
 
-    wire fence_i = (inst == 32'h0000100F);
-    wire ebreak  = (inst == 32'h00100073);
-
-    wire [31:0] target = ifu_idu_pc + b_imm;
+    wire [31:0] target = ifu_idu_pc + b_imm; // branch
     wire [ 4:0] raddr1 = inst[19:15];
     wire [ 4:0] raddr2 = inst[24:20];
     wire [ 4:0] waddr  = inst[11:7];
@@ -207,6 +195,7 @@ module ysyx_26010027_IDU (
     assign idu_wbu_raddr2 = raddr2;
     assign idu_wbu_csr_raddr = csr_addr;
 
+  // handshake
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin
       if (reset) begin
@@ -286,15 +275,28 @@ module ysyx_26010027_IDU (
     end
 
 
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
     // Illegal instruction detection
+    wire i_inst  = addi || slti || slli || srli || srai || sltiu ||
+                   xori || ori || andi || lbu || lhu || lw || lh || lb || jalr;
+
+    wire r_inst = add || sub || sll || slt || sltu || srl || sra ||
+                  r_xor || r_or || r_and;
+
+    wire s_inst = sw || sb || sh;
+
+    wire b_inst = bne || beq || blt || bge || bltu || bgeu;
+
+    wire csr_inst  = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
+
+    wire fence_i = (inst == 32'h0000100F);
+    wire ebreak  = (inst == 32'h00100073);
+
     wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
                      lui || auipc || jal || csr_inst || ebreak || fence_i);
     always @(posedge clock)
       if (ifu_idu_valid && idu_ifu_ready && !exu_flush && illegal && (inst != 32'b0))
         is_illegal_inst();
-`endif
 `endif
 
 endmodule
