@@ -185,6 +185,9 @@ module ysyx_26010027_IDU (
                        lhu ? 3'd4 :
                        3'd5;
 
+    wire fence_i = (inst == 32'h0000100F);
+    wire ebreak  = (inst == 32'h00100073);
+    
     wire [31:0] target = ifu_idu_pc + b_imm; // branch
     wire [ 4:0] raddr1 = inst[19:15];
     wire [ 4:0] raddr2 = inst[24:20];
@@ -288,9 +291,6 @@ module ysyx_26010027_IDU (
     wire b_inst = bne || beq || blt || bge || bltu || bgeu;
 
     wire csr_inst  = csrrw || csrrs || csrrc || csr_ecall || csr_mret;
-
-    wire fence_i = (inst == 32'h0000100F);
-    wire ebreak  = (inst == 32'h00100073);
 
     wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
                      lui || auipc || jal || csr_inst || ebreak || fence_i);
