@@ -70,7 +70,7 @@ all: sim compile run
 capstone:
 	$(MAKE) -C $(NPC_HOME)/src/tools/capstone
 
-compile: $(SRC_AUTO_BIND) capstone
+compile: $(SRC_AUTO_BIND) capstone $(NVBOARD_ARCHIVE)
 	@mkdir -p $(OBJ_DIR)
 	@$(SIMULATOR) $(VERILATOR_FLAGS) -Wall --autoflush --cc --exe --build --trace-fst --top-module $(TOP) \
 		-Wno-DECLFILENAME \
