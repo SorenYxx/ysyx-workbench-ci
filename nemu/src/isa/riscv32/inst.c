@@ -100,8 +100,8 @@ word_t csr_read(word_t addr) {
 void csr_write(word_t addr, word_t data) {
   addr &= 0xfff;
   switch (addr) {
-    case 0xf11: ; // mvendorid "ysyx"
-    case 0xf12: ; // marchid
+    case 0xf11: return; // mvendorid "ysyx"
+    case 0xf12: return; // marchid
     case 0x300: cpu.mstatus = data; return;
     case 0x305: cpu.mtvec = data; return;
     case 0x341: cpu.mepc = data; return;

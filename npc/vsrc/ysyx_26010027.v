@@ -339,15 +339,15 @@ module ysyx_26010027 (
     wire        idu_exu_alu_arc2;
     wire        idu_exu_reg_w;
     wire [ 1:0] idu_exu_rf_res;
-    wire [ 4:0] idu_exu_waddr;
+    wire [ 3:0] idu_exu_waddr;
     wire [ 1:0] idu_exu_jump;
     wire [ 2:0] idu_exu_branch;
     wire        idu_exu_fencei;
 
     wire [31:0] idu_exu_rdata1;
     wire [31:0] idu_exu_rdata2;
-    wire [ 4:0] idu_exu_raddr1;
-    wire [ 4:0] idu_exu_raddr2;
+    wire [ 3:0] idu_exu_raddr1;
+    wire [ 3:0] idu_exu_raddr2;
 
     wire [11:0] idu_exu_csr_addr;
     wire [31:0] idu_exu_csr_rdata;
@@ -356,8 +356,8 @@ module ysyx_26010027 (
     wire        idu_exu_csr_mret;
 
     wire [11:0] idu_wbu_csr_raddr; 
-    wire [ 4:0] idu_wbu_raddr1;
-    wire [ 4:0] idu_wbu_raddr2;
+    wire [ 3:0] idu_wbu_raddr1;
+    wire [ 3:0] idu_wbu_raddr2;
 
     // EXU -> LSU
     wire        lsu_exu_ready;
@@ -371,7 +371,7 @@ module ysyx_26010027 (
     wire [31:0] exu_lsu_wdata;
     wire        exu_lsu_reg_w;
     wire [ 1:0] exu_lsu_rf_res;
-    wire [ 4:0] exu_lsu_waddr;
+    wire [ 3:0] exu_lsu_waddr;
     wire [31:0] exu_lsu_alu_result;
     wire [31:0] exu_lsu_dnpc;
 
@@ -393,7 +393,7 @@ module ysyx_26010027 (
     wire [31:0] lsu_wbu_inst;
     wire        lsu_wbu_reg_w;
     wire [ 1:0] lsu_wbu_rf_res;
-    wire [ 4:0] lsu_wbu_waddr;
+    wire [ 3:0] lsu_wbu_waddr;
     wire [31:0] lsu_wbu_alu_result;
     wire [31:0] lsu_wbu_dnpc;
     wire [31:0] lsu_wbu_mem_result;
@@ -835,7 +835,7 @@ module ysyx_26010027 (
 
             // ftrace
             if (idu_exu_valid && exu_idu_ready && idu_exu_jump == 2'b01) begin
-                ftrace_print(idu_exu_pc, exu_flush_pc, {27'b0, idu_exu_waddr}, {27'b0, idu_exu_inst[19:15]});
+                ftrace_print(idu_exu_pc, exu_flush_pc, {28'b0, idu_exu_waddr}, {27'b0, idu_exu_inst[19:15]});
             end
 
             // ebreak

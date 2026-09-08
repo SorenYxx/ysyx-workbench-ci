@@ -16,7 +16,7 @@ module ysyx_26010027_LSU (
     input      [31:0] exu_lsu_inst,
     input             exu_lsu_reg_w,
     input      [ 1:0] exu_lsu_rf_res,
-    input      [ 4:0] exu_lsu_waddr,
+    input      [ 3:0] exu_lsu_waddr,
     input      [31:0] exu_lsu_alu_result,
 
     input      [11:0] exu_lsu_csr_waddr,
@@ -34,7 +34,7 @@ module ysyx_26010027_LSU (
     output reg [31:0] lsu_wbu_inst,
     output reg        lsu_wbu_reg_w,
     output reg [ 1:0] lsu_wbu_rf_res,
-    output reg [ 4:0] lsu_wbu_waddr,
+    output reg [ 3:0] lsu_wbu_waddr,
     output reg [31:0] lsu_wbu_alu_result,
     output reg [31:0] lsu_wbu_mem_result,
 
@@ -210,7 +210,7 @@ module ysyx_26010027_LSU (
             lsu_wbu_inst       <= 32'b0;
             lsu_wbu_reg_w      <= 1'b0;
             lsu_wbu_rf_res     <= 2'b0;
-            lsu_wbu_waddr      <= 5'b0;
+            lsu_wbu_waddr      <= 4'b0;
             lsu_wbu_alu_result <= 32'b0;
             lsu_wbu_mem_result <= 32'b0;
             lsu_wbu_csr_waddr  <= 12'b0;
@@ -229,8 +229,6 @@ module ysyx_26010027_LSU (
                 // 非访存相关数据透传
                 lsu_wbu_pc         <= exu_lsu_pc;
                 lsu_wbu_snpc       <= exu_lsu_snpc;
-                lsu_wbu_dnpc       <= exu_lsu_dnpc;
-                lsu_wbu_inst       <= exu_lsu_inst;
                 lsu_wbu_reg_w      <= exu_lsu_reg_w;
                 lsu_wbu_rf_res     <= exu_lsu_rf_res;
                 lsu_wbu_waddr      <= exu_lsu_waddr;
@@ -241,11 +239,6 @@ module ysyx_26010027_LSU (
                 lsu_wbu_csr_ecall  <= exu_lsu_csr_ecall;
                 lsu_wbu_csr_mret   <= exu_lsu_csr_mret;
                 lsu_wbu_csr_wdata  <= exu_lsu_csr_wdata;
-
-                // ----- DIFFTEST DEVICE -----
-                lsu_wbu_mem_en     <= (exu_lsu_mem_r != 3'd5) | (exu_lsu_mem_w != 2'b11); // 访存相关标志
-                lsu_wbu_mem_addr   <= exu_lsu_mem_addr; // 访存地址
-                // ---------------------------
 
                 // 访存相关锁存
                 l_mem_w            <= exu_lsu_mem_w;
@@ -258,5 +251,26 @@ module ysyx_26010027_LSU (
                 lsu_wbu_mem_result <= mem_rdata;
         end
     end
-    
+
+
+//  DIFFTEST
+`ifdef NPC_SIM
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            lsu_wbu_dnpc     <= 32'b0;
+            lsu_wbu_inst     <= 32'b0;
+            lsu_wbu_mem_en   <= 1'b0;
+            lsu_wbu_mem_addr <= 32'b0;
+        end else if (exu_lsu_valid && lsu_exu_ready) begin
+            lsu_wbu_dnpc     <= exu_lsu_dnpc;
+            lsu_wbu_inst     <= exu_lsu_inst;
+            lsu_wbu_mem_en   <= (exu_lsu_mem_r != 3'd5) | (exu_lsu_mem_w != 2'b11); // 访存相关标志
+            lsu_wbu_mem_addr <= exu_lsu_mem_addr; // 访存地址
+        end
+    end
+
+`else
+    wire unused_ok = &{exu_lsu_dnpc, exu_lsu_inst, lsu_wbu_mem_en, lsu_wbu_mem_addr};
+`endif
+
 endmodule

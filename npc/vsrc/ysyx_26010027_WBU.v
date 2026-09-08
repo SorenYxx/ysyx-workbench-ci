@@ -2,7 +2,7 @@ module ysyx_26010027_WBU (
     input             clock,
     input             reset,
 
-    input      [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2, 
+    input      [ 3:0] idu_wbu_raddr1, idu_wbu_raddr2, 
     input      [ 1:0] lsu_wbu_rf_res, // reg 的 wdata 选择
 
     output     [31:0] wbu_idu_rdata1,
@@ -16,7 +16,7 @@ module ysyx_26010027_WBU (
     input      [31:0] lsu_wbu_pc,
     input      [31:0] lsu_wbu_snpc,
     input             lsu_wbu_reg_w,
-    input      [ 4:0] lsu_wbu_waddr,
+    input      [ 3:0] lsu_wbu_waddr,
     input      [31:0] lsu_wbu_alu_result,
     input      [31:0] lsu_wbu_mem_result,
 
@@ -30,12 +30,12 @@ module ysyx_26010027_WBU (
 );
 
     wire [31:0] wdata;
-    wire [ 4:0] waddr;
+    wire [ 3:0] waddr;
 
-    assign wdata = (lsu_wbu_reg_w) ? ((lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result : // ALU | CSR
+    assign wdata = (lsu_wbu_rf_res == 2'b00 | lsu_wbu_rf_res == 2'b10) ? lsu_wbu_alu_result : // ALU | CSR
                    (lsu_wbu_rf_res == 2'b01) ? lsu_wbu_mem_result : // MEM
-                   lsu_wbu_snpc) : 0; // SNPC
-    assign waddr = (lsu_wbu_reg_w) ? lsu_wbu_waddr : 0;
+                   lsu_wbu_snpc; // SNPC
+    assign waddr = lsu_wbu_waddr;
     assign wbu_lsu_ready = lsu_wbu_valid;
 
     ysyx_26010027_GPR my_gpr (

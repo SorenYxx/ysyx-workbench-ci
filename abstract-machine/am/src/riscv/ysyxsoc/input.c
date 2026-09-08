@@ -26,8 +26,3 @@ void __am_input_keybrd(AM_INPUT_KEYBRD_T *kbd) {
 		kbd->keydown = true;
 	}
 }
-
-void __am_uart_input(AM_UART_RX_T *uart) {
-  if (inb(UART_LSR) & 0x01) uart->data = inb(UART_RX);
-  else uart->data = 0xff;
-}

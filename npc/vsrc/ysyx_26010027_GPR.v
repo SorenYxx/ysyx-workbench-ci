@@ -4,11 +4,11 @@ module ysyx_26010027_GPR #(
 ) (
     input               clock,
     input               reset,
-    input       [ 4:0]  waddr,
+    input       [ 3:0]  waddr,
     input       [31:0]  wdata,
     input               wen,
-    input       [ 4:0]  raddr1,
-    input       [ 4:0]  raddr2,
+    input       [ 3:0]  raddr1,
+    input       [ 3:0]  raddr2,
     output      [31:0]  rdata1,
     output      [31:0]  rdata2
 );
@@ -22,20 +22,20 @@ module ysyx_26010027_GPR #(
                 rf[i] <= 0;
             end
         end else if (wen && (waddr != 0)) begin
-            rf[waddr[ADDR_WIDTH-1:0]] <= wdata;
+            rf[waddr] <= wdata;
 `ifndef __ICARUS__
 `ifndef SYNTHESIS
-            get_reg({27'b0, waddr}, wdata);
+            get_reg({28'b0, waddr}, wdata);
 `endif
 `endif
         end
     end
 
     assign rdata1 = (raddr1 == 0) ? 32'b0 :
-                    (wen && (waddr[ADDR_WIDTH-1:0] == raddr1[ADDR_WIDTH-1:0])) ? wdata :
-                    rf[raddr1[ADDR_WIDTH-1:0]];
+                    (wen && (waddr == raddr1)) ? wdata :
+                    rf[raddr1];
     assign rdata2 = (raddr2 == 0) ? 32'b0 :
-                    (wen && (waddr[ADDR_WIDTH-1:0] == raddr2[ADDR_WIDTH-1:0])) ? wdata :
-                    rf[raddr2[ADDR_WIDTH-1:0]];
+                    (wen && (waddr == raddr2)) ? wdata :
+                    rf[raddr2];
 
 endmodule

@@ -22,14 +22,14 @@ module ysyx_26010027_IDU (
     output reg        idu_exu_alu_arc2,
     output reg        idu_exu_reg_w,
     output reg [ 1:0] idu_exu_rf_res,
-    output reg [ 4:0] idu_exu_waddr,
+    output reg [ 3:0] idu_exu_waddr,
 
     output reg [ 1:0] idu_exu_jump,
     output reg [ 2:0] idu_exu_branch,
     output reg        idu_exu_fencei,
     input             exu_flush,
 
-    output reg [ 4:0] idu_exu_raddr1, idu_exu_raddr2,
+    output reg [ 3:0] idu_exu_raddr1, idu_exu_raddr2,
     output reg [31:0] idu_exu_rdata1, idu_exu_rdata2, // 读寄存器数据
 
     output reg [11:0] idu_exu_csr_addr,
@@ -42,7 +42,7 @@ module ysyx_26010027_IDU (
     input      [31:0] wbu_idu_csr_rdata,
     input      [31:0] wbu_idu_rdata1, wbu_idu_rdata2,
     output     [11:0] idu_wbu_csr_raddr,
-    output     [ 4:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr
+    output     [ 3:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr
 
 );
 
@@ -189,9 +189,9 @@ module ysyx_26010027_IDU (
     wire ebreak  = (inst == 32'h00100073);
     
     wire [31:0] target = ifu_idu_pc + b_imm; // branch
-    wire [ 4:0] raddr1 = inst[19:15];
-    wire [ 4:0] raddr2 = inst[24:20];
-    wire [ 4:0] waddr  = inst[11:7];
+    wire [ 3:0] raddr1 = inst[18:15];
+    wire [ 3:0] raddr2 = inst[23:20];
+    wire [ 3:0] waddr  = inst[10:7];
 
     // to WBU
     assign idu_wbu_raddr1 = raddr1;
@@ -228,13 +228,13 @@ module ysyx_26010027_IDU (
         idu_exu_alu_arc2 <= 1'd0;
         idu_exu_reg_w    <= 1'd0;
         idu_exu_rf_res   <= 2'd0;
-        idu_exu_waddr    <= 5'd0;
+        idu_exu_waddr    <= 4'd0;
         idu_exu_jump     <= 2'd0;
         idu_exu_branch   <= 3'd6;
         idu_exu_fencei   <= 1'd0;
 
-        idu_exu_raddr1    <= 5'd0;
-        idu_exu_raddr2    <= 5'd0;
+        idu_exu_raddr1    <= 4'd0;
+        idu_exu_raddr2    <= 4'd0;
         idu_exu_rdata1    <= 32'd0;
         idu_exu_rdata2    <= 32'd0;
 
@@ -294,6 +294,7 @@ module ysyx_26010027_IDU (
 
     wire illegal = !(i_inst || r_inst || s_inst || b_inst ||
                      lui || auipc || jal || csr_inst || ebreak || fence_i);
+
     always @(posedge clock)
       if (ifu_idu_valid && idu_ifu_ready && !exu_flush && illegal && (inst != 32'b0))
         is_illegal_inst();
