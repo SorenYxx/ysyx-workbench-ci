@@ -1,0 +1,33 @@
+From c673c3725455028d5e8e489b8cb96b3468f1e193 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Tue, 8 Sep 2026 09:15:32 +0800
+Subject: [PATCH] =?UTF-8?q?bsp/abstract-machine:=20=E6=8A=91=E5=88=B6=20el?=
+ =?UTF-8?q?mfat=20stringop-overflow=20=E5=91=8A=E8=AD=A6?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+GCC 11 的 -Wstringop-overflow（-Wall 隐含）误报 elmfat gen_numname 写越界，
+而 AM 构建全局带 -Werror，导致 ff.c 编译失败、CI make run 中断。
+与已有的 -Wno-nonnull-compare 同理，加 -Wno-stringop-overflow 压制。
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+---
+ bsp/abstract-machine/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/bsp/abstract-machine/Makefile b/bsp/abstract-machine/Makefile
+index 51ae6b0eb..ef29bb31d 100644
+--- a/bsp/abstract-machine/Makefile
++++ b/bsp/abstract-machine/Makefile
+@@ -8,6 +8,7 @@ NAME = rtthread
+ SRCS = $(shell find src -name "*.c")
+ CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
+ CFLAGS += -Wno-nonnull-compare
++CFLAGS += -Wno-stringop-overflow
+ 
+ ifneq ($(findstring ysyxsoc,$(ARCH)),)
+   LDFLAGS +=
+-- 
+2.43.0
+
