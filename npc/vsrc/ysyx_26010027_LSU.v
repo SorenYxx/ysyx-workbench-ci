@@ -108,8 +108,13 @@ module ysyx_26010027_LSU (
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
-    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // ！！桶形移位
-    wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
+    wire [31:0] wdata_shifted = (l_mem_addr[1:0] == 2'b00) ? (l_wdata << 0) :
+                                (l_mem_addr[1:0] == 2'b01) ? (l_wdata << 8) :
+                                (l_mem_addr[1:0] == 2'b10) ? (l_wdata << 16) : (l_wdata << 24);
+
+    wire [31:0] rdata_shifted = (l_mem_addr[1:0] == 2'b00) ? cpu_lsu_rdata :
+                                (l_mem_addr[1:0] == 2'b01) ? (cpu_lsu_rdata >> 8) :
+                                (l_mem_addr[1:0] == 2'b10) ? (cpu_lsu_rdata >> 16) : (cpu_lsu_rdata >> 24);
 
     assign lsu_cpu_awaddr  = l_mem_addr;
     assign lsu_cpu_araddr  = l_mem_addr;
