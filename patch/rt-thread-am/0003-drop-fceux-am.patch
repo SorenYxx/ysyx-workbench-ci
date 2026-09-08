@@ -1,0 +1,33 @@
+From 1e2346fa905ebf891bde82ed5fd884e7a080b46b Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Tue, 8 Sep 2026 09:05:29 +0800
+Subject: [PATCH] =?UTF-8?q?bsp/abstract-machine:=20=E7=A7=BB=E9=99=A4=20fc?=
+ =?UTF-8?q?eux-am=20=E9=9B=86=E6=88=90?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+fceux-am 未随仓库提交（git-ignored），CI 克隆后该目录不存在，
+integrate-am-apps.py 会因此 FileNotFoundError 崩溃。从 app_dir_list 去掉。
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+---
+ bsp/abstract-machine/integrate-am-apps.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/bsp/abstract-machine/integrate-am-apps.py b/bsp/abstract-machine/integrate-am-apps.py
+index 8968df387..fec3b7884 100644
+--- a/bsp/abstract-machine/integrate-am-apps.py
++++ b/bsp/abstract-machine/integrate-am-apps.py
+@@ -11,7 +11,7 @@ app_dir_list = [
+   AM_KERNELS_HOME / "benchmarks" / "microbench",
+   AM_KERNELS_HOME / "kernels" / "typing-game",
+   AM_KERNELS_HOME / "kernels" / "snake",
+-  AM_KERNELS_HOME / ".." / "fceux-am",
++#  AM_KERNELS_HOME / ".." / "fceux-am",
+ ]
+ 
+ if len(sys.argv) != 3:
+-- 
+2.43.0
+
