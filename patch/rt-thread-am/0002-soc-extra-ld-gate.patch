@@ -1,0 +1,43 @@
+From a4158822ee1d9127df2bfab4ced790d4bd4fc9c3 Mon Sep 17 00:00:00 2001
+From: Soren <3319253385@qq.com>
+Date: Tue, 8 Sep 2026 08:23:56 +0800
+Subject: [PATCH] =?UTF-8?q?bsp/abstract-machine:=20=E6=94=B9=E7=94=A8=20AR?=
+ =?UTF-8?q?CH=20=E9=97=A8=E6=8E=A7=20extra.ld=20=E9=80=82=E9=85=8D=20SoC?=
+ =?UTF-8?q?=20=E9=93=BE=E6=8E=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+SoC 路径（ysyxsoc.ld）已内嵌 RT-Thread/am_apps section，不再链接 extra.ld；
+nemu/npc 仍走 flat linker.ld + extra.ld。原 CONFIG_SOC 门控在链接期为空，
+改为按 ARCH 是否含 ysyxsoc 判断。
+
+Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
+---
+ bsp/abstract-machine/Makefile | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/bsp/abstract-machine/Makefile b/bsp/abstract-machine/Makefile
+index 29993c9a0..51ae6b0eb 100644
+--- a/bsp/abstract-machine/Makefile
++++ b/bsp/abstract-machine/Makefile
+@@ -8,11 +8,13 @@ NAME = rtthread
+ SRCS = $(shell find src -name "*.c")
+ CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
+ CFLAGS += -Wno-nonnull-compare
+-ifeq ($(CONFIG_SOC), n)
+-  -LDFLAGS += -T extra.ld
++
++ifneq ($(findstring ysyxsoc,$(ARCH)),)
++  LDFLAGS +=
+ else
+-  -LDFLAGS +=
++  LDFLAGS += -T extra.ld
+ endif
++
+ -include $(FILE_MK)
+ -include $(AM_APPS_MK)
+ include $(AM_HOME)/Makefile
+-- 
+2.43.0
+

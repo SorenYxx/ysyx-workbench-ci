@@ -35,7 +35,6 @@ module ysyx_26010027_IFU (
     wire [31:0] imm_J = {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0};
     wire branch = (opcode == 7'b1100011);
     wire jump   = (opcode == 7'b1101111); // jal
-    // wire fencei = (ifu_idu_inst == 32'h0000100f); // fence.i
 
     // state
     reg [1:0] state;
@@ -131,13 +130,6 @@ module ysyx_26010027_IFU (
             flush_ar_sent <= 1'b0;
         end
     end
-
-    // // fence.i handle
-    // always @(posedge clock, posedge reset) begin
-    //     if (reset) fence_pend <= 1'b0;
-    //     else if (exu_flush) fence_pend <= 1'b0;
-    //     else if (ifu_idu_valid && idu_ifu_ready && fencei) fence_pend <= 1'b1;
-    // end
 
     always @(posedge clock, posedge reset) begin
         if (reset) begin
