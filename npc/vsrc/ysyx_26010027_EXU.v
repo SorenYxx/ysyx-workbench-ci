@@ -138,12 +138,10 @@ module ysyx_26010027_EXU (
     end
 
     // 非锁存 or load-use返回 正常选择
-    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc : 
-                  (latch_flag & !fwd_1[2]) ? rdata1_q : 
-                  rdata1;
-    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : 
-                  (latch_flag & !fwd_2[2]) ? rdata2_q : 
-                  rdata2;
+    wire [31:0] rdata1_sel = (latch_flag & !fwd_1[2]) ? rdata1_q : rdata1;
+    wire [31:0] rdata2_sel = (latch_flag & !fwd_2[2]) ? rdata2_q : rdata2;
+    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1_sel;
+    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2_sel;
 
     // branch
     wire eq  = (src1 == src2);
@@ -258,7 +256,7 @@ module ysyx_26010027_EXU (
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
             exu_lsu_mem_addr <= alu_result; // ALU-访存地址
-            exu_lsu_wdata    <= (latch_flag & !fwd_2[2]) ? rdata2_q : rdata2; // rdata2寄存器
+            exu_lsu_wdata    <= rdata2_sel; // rdata2寄存器
 
             exu_lsu_reg_w      <= idu_exu_reg_w;
             exu_lsu_rf_res     <= idu_exu_rf_res;

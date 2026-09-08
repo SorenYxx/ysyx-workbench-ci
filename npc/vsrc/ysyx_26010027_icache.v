@@ -123,11 +123,8 @@ module ysyx_26010027_icache (
             rvalid_o  <= 1'b0;
             rdata_o   <= 32'b0;
             for (i = 0; i < SET_NUMS; i++) begin
-                for (j = 0; j < WAYS; j++) begin
+                for (j = 0; j < WAYS; j++)
                     valid[i][j] <= 1'b0;
-                    tag  [i][j] <= {TAG_W{1'b0}};
-                    data [i][j] <= {BLOCK_SIZE*8{1'b0}};
-                end
                 repl_cnt[i] <= {WAY_W{1'b0}};
             end
         end else begin
@@ -157,7 +154,6 @@ module ysyx_26010027_icache (
                         end
                     end
                 end
-// `ifdef TOP_SOC
                 WAIT: begin
                     if (handshake_ar) begin
                         arvalid_o <= 1'b0;
@@ -192,9 +188,6 @@ module ysyx_26010027_icache (
     end
 
     wire unused_ok = &{ifu_araddr[1:0], 1'b1};
-// `else
-
-// `endif
 
 `else
     assign arb_arvalid = ifu_arvalid;

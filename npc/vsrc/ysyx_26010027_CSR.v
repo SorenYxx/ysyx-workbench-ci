@@ -34,17 +34,14 @@ module ysyx_26010027_CSR (
             if (csr_ecall) begin  // ecall
                 mepc   <= pc;
                 mcause <= 32'd11;  // M-mode
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
                 get_csr({20'b0, 12'h341}, pc);
                 get_csr({20'b0, 12'h342}, 32'd11);
 `endif
-`endif
-            end else if (csr_we && !csr_ecall && !csr_mret) begin
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+            end 
+            else if (csr_we && !csr_ecall && !csr_mret) begin
+`ifdef NPC_SIM
                 get_csr({20'b0, csr_waddr}, csr_wdata);
-`endif
 `endif
                 case (csr_waddr)
                     12'h300: mstatus <= csr_wdata;
@@ -52,10 +49,8 @@ module ysyx_26010027_CSR (
                     12'h341: mepc    <= csr_wdata;
                     12'h342: mcause  <= csr_wdata;
                     default: begin
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
                         $fatal(1, "Warning: Write to unknown CSR address %h", csr_waddr);
-`endif
 `endif
                     end
                 endcase

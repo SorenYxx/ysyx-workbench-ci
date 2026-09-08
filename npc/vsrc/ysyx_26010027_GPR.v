@@ -23,10 +23,8 @@ module ysyx_26010027_GPR #(
             end
         end else if (wen && (waddr != 0)) begin
             rf[waddr] <= wdata;
-`ifndef __ICARUS__
-`ifndef SYNTHESIS
+`ifdef NPC_SIM
             get_reg({28'b0, waddr}, wdata);
-`endif
 `endif
         end
     end

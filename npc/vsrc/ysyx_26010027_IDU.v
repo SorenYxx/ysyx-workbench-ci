@@ -215,37 +215,8 @@ module ysyx_26010027_IDU (
       end
     end
 
-    always @(posedge clock or posedge reset) begin
-      if (reset) begin
-        idu_exu_pc       <= 32'd0;
-        idu_exu_inst     <= 32'b0;
-        idu_exu_target   <= 32'd0;
-        idu_exu_imm      <= 32'd0;
-        idu_exu_alu_op   <= 4'd0;
-        idu_exu_mem_w    <= 2'd0;
-        idu_exu_mem_r    <= 3'd0;
-        idu_exu_alu_arc1 <= 1'd0;
-        idu_exu_alu_arc2 <= 1'd0;
-        idu_exu_reg_w    <= 1'd0;
-        idu_exu_rf_res   <= 2'd0;
-        idu_exu_waddr    <= 4'd0;
-        idu_exu_jump     <= 2'd0;
-        idu_exu_branch   <= 3'd6;
-        idu_exu_fencei   <= 1'd0;
-
-        idu_exu_raddr1    <= 4'd0;
-        idu_exu_raddr2    <= 4'd0;
-        idu_exu_rdata1    <= 32'd0;
-        idu_exu_rdata2    <= 32'd0;
-
-        idu_exu_csr_addr  <= 12'd0;
-        idu_exu_csr_rdata <= 32'd0; 
-        idu_exu_csr_we    <= 1'd0;
-        idu_exu_csr_ecall <= 1'd0;
-        idu_exu_csr_mret  <= 1'd0;
-
-      end 
-      else if (ifu_idu_valid && idu_ifu_ready) begin
+    always @(posedge clock) begin
+      if (ifu_idu_valid && idu_ifu_ready) begin
         idu_exu_pc       <= ifu_idu_pc;
         idu_exu_inst     <= ifu_idu_inst;
         idu_exu_target   <= target; // pc + imm
