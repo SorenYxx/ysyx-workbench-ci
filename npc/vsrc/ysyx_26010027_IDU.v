@@ -32,9 +32,8 @@ module ysyx_26010027_IDU (
     output reg [ 4:0] idu_exu_raddr1, idu_exu_raddr2,
     output reg [31:0] idu_exu_rdata1, idu_exu_rdata2, // 读寄存器数据
 
-    output reg [11:0] idu_exu_csr_raddr,
+    output reg [11:0] idu_exu_csr_addr,
     output reg [31:0] idu_exu_csr_rdata, // 读 CSR 数据
-    output reg [11:0] idu_exu_csr_waddr,
     output reg        idu_exu_csr_we,
     output reg        idu_exu_csr_ecall,
     output reg        idu_exu_csr_mret,
@@ -128,10 +127,10 @@ module ysyx_26010027_IDU (
     // Immediate generation
     wire [31:0] imm = (inst_I) ? {{20{inst[31]}}, inst[31:20]} :
                 (inst_S) ? {{20{inst[31]}}, inst[31:25], inst[11:7]} :
-                (inst_B) ? {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0} :
                 (inst_U) ? {inst[31:12], 12'b0} :
                 (inst_J) ? {{11{inst[31]}}, inst[31], inst[19:12], inst[20], inst[30:21], 1'b0} :
                 32'b0;
+    wire [31:0] b_imm = {{20{inst[31]}}, inst[7], inst[30:25], inst[11:8], 1'b0};
 
     // CSR instructions
     wire csrrw    = I_c && (funct3 == 3'b001);
@@ -169,20 +168,19 @@ module ysyx_26010027_IDU (
                         (srl || srli)   ? 4'd4  :
                         (sra || srai)   ? 4'd5  :
                         (slt || slti)   ? 4'd6  :
-                        sltiu           ? 4'd7  :
-                        sltu            ? 4'd8  :
-                        (r_xor || xori) ? 4'd9  :
-                        (r_and || andi) ? 4'd10 :
-                        (r_or  || ori)  ? 4'd11 :
-                        inst_B          ? 4'd12 :
-                        csrrw           ? 4'd13 :
-                        csrrs           ? 4'd14 :
+                        (sltiu || sltu) ? 4'd7  :
+                        (r_xor || xori) ? 4'd8  :
+                        (r_and || andi) ? 4'd9  :
+                        (r_or  || ori)  ? 4'd10 :
+                        inst_B          ? 4'd11 :
+                        csrrw           ? 4'd12 :
+                        csrrs           ? 4'd13 :
                         4'd0; // 加法alu
 
     wire alu_arc1 = (jal || auipc);                        // 0: src1, 1: pc
     wire alu_arc2 = (inst_I || inst_S || auipc || inst_J); // 0: src2, 1: imm
 
-    wire reg_w = (inst_I || inst_R || inst_J || inst_U || csrrw);
+    wire reg_w = (inst_I || inst_R || inst_J || inst_U);
 
     wire [1:0] mem_w = sw ? 2'b00 :
                        sb ? 2'b01 :
@@ -199,7 +197,7 @@ module ysyx_26010027_IDU (
     wire fence_i = (inst == 32'h0000100F);
     wire ebreak  = (inst == 32'h00100073);
 
-    wire [31:0] target = branch != 3'd6 ? ifu_idu_pc + imm : 32'b0;
+    wire [31:0] target = ifu_idu_pc + b_imm;
     wire [ 4:0] raddr1 = inst[19:15];
     wire [ 4:0] raddr2 = inst[24:20];
     wire [ 4:0] waddr  = inst[11:7];
@@ -248,9 +246,8 @@ module ysyx_26010027_IDU (
         idu_exu_rdata1    <= 32'd0;
         idu_exu_rdata2    <= 32'd0;
 
-        idu_exu_csr_raddr <= 12'd0;
+        idu_exu_csr_addr  <= 12'd0;
         idu_exu_csr_rdata <= 32'd0; 
-        idu_exu_csr_waddr <= 12'd0;
         idu_exu_csr_we    <= 1'd0;
         idu_exu_csr_ecall <= 1'd0;
         idu_exu_csr_mret  <= 1'd0;
@@ -278,9 +275,8 @@ module ysyx_26010027_IDU (
         idu_exu_rdata1    <= wbu_idu_rdata1;
         idu_exu_rdata2    <= wbu_idu_rdata2;
 
-        idu_exu_csr_raddr <= csr_addr;
+        idu_exu_csr_addr  <= csr_addr;
         idu_exu_csr_rdata <= wbu_idu_csr_rdata;
-        idu_exu_csr_waddr <= csr_addr;
         idu_exu_csr_we    <= csrrw;
         idu_exu_csr_ecall <= csr_ecall;
         idu_exu_csr_mret  <= csr_mret;

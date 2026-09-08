@@ -22,7 +22,7 @@ module ysyx_26010027_EXU (
     input      [ 2:0] idu_exu_branch,
     input             idu_exu_fencei,
 
-    input      [11:0] idu_exu_csr_waddr,
+    input      [11:0] idu_exu_csr_addr,
     input             idu_exu_csr_we,
     input             idu_exu_csr_ecall,
     input             idu_exu_csr_mret,
@@ -61,7 +61,6 @@ module ysyx_26010027_EXU (
     input             lsu_wbu_csr_we,
     input      [ 1:0] lsu_wbu_rf_res,
     input      [ 4:0] idu_exu_raddr1, idu_exu_raddr2,
-    input      [11:0] idu_exu_csr_raddr,
     input      [ 4:0] lsu_wbu_waddr,
     input      [11:0] lsu_wbu_csr_waddr,
     input      [31:0] lsu_wbu_alu_result, // RAW 前递
@@ -103,8 +102,8 @@ module ysyx_26010027_EXU (
     assign load_use_stall = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_mem)
                          || (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_mem);
 
-    assign csr_fwd[0] = (|idu_exu_csr_raddr && idu_exu_csr_raddr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR
-    assign csr_fwd[1] = (|idu_exu_csr_raddr && idu_exu_csr_raddr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
+    assign csr_fwd[0] = (|idu_exu_csr_addr && idu_exu_csr_addr == exu_lsu_csr_waddr && exu_lsu_valid && exu_lsu_csr_we && exu_lsu_rf_res == 2'b10); // rf_res选CSR
+    assign csr_fwd[1] = (|idu_exu_csr_addr && idu_exu_csr_addr == lsu_wbu_csr_waddr && lsu_wbu_valid && lsu_wbu_csr_we && lsu_wbu_rf_res == 2'b10);
     // ----------------------------
 
     // 前递值
@@ -176,14 +175,13 @@ module ysyx_26010027_EXU (
             4'd4:  alu_result = src1 >> src2[4:0]; // srl/srli
             4'd5:  alu_result = $signed(src1) >>> src2[4:0]; // sra/srai
             4'd6:  alu_result = {31'b0, (lts)}; // slt/slti
-            4'd7:  alu_result = {31'b0, (ltu)}; // sltiu
-            4'd8:  alu_result = {31'b0, (ltu)}; // sltu
-            4'd9:  alu_result = src1 ^ src2; // xor/xori
-            4'd10: alu_result = src1 & src2; // and/andi
-            4'd11: alu_result = src1 | src2; // or/ori
-            4'd12: alu_result = taken ? idu_exu_target : snpc; // branch
-            4'd13: alu_result = src1;       // csrrw
-            4'd14: alu_result = src1 | csr_rdata; // csrrs
+            4'd7:  alu_result = {31'b0, (ltu)}; // sltiu/sltu
+            4'd8:  alu_result = src1 ^ src2; // xor/xori
+            4'd9:  alu_result = src1 & src2; // and/andi
+            4'd10: alu_result = src1 | src2; // or/ori
+            4'd11: alu_result = taken ? idu_exu_target : snpc; // branch
+            4'd12: alu_result = src1;       // csrrw
+            4'd13: alu_result = src1 | csr_rdata; // csrrs
             default: alu_result = 0;
         endcase
     end
@@ -290,7 +288,7 @@ module ysyx_26010027_EXU (
             exu_lsu_waddr      <= idu_exu_waddr; // rf 地址
             exu_lsu_alu_result <= alu_result; // ALU结果
 
-            exu_lsu_csr_waddr  <= idu_exu_csr_waddr;
+            exu_lsu_csr_waddr  <= idu_exu_csr_addr;
             exu_lsu_csr_we     <= idu_exu_csr_we;
             exu_lsu_csr_ecall  <= idu_exu_csr_ecall;
             exu_lsu_csr_mret   <= idu_exu_csr_mret;

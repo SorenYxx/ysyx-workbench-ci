@@ -211,7 +211,7 @@ module ysyx_26010027 (
         end
     end
 
-    // AR 通道输出 (IO pads) —— reset 期间关闭，防止 CPU 复位时误发 AXI 请求
+    // AR 通道输出
     assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar && !reset;
     assign io_master_araddr  = arb_araddr;
     assign io_master_arid    = arb_arid;
@@ -255,7 +255,7 @@ module ysyx_26010027 (
 
     assign io_master_bready = arb_bready;
 
-`else // 非 SoC：AXI 出到 top.v 存储器（纯 NPC/iverilog/网表共用）
+`else // 纯 NPC
     assign io_master_arvalid = arb_arvalid;
     assign io_master_araddr  = arb_araddr;
     assign io_master_arid    = arb_arid;
@@ -290,7 +290,7 @@ module ysyx_26010027 (
     assign io_master_bready = arb_bready;
 `endif
 
-    // io_slave 输出恒 0（CPU 不是 AXI 从设备）
+    // io_slave
     assign io_slave_arready = 1'b0;
     assign io_slave_rvalid  = 1'b0;
     assign io_slave_rdata   = 32'b0;
@@ -303,13 +303,14 @@ module ysyx_26010027 (
     assign io_slave_bresp   = 2'b0;
     assign io_slave_bid     = 4'b0;
 
-    // io_slave 输入 + io_interrupt 未用（CPU 不是 AXI 从设备），显式引用避免 lint 报错
+    // ----- unused -----
     wire unused_ok = &{io_slave_arvalid, io_slave_araddr, io_slave_arid, io_slave_arlen,
                        io_slave_arsize, io_slave_arburst, io_slave_rready,
                        io_slave_awvalid, io_slave_awaddr, io_slave_awid, io_slave_awlen,
                        io_slave_awsize, io_slave_awburst, io_slave_wvalid, io_slave_wdata,
                        io_slave_wstrb, io_slave_wlast, io_slave_bready, io_interrupt,
                        arb_rid, arb_rlast, arb_bid, 1'b1};
+    // ------------------
 
     // --- icache -> arbiter ---
     wire        icache_arvalid;
@@ -348,9 +349,8 @@ module ysyx_26010027 (
     wire [ 4:0] idu_exu_raddr1;
     wire [ 4:0] idu_exu_raddr2;
 
-    wire [11:0] idu_exu_csr_raddr;
+    wire [11:0] idu_exu_csr_addr;
     wire [31:0] idu_exu_csr_rdata;
-    wire [11:0] idu_exu_csr_waddr;
     wire        idu_exu_csr_we;
     wire        idu_exu_csr_ecall;
     wire        idu_exu_csr_mret;
@@ -533,9 +533,8 @@ module ysyx_26010027 (
         .idu_exu_rdata1   (idu_exu_rdata1),
         .idu_exu_rdata2   (idu_exu_rdata2),
 
-        .idu_exu_csr_raddr(idu_exu_csr_raddr),
+        .idu_exu_csr_addr (idu_exu_csr_addr),
         .idu_exu_csr_rdata(idu_exu_csr_rdata),
-        .idu_exu_csr_waddr(idu_exu_csr_waddr),
         .idu_exu_csr_we   (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
         .idu_exu_csr_mret (idu_exu_csr_mret),
@@ -572,7 +571,6 @@ module ysyx_26010027 (
         .idu_exu_jump     (idu_exu_jump),
         .idu_exu_branch   (idu_exu_branch),
         .idu_exu_fencei   (idu_exu_fencei),
-        .idu_exu_csr_waddr(idu_exu_csr_waddr),
         .idu_exu_csr_we   (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
         .idu_exu_csr_mret (idu_exu_csr_mret),
@@ -606,7 +604,7 @@ module ysyx_26010027 (
         .lsu_wbu_rf_res   (lsu_wbu_rf_res),
         .idu_exu_raddr1   (idu_exu_raddr1),
         .idu_exu_raddr2   (idu_exu_raddr2),
-        .idu_exu_csr_raddr(idu_exu_csr_raddr),
+        .idu_exu_csr_addr(idu_exu_csr_addr),
         .lsu_wbu_waddr    (lsu_wbu_waddr),
         .lsu_wbu_csr_waddr(lsu_wbu_csr_waddr),
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
