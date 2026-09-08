@@ -35,6 +35,6 @@ run: insert-arg
 	$(MAKE)	-C $(NPC_HOME) run CONFIG_SOC=y ARGS="$(YSYXSOCFLAGS)" IMG=$(abspath $(IMAGE).bin) ELF=$(abspath $(IMAGE).elf)
 
 wave:
-	gtkwave $(DUMP) &
+	surfer $(DUMP) &
 
 .PHONY: insert-arg wave

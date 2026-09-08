@@ -32,8 +32,8 @@ module ysyx_26010027_icache (
 `ifdef ysyx_26010027_ICACHE
     // ----- cache parameters -----
     parameter BLOCK_SIZE = 8; // 块大小 8B
-    parameter BLOCK_NUMS = 4; // cache 块数
-    parameter WAYS       = 2;  // 组内的相联度
+    parameter BLOCK_NUMS = 2; // cache 块数
+    parameter WAYS       = 1;  // 组内的相联度
 
     parameter SET_NUMS   = BLOCK_NUMS / WAYS; // 组数
     parameter INDEX_W    = $clog2(SET_NUMS);

@@ -10,12 +10,12 @@ MEMORY {
 SECTIONS {
   . = _pmem_start + _entry_offset;
 
-  .entry : ALIGN(4) {
+  .entry : {
     KEEP(*(entry))
   } > flash
 
   _ssbl_vma = ORIGIN(sram);
-  .ssbl _ssbl_vma : ALIGN(4) {
+  .ssbl _ssbl_vma : {
     *(ssbl)
     _ssbl_end = .;
   } > sram AT> flash
@@ -24,7 +24,7 @@ SECTIONS {
   _copy_vma = ORIGIN(sdram);
   . = _copy_vma;
 
-  .text : ALIGN(16) {
+  .text : {
     *(.text*)
     . = ALIGN(., 8);
   } > sdram AT> flash
@@ -33,13 +33,13 @@ SECTIONS {
   etext = .;
   _etext = .;
 
-  .rodata : ALIGN(16) {
+  .rodata . : {
     *(.rodata*)
     *(.srodata*)
     . = ALIGN(., 8);
   } > sdram AT> flash
 
-  .data : ALIGN(16) {
+  .data . : {
     /* RT-Thread: FSymTab, VSymTab, init, utest */
     __fsymtab_start = .;
     KEEP(*(FSymTab))
@@ -71,10 +71,10 @@ SECTIONS {
   edata = .;
   _data = .;
 
-  .bss : ALIGN(4) {
+  .bss : {
     _bss_start = .;
 
-    /***** RTT *****/
+    /***** RT-Thread bss (am_apps) *****/
     . = ALIGN(8);
     __am_apps_bss_start = .;
     *(__am_apps.bss*)
