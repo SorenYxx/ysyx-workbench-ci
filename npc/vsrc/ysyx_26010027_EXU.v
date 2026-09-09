@@ -118,8 +118,6 @@ module ysyx_26010027_EXU (
     reg latch_flag;                // 锁存标志
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            rdata1_q   <= 32'b0;
-            rdata2_q   <= 32'b0;
             latch_flag <= 1'b0;
         end
         else if (idu_exu_valid & exu_idu_ready) begin
@@ -228,28 +226,8 @@ module ysyx_26010027_EXU (
         end
     end
 
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            exu_lsu_pc       <= 0;
-            exu_lsu_snpc     <= 0;
-            exu_lsu_inst     <= 0;
-            exu_lsu_mem_w    <= 0;
-            exu_lsu_mem_r    <= 0;
-            exu_lsu_mem_addr <= 0;
-            
-            exu_lsu_reg_w      <= 0;
-            exu_lsu_rf_res     <= 0;
-            exu_lsu_waddr      <= 0;
-            exu_lsu_alu_result <= 0;
-
-            exu_lsu_csr_waddr  <= 0;
-            exu_lsu_csr_we     <= 0;
-            exu_lsu_csr_ecall  <= 0;
-            exu_lsu_csr_mret   <= 0;
-            exu_lsu_csr_wdata  <= 0;
-
-        end
-        else if (idu_exu_valid && exu_idu_ready) begin
+    always @(posedge clock) begin
+        if (idu_exu_valid && exu_idu_ready) begin
             exu_lsu_pc       <= idu_exu_pc;
             exu_lsu_snpc     <= snpc;
             exu_lsu_inst     <= idu_exu_inst;
