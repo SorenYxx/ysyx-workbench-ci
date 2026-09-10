@@ -1,6 +1,4 @@
-`ifndef __ICARUS__
 `define ysyx_26010027_ICACHE
-`endif
 module ysyx_26010027_icache (
     input             clock,
     input             reset,
@@ -171,8 +169,7 @@ module ysyx_26010027_icache (
                         // 最后一拍: 填 tag/valid, 记录延迟, 返回 IDLE
                         if (burst_count == LAST_BEAT) begin
                             tag[index_q][miss_way]   <= tag_q;
-                            /*verilator lint_off WIDTHTRUNC*/                             
-                            repl_cnt[index_q] <= miss_way + 1;
+                            repl_cnt[index_q] <= (miss_way == WAYS - 1) ? {WAY_W{1'b0}} : (miss_way + 1'b1);
 
                             valid[index_q][miss_way] <= 1'b1;
                             rvalid_o <= 1'b1;

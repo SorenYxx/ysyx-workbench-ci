@@ -26,10 +26,10 @@ module ysyx_26010027_CSR (
     // Write
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            mstatus <= 0;
-            mtvec   <= 0;
-            mepc    <= 0;
-            mcause  <= 0;
+            mstatus <= 32'h1800;
+            mtvec   <= 32'h1;
+            mepc    <= 32'h0;
+            mcause  <= 32'h0;
         end else begin
             if (csr_ecall) begin  // ecall
                 mepc   <= pc;

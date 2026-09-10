@@ -115,11 +115,11 @@ module ysyx_26010027_IFU (
     // 冲刷处理-捕获锁存 flush 信号
     always @(posedge clock, posedge reset) begin
         if (reset) begin
-            flush_q    <= 1'b0;
+            flush_q <= 1'b0;
             flush_ar_sent <= 1'b0;
         end 
         else if (exu_flush) begin
-            flush_q    <= 1'b1;
+            flush_q <= 1'b1;
             flush_ar_sent <= 1'b0;
         end 
         else if (ar_flag && flush_q) begin

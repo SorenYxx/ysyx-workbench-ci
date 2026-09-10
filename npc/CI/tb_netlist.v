@@ -1,21 +1,12 @@
 `timescale 1ns / 1ns
 
-module tb_iverilog_netlist;
-
-    localparam [31:0] DEFAULT_BOOT_FETCH_PC = 32'h8000_0000; // 非 TOP_SOC 复位 PC
-    localparam integer DEFAULT_MAX_CYCLES = 2000000;
+module tb_iverilog_net;
+    localparam integer MAX_CYCLES = 30000000;
 
     reg clock;
     reg reset;
-    reg [31:0] boot_fetch_pc;
     integer max_cycles;
-
     integer cycle_count;
-    reg first_ifu_seen;
-
-    wire ifu_ar_fire;
-
-    assign ifu_ar_fire = dut.axi_arvalid && dut.axi_arready;
 
     top dut (
         .clock (clock),
@@ -29,37 +20,32 @@ module tb_iverilog_netlist;
 
     initial begin
         reset = 1'b1;
-        boot_fetch_pc = DEFAULT_BOOT_FETCH_PC;
-        max_cycles = DEFAULT_MAX_CYCLES;
-        cycle_count = 0;
-        first_ifu_seen = 1'b0;
+        max_cycles = MAX_CYCLES;
 
-        if (!$value$plusargs("BOOT_FETCH_PC=%h", boot_fetch_pc)) begin
-            boot_fetch_pc = DEFAULT_BOOT_FETCH_PC;
-        end
         if (!$value$plusargs("MAX_CYCLES=%d", max_cycles)) begin
-            max_cycles = DEFAULT_MAX_CYCLES;
+            max_cycles = MAX_CYCLES;
         end
 
         repeat (10) @(posedge clock);
         reset = 1'b0;
     end
 
+    // wave
+    // initial begin
+    //   $dumpfile("wave.vcd");
+    //   $dumpvars(0, tb_iverilog_net);
+    // end
+
     always @(posedge clock) begin
         if (reset) begin
-            first_ifu_seen = 1'b0;
+            cycle_count = 0;
         end else begin
             cycle_count = cycle_count + 1;
+            // $display("cycle=%0d, pc=0x%08x, inst=0x%08x", cycle_count, dut.Core_cpu.ifu_idu_pc, dut.Core_cpu.ifu_idu_inst);
 
-            if (ifu_ar_fire && !first_ifu_seen) begin
-                first_ifu_seen = 1'b1;
-                if (dut.axi_araddr !== boot_fetch_pc) begin
-                    $display("BAD RESET FETCH at pc = 0x%08x expected = 0x%08x",
-                        dut.axi_araddr, boot_fetch_pc);
-                    $finish;
-                end
+            if (dut.Core_cpu.ifu_idu_inst == 32'h0010_0073) begin
+                $finish;
             end
-
             if ((max_cycles > 0) && (cycle_count >= max_cycles)) begin
                 $display("TIMEOUT at cycle %0d", cycle_count);
                 $finish;

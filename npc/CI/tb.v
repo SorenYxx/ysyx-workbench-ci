@@ -25,16 +25,17 @@ module tb_ysyx_26010027;
   end
 
   // wave
-//   initial begin
-//     $dumpfile("wave.vcd");
-//     $dumpvars(0, tb_ysyx_26010027);
-//   end
+  // initial begin
+  //   $dumpfile("wave.vcd");
+  //   $dumpvars(0, tb_ysyx_26010027);
+  // end
 
   // finish sim
   reg [31:0] a0;
   always @(*) a0 = dut.Core_cpu.my_WBU.my_gpr.rf[10];
   always @(posedge clock) begin
     if (!reset) begin
+      // $display("pc: 0x%08x, inst=0x%08x, a0=0x%08x", dut.Core_cpu.my_IFU.ifu_idu_pc, dut.Core_cpu.my_IFU.ifu_idu_inst, a0);
       if (dut.Core_cpu.lsu_wbu_valid && dut.Core_cpu.lsu_wbu_inst == 32'h0010_0073) begin
         if (a0 == 32'd0) $display("[TB] -HIT GOOD TRAP- EBREAK committed at time=%0t, pc=0x%08x",
                  $time, dut.Core_cpu.lsu_wbu_pc);

@@ -190,7 +190,7 @@ module ysyx_26010027_IDU (
     
     wire [31:0] target = ifu_idu_pc + b_imm; // branch
     wire [ 3:0] raddr1 = inst[18:15];
-    wire [ 3:0] raddr2 = inst[23:20];
+    wire [ 3:0] raddr2 = inst_R || inst_S || inst_B ? inst[23:20] : 4'b0;
     wire [ 3:0] waddr  = inst[10:7];
 
     // to WBU

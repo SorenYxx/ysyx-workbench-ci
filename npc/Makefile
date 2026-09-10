@@ -4,7 +4,7 @@ CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c" | grep -v '/tools/ca
 INC_PATH  = $(NPC_HOME)/include $(NPC_HOME)/src/tools/capstone/repo/include
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
 OBJ_DIR   = build/obj_dir
-DUMP      = build/wave.fst
+DUMP      = wave.fst
 LOGFILE   = build/npc-log.txt
 LIBS      += -L$(NPC_HOME)/src/tools/capstone/repo -lcapstone -lreadline -ldl
 NPCFLAGS  += -e $(ELF) -d $(REF_SO) -l $(LOGFILE)
@@ -97,7 +97,7 @@ sim:
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 
 clean:
-	@rm -rf obj_dir build *~ *.log
+	@rm -rf build $(DUMP) *~ *.log
 
 # microbench train 性能测试
 PERF_IMG := $(AM_HOME)/../am-kernels/benchmarks/microbench/build/microbench-riscv32e-ysyxsoc.bin
@@ -155,12 +155,17 @@ sim-iverilog: verilog
 	@grep -q "HIT GOOD TRAP" $(SIM_BUILD)/sim.log
 
 # iverilog-netlist
+YOSYS_STA_DIR ?= $(NPC_HOME)/../yosys-sta
+NETLIST_DIR   ?= $(YOSYS_STA_DIR)/result/ysyx_26010027-500MHz
+NETLIST       ?= $(NETLIST_DIR)/ysyx_26010027.netlist.fixed.v
+CELLS         ?= $(YOSYS_STA_DIR)/pdk/nangate45/sim/cells.v
+
 sim-iverilog-netlist:
+	@if [ ! -f "$(NETLIST)" ]; then \
+		echo "[netlist] $(NETLIST) 不存在, 运行 yosys-sta npc 生成 ..."; \
+		$(MAKE) -C $(YOSYS_STA_DIR) npc | tail -n 10; \
+	fi
 	@mkdir -p $(NET_BUILD)
 	@python3 $(CI_DIR)/bin2hex.py $(IMG) $(NET_BUILD)/img.hex
-	@netlist_sim="$(NETLIST)"; \
-	if [ "$${netlist_sim##*.}" != "sim" ] && [ -f "$$netlist_sim.sim" ]; then \
-		netlist_sim="$$netlist_sim.sim"; \
-	fi; \
-	iverilog -g2012 -o $(NET_BUILD)/sim_net.vvp $(CI_TB_NET) $(TOP_SIM) $$netlist_sim $(CELLS)
-	@cd $(NET_BUILD) && vvp sim_net.vvp +IMG=img.hex
+	@iverilog -g2012 -o $(NET_BUILD)/sim_net.vvp $(CI_TB_NET) $(TOP_SIM) $(NETLIST) $(CELLS) 2>&1 | tee $(NET_BUILD)/iverilog.log
+	@cd $(NET_BUILD) && vvp sim_net.vvp +IMG=img.hex 2>&1 | tee sim_net.log
