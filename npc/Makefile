@@ -168,4 +168,4 @@ sim-iverilog-netlist:
 	@mkdir -p $(NET_BUILD)
 	@python3 $(CI_DIR)/bin2hex.py $(IMG) $(NET_BUILD)/img.hex
 	@iverilog -g2012 -o $(NET_BUILD)/sim_net.vvp $(CI_TB_NET) $(TOP_SIM) $(NETLIST) $(CELLS) 2>&1 | tee $(NET_BUILD)/iverilog.log
-	@cd $(NET_BUILD) && vvp sim_net.vvp +IMG=img.hex 2>&1 | tee sim_net.log
+	@cd $(NET_BUILD) && vvp sim_net.vvp +IMG=img.hex
