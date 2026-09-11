@@ -455,7 +455,7 @@ module ysyx_26010027 (
     ysyx_26010027_icache my_icache (
         .clock       (clock),
         .reset       (reset),
-        .flush_i     (idu_exu_fencei),
+        .flush_i     (idu_exu_valid && idu_exu_fencei),
 
         .ifu_araddr  (ifu_cpu_araddr),
         .ifu_arvalid (ifu_cpu_arvalid),
