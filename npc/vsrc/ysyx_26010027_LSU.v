@@ -197,22 +197,32 @@ module ysyx_26010027_LSU (
     assign lsu_wbu_valid     = l_busy && (!mem_op || mem_done); // 忙 & (非访存或访存完成)
     assign lsu_exu_inflight  = l_busy && (is_load | is_store) && !mem_done; // 忙 & 未完成 load|store线还在飞
 
-    // ----- 锁存 -----
+    // ----- 网表锁存 -----
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin
+            lsu_wbu_reg_w     <= 1'b0;
+            lsu_wbu_csr_we    <= 1'b0;
+            lsu_wbu_csr_ecall <= 1'b0;
+            lsu_wbu_csr_mret  <= 1'b0;
+        end else if (exu_lsu_valid && lsu_exu_ready) begin
+            lsu_wbu_reg_w     <= exu_lsu_reg_w;
+            lsu_wbu_csr_we    <= exu_lsu_csr_we;
+            lsu_wbu_csr_ecall <= exu_lsu_csr_ecall;
+            lsu_wbu_csr_mret  <= exu_lsu_csr_mret;
+        end
+    end
+
     always @(posedge clock) begin
         if (exu_lsu_valid && lsu_exu_ready) begin
             // 非访存相关数据透传
             lsu_wbu_pc         <= exu_lsu_pc;
             lsu_wbu_snpc       <= exu_lsu_snpc;
             lsu_wbu_inst       <= exu_lsu_inst;
-            lsu_wbu_reg_w      <= exu_lsu_reg_w;
             lsu_wbu_rf_res     <= exu_lsu_rf_res;
             lsu_wbu_waddr      <= exu_lsu_waddr;
             lsu_wbu_alu_result <= exu_lsu_alu_result;
 
             lsu_wbu_csr_waddr  <= exu_lsu_csr_waddr;
-            lsu_wbu_csr_we     <= exu_lsu_csr_we;
-            lsu_wbu_csr_ecall  <= exu_lsu_csr_ecall;
-            lsu_wbu_csr_mret   <= exu_lsu_csr_mret;
             lsu_wbu_csr_wdata  <= exu_lsu_csr_wdata;
 
             // 访存相关锁存
