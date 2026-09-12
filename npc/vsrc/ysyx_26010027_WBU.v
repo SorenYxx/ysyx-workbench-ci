@@ -40,6 +40,7 @@ module ysyx_26010027_WBU (
 
     ysyx_26010027_GPR my_gpr (
         .clock (clock),
+        .reset (reset),
         .waddr (waddr),
         .wdata (wdata),
         .wen   (lsu_wbu_reg_w),
