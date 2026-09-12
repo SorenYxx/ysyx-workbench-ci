@@ -1,19 +1,17 @@
 #include <am.h>
 #include "npc.h"
 
-#ifndef CPU_FREQ_HZ
-#define CPU_FREQ_HZ 100000  // 默认 100kHz（Verilator 仿真）
-#endif
+static uint64_t read_mtime() {
+  uint32_t high = *(volatile uint32_t *)(RTC_ADDR + 4);
+  uint32_t low  = *(volatile uint32_t *)(RTC_ADDR + 0);
+  return ((uint64_t)high << 32) | low;
+}
 
 void __am_timer_init() {
 }
 
 void __am_timer_uptime(AM_TIMER_UPTIME_T *uptime) {
-  uint32_t high = *(volatile uint32_t *)(RTC_ADDR + 4);
-  uint32_t low  = *(volatile uint32_t *)(RTC_ADDR + 0);
-
-  uint64_t mtime = ((uint64_t)high << 32) | low;
-  uptime->us = mtime * 1000000ULL / CPU_FREQ_HZ;
+  uptime->us = read_mtime() * 1000000ULL / CPU_FREQ_HZ;
 }
 
 void __am_timer_rtc(AM_TIMER_RTC_T *rtc) {

@@ -6,12 +6,11 @@
 # define npc_trap(code) asm volatile("mv a0, %0; ebreak" : :"r"(code))
 
 # define DEVICE_BASE 0x10000000
-
-#define MMIO_BASE 0x10000000
+#define MMIO_BASE    0x10000000
 
 #define SERIAL_PORT (DEVICE_BASE + 0x0000000)
 #define UART_RX     (DEVICE_BASE + 0x0000000)
-#define RTC_ADDR    (DEVICE_BASE + 0x0000048)
+#define RTC_ADDR    (0x02000000)
 
 extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
@@ -23,5 +22,6 @@ extern char _pmem_start;
 typedef uintptr_t PTE;
 
 #define PGSIZE    4096
+#define CPU_FREQ_HZ 1000000ULL
 
 #endif
