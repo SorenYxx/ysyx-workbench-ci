@@ -116,7 +116,7 @@ module top (
     reg [8*256-1:0] img_file;
     initial begin
         if (!$value$plusargs("IMG=%s", img_file)) begin
-            $display("top: missing +IMG=<image.hex> plusarg");
+            $display("[TOP] Missing +IMG=<image.hex> plusarg");
             $finish;
         end
         $readmemh(img_file, pmem);
@@ -129,6 +129,23 @@ module top (
     wire ar_is_uart = (axi_araddr >= UART_BASE) && (axi_araddr <= UART_END);
     wire aw_is_uart = (axi_awaddr >= UART_BASE) && (axi_awaddr <= UART_END);
 
+
+    // BOOT start
+    localparam [31:0] BOOT_BASE = 32'h3000_0000;
+    localparam [31:0] BOOT_END  = 32'h3000_003f;
+
+    function [31:0] boot_read(input [31:0] a);
+        begin
+            case (a - BOOT_BASE)
+                32'h00:  boot_read = 32'h8000_02b7; // lui  t0, 0x80000
+                32'h04:  boot_read = 32'h0002_8067; // jalr x0, t0, 0
+                default: boot_read = 32'h0000_0013; // nop
+            endcase
+        end
+    endfunction
+
+    wire ar_is_boot = (axi_araddr >= BOOT_BASE) && (axi_araddr <= BOOT_END);
+
     // ----- 读状态机 -----
     reg [1:0] rd_state;
     localparam RD_IDLE  = 2'd0;
@@ -137,6 +154,7 @@ module top (
     reg [31:0] rd_addr;        // 当前拍地址
     reg [ 7:0] rd_beats_left;  // 剩余拍数（含当前拍）
     reg        rd_uart;        // 当前突发是否命中 UART
+    reg        rd_boot;        // 当前突发是否命中启动别名
     reg [31:0] rd_data;        // 当前拍数据
 
     assign axi_rdata = rd_data;
@@ -153,6 +171,7 @@ module top (
             rd_addr       <= 32'b0;
             rd_beats_left <= 8'd0;
             rd_uart       <= 1'b0;
+            rd_boot       <= 1'b0;
             rd_data       <= 32'b0;
             axi_rvalid    <= 1'b0;
             axi_rlast     <= 1'b0;
@@ -164,10 +183,13 @@ module top (
                         rd_addr       <= axi_araddr;
                         rd_beats_left <= axi_arlen + 8'd1;
                         rd_uart       <= ar_is_uart;
+                        rd_boot       <= ar_is_boot;
 `ifdef __ICARUS__
-                        rd_data       <= ar_is_uart ? 32'b0 : pmem[(axi_araddr - MEM_BASE) >> 2];
+                        rd_data       <= ar_is_uart ? 32'b0 :
+                                         ar_is_boot ? boot_read(axi_araddr) :
+                                                      pmem[(axi_araddr - MEM_BASE) >> 2];
 `else
-                        rd_data       <= pmem_read(axi_araddr);
+                        rd_data       <= ar_is_boot ? boot_read(axi_araddr) : pmem_read(axi_araddr);
 `endif
                         axi_rvalid    <= 1'b1;
                         axi_rlast     <= (axi_arlen == 8'd0);
@@ -183,9 +205,11 @@ module top (
                             rd_addr       <= rd_addr + 32'd4;
                             rd_beats_left <= rd_beats_left - 8'd1;
 `ifdef __ICARUS__
-                            rd_data       <= rd_uart ? 32'b0 : pmem[(rd_addr + 32'd4 - MEM_BASE) >> 2];
+                            rd_data       <= rd_uart ? 32'b0 :
+                                             rd_boot ? boot_read(rd_addr + 32'd4) :
+                                                       pmem[(rd_addr + 32'd4 - MEM_BASE) >> 2];
 `else
-                            rd_data       <= pmem_read(rd_addr + 32'd4);
+                            rd_data       <= rd_boot ? boot_read(rd_addr + 32'd4) : pmem_read(rd_addr + 32'd4);
 `endif
                             axi_rlast     <= (rd_beats_left == 8'd2);
                         end

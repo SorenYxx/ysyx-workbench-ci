@@ -9,8 +9,6 @@ import "DPI-C" function void cpu_trace(input int pc, input int inst);
 import "DPI-C" function void ifu_trace(input int pc, input int inst);
 `endif
 
-`define ysyx_26010027_RTC_BASE 32'h0200_0000
-`define ysyx_26010027_RTC_END  32'h0200_ffff
 module ysyx_26010027 (
     // ----- MASTER -----
     // AR
@@ -139,123 +137,6 @@ module ysyx_26010027 (
     wire [ 1:0] cpu_ifu_rresp;
 
 // ----- 内存路由 -----
-`ifdef TOP_SOC // CLINT 本地拦截
-
-    // 地址译码
-    wire addr_is_clint_ar = (arb_araddr >= `ysyx_26010027_RTC_BASE) && (arb_araddr <= `ysyx_26010027_RTC_END);
-
-    reg  addr_is_clint_r;
-    always @(posedge clock, posedge reset) begin
-        if (reset)
-            addr_is_clint_r <= 1'b0;
-        else if (arb_arvalid && arb_arready)
-            addr_is_clint_r <= addr_is_clint_ar;
-    end
-
-    // CLINT 内联
-    reg [31:0] mtime_low, mtime_high;
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            mtime_low  <= 32'h0;
-            mtime_high <= 32'h0;
-        end else begin
-            mtime_low <= mtime_low + 32'h1;
-            if (mtime_low == 32'hFFFF_FFFF)
-                mtime_high <= mtime_high + 32'h1;
-        end
-    end
-
-    // 只读响应状态机
-    reg [1:0] clint_state;
-    localparam CLINT_IDLE = 2'b00;
-    localparam CLINT_BUSY = 2'b01;
-    reg [31:0] clint_rdata;
-    reg        io_clint_rvalid;
-    reg [ 1:0] io_clint_rresp;
-    wire            io_clint_arready;
-    wire     [31:0] io_clint_rdata;
-
-    wire io_clint_arvalid = arb_arvalid && addr_is_clint_ar;
-    wire io_clint_rready  = arb_rready && addr_is_clint_r;
-    assign io_clint_arready = (clint_state == CLINT_IDLE);
-    assign io_clint_rdata   = clint_rdata;
-
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            clint_state     <= CLINT_IDLE;
-            io_clint_rvalid <= 1'b0;
-            clint_rdata     <= 32'b0;
-            io_clint_rresp  <= 2'b0;
-        end else begin
-            case (clint_state)
-                CLINT_IDLE: begin
-                    if (io_clint_arvalid && io_clint_arready) begin
-                        clint_state     <= CLINT_BUSY;
-                        io_clint_rvalid <= 1'b1;
-                        io_clint_rresp  <= 2'b0;
-                        case (arb_araddr[3:2])
-                            2'b00: clint_rdata <= mtime_low;
-                            2'b01: clint_rdata <= mtime_high;
-                            default: clint_rdata <= 32'b0;
-                        endcase
-                    end
-                end
-                CLINT_BUSY: begin
-                    if (io_clint_rvalid && io_clint_rready) begin
-                        clint_state     <= CLINT_IDLE;
-                        io_clint_rvalid <= 1'b0;
-                    end
-                end
-                default: clint_state <= CLINT_IDLE;
-            endcase
-        end
-    end
-
-    // AR 通道输出
-    assign io_master_arvalid = arb_arvalid && !addr_is_clint_ar && !reset;
-    assign io_master_araddr  = arb_araddr;
-    assign io_master_arid    = arb_arid;
-    assign io_master_arlen   = arb_arlen;
-    assign io_master_arsize  = arb_arsize;
-    assign io_master_arburst = arb_arburst;
-
-    assign arb_arready = addr_is_clint_ar ? io_clint_arready : io_master_arready;
-
-    // R 响应方向
-    assign arb_rvalid = addr_is_clint_r ? io_clint_rvalid : io_master_rvalid;
-    assign arb_rdata  = addr_is_clint_r ? io_clint_rdata  : io_master_rdata;
-    assign arb_rresp  = addr_is_clint_r ? io_clint_rresp  : io_master_rresp;
-    assign arb_rid    = addr_is_clint_r ? 4'h0            : io_master_rid;
-    assign arb_rlast  = addr_is_clint_r ? 1'b1            : io_master_rlast;
-
-    assign io_master_rready = arb_rready && !addr_is_clint_r;
-
-    // AW 通道输出
-    assign io_master_awvalid = arb_awvalid && !reset;
-    assign io_master_awaddr  = arb_awaddr;
-    assign io_master_awid    = arb_awid;
-    assign io_master_awlen   = arb_awlen;
-    assign io_master_awsize  = arb_awsize;
-    assign io_master_awburst = arb_awburst;
-
-    assign arb_awready = io_master_awready;
-
-    // W 通道输出
-    assign io_master_wvalid = arb_wvalid && !reset;
-    assign io_master_wdata  = arb_wdata;
-    assign io_master_wstrb  = arb_wstrb;
-    assign io_master_wlast  = arb_wlast;
-
-    assign arb_wready = io_master_wready;
-
-    // B 通道
-    assign arb_bvalid = io_master_bvalid;
-    assign arb_bresp  = io_master_bresp;
-    assign arb_bid    = io_master_bid;
-
-    assign io_master_bready = arb_bready;
-
-`else // 纯 NPC
     assign io_master_arvalid = arb_arvalid;
     assign io_master_araddr  = arb_araddr;
     assign io_master_arid    = arb_arid;
@@ -288,7 +169,6 @@ module ysyx_26010027 (
     assign arb_bresp  = io_master_bresp;
     assign arb_bid    = io_master_bid;
     assign io_master_bready = arb_bready;
-`endif
 
     // io_slave
     assign io_slave_arready = 1'b0;
@@ -344,22 +224,15 @@ module ysyx_26010027 (
     wire [ 2:0] idu_exu_branch;
     wire        idu_exu_fencei;
 
-    wire [31:0] idu_exu_rdata1;
-    wire [31:0] idu_exu_rdata2;
     wire [ 3:0] idu_exu_raddr1;
     wire [ 3:0] idu_exu_raddr2;
 
     wire [11:0] idu_exu_csr_addr;
-    wire [31:0] idu_exu_csr_rdata;
     wire        idu_exu_csr_we;
     wire        idu_exu_csr_ecall;
     wire        idu_exu_csr_mret;
 
-    wire [11:0] idu_wbu_csr_raddr; 
-    wire [ 3:0] idu_wbu_raddr1;
-    wire [ 3:0] idu_wbu_raddr2;
-
-    // EXU -> LSU
+    // ----- EXU -> LSU -----
     wire        lsu_exu_ready;
     wire        exu_lsu_valid;
     wire [31:0] exu_lsu_pc;
@@ -446,9 +319,9 @@ module ysyx_26010027 (
     wire [ 1:0] cpu_lsu_bresp;
 
     // --- WBU ---
-    wire [31:0] wbu_idu_rdata1;
-    wire [31:0] wbu_idu_rdata2;
-    wire [31:0] wbu_idu_csr_rdata;
+    wire [31:0] wbu_exu_rdata1;
+    wire [31:0] wbu_exu_rdata2;
+    wire [31:0] wbu_exu_csr_rdata;
     wire [31:0] wbu_exu_mtvec;
     wire [31:0] wbu_exu_mepc;
 
@@ -534,21 +407,11 @@ module ysyx_26010027 (
 
         .idu_exu_raddr1   (idu_exu_raddr1),
         .idu_exu_raddr2   (idu_exu_raddr2),
-        .idu_exu_rdata1   (idu_exu_rdata1),
-        .idu_exu_rdata2   (idu_exu_rdata2),
 
         .idu_exu_csr_addr (idu_exu_csr_addr),
-        .idu_exu_csr_rdata(idu_exu_csr_rdata),
         .idu_exu_csr_we   (idu_exu_csr_we),
         .idu_exu_csr_ecall(idu_exu_csr_ecall),
-        .idu_exu_csr_mret (idu_exu_csr_mret),
-
-        .wbu_idu_csr_rdata(wbu_idu_csr_rdata),
-        .wbu_idu_rdata1   (wbu_idu_rdata1),
-        .wbu_idu_rdata2   (wbu_idu_rdata2),
-        .idu_wbu_csr_raddr(idu_wbu_csr_raddr),
-        .idu_wbu_raddr1   (idu_wbu_raddr1),
-        .idu_wbu_raddr2   (idu_wbu_raddr2)
+        .idu_exu_csr_mret (idu_exu_csr_mret)
 
     );
 
@@ -615,10 +478,10 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
         .lsu_wbu_snpc      (lsu_wbu_snpc),
-        .lsu_exu_inflight      (lsu_exu_inflight),
-        .idu_exu_rdata1    (idu_exu_rdata1),
-        .idu_exu_rdata2    (idu_exu_rdata2),
-        .idu_exu_csr_rdata (idu_exu_csr_rdata),
+        .lsu_exu_inflight  (lsu_exu_inflight),
+        .wbu_exu_rdata1    (wbu_exu_rdata1),
+        .wbu_exu_rdata2    (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata (wbu_exu_csr_rdata),
         .exu_mtvec         (wbu_exu_mtvec),
         .exu_mepc          (wbu_exu_mepc)
     );
@@ -712,13 +575,13 @@ module ysyx_26010027 (
         .clock  (clock),
         .reset  (reset),
 
-        .idu_wbu_raddr1 (idu_wbu_raddr1),
-        .idu_wbu_raddr2 (idu_wbu_raddr2),
+        .exu_wbu_raddr1 (idu_exu_raddr1),
+        .exu_wbu_raddr2 (idu_exu_raddr2),
         .lsu_wbu_rf_res (lsu_wbu_rf_res),
 
-        .wbu_idu_rdata1   (wbu_idu_rdata1),
-        .wbu_idu_rdata2   (wbu_idu_rdata2),
-        .wbu_idu_csr_rdata(wbu_idu_csr_rdata),
+        .wbu_exu_rdata1   (wbu_exu_rdata1),
+        .wbu_exu_rdata2   (wbu_exu_rdata2),
+        .wbu_exu_csr_rdata(wbu_exu_csr_rdata),
         .csr_mtvec        (wbu_exu_mtvec),
         .csr_mepc         (wbu_exu_mepc),
 
@@ -731,7 +594,7 @@ module ysyx_26010027 (
         .lsu_wbu_alu_result(lsu_wbu_alu_result),
         .lsu_wbu_mem_result(lsu_wbu_mem_result),
 
-        .csr_raddr (idu_wbu_csr_raddr),
+        .csr_raddr (idu_exu_csr_addr),
         .csr_waddr (lsu_wbu_csr_waddr),
         .csr_wdata (lsu_wbu_csr_wdata),
         .csr_we    (lsu_wbu_csr_we),
@@ -763,8 +626,8 @@ module ysyx_26010027 (
     assign cpu_lsu_bresp   = (grant == LSU_GRANT) ? arb_bresp   : 2'b0;
 
     // lsu事务完成时握手信号
-    wire handshake_lsu_r = cpu_lsu_rvalid && lsu_cpu_rready && (cpu_lsu_rresp == 2'b00);
-    wire handshake_lsu_b = cpu_lsu_bvalid && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
+    wire handshake_lsu_r = cpu_lsu_rvalid && lsu_cpu_rready;
+    wire handshake_lsu_b = cpu_lsu_bvalid && lsu_cpu_bready;
 
     // arbiter -> 下游总线
     assign arb_arvalid  = (grant == IFU_GRANT) ? icache_arvalid : lsu_cpu_arvalid;

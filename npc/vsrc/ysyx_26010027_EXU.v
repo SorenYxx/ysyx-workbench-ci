@@ -67,7 +67,7 @@ module ysyx_26010027_EXU (
     input      [31:0] lsu_wbu_alu_result, // RAW 前递
     input      [31:0] lsu_wbu_mem_result, // Load-Use 前递
     input      [31:0] lsu_wbu_snpc, // SNPC 跳转前递
-    input      [31:0] idu_exu_rdata1, idu_exu_rdata2, idu_exu_csr_rdata,// Normal
+    input      [31:0] wbu_exu_rdata1, wbu_exu_rdata2, wbu_exu_csr_rdata,// Normal
     input      [31:0] exu_mtvec, exu_mepc // ecall/mret
 
 );
@@ -107,39 +107,15 @@ module ysyx_26010027_EXU (
 
     assign rdata1 = fwd_1[0] ? lsu_fwd_data : 
                     fwd_1[1] ? wbu_fwd_data : 
-                    fwd_1[2] ? lsu_wbu_mem_result : idu_exu_rdata1;
+                    fwd_1[2] ? lsu_wbu_mem_result : wbu_exu_rdata1;
     assign rdata2 = fwd_2[0] ? lsu_fwd_data :
                     fwd_2[1] ? wbu_fwd_data : 
-                    fwd_2[2] ? lsu_wbu_mem_result : idu_exu_rdata2;
-    assign csr_rdata = idu_exu_csr_rdata;
+                    fwd_2[2] ? lsu_wbu_mem_result : wbu_exu_rdata2;
+    assign csr_rdata = wbu_exu_csr_rdata;
 
     // 源操作数选择与处理
-    reg [31:0] rdata1_q, rdata2_q; // 锁存rdata
-    reg latch_flag;                // 锁存标志
-    always @(posedge clock, posedge reset) begin
-        if (reset) begin
-            latch_flag <= 1'b0;
-        end
-        else if (idu_exu_valid & exu_idu_ready) begin
-            latch_flag <= 1'b0;
-        end
-        // 锁存（除 load-use 数据返回需要更新）
-        else if (latch_flag & !(fwd_1[2] | fwd_2[2])) begin
-            rdata1_q <= rdata1_q;
-            rdata2_q <= rdata2_q;
-        end
-        else if ((idu_exu_valid & !exu_idu_ready) | (fwd_1[2] | fwd_2[2])) begin // 第一个周期检测阻塞更新锁存值 or load-use更新
-            rdata1_q   <= rdata1;
-            rdata2_q   <= rdata2;
-            latch_flag <= 1'b1;
-        end
-    end
-
-    // 非锁存 or load-use返回 正常选择
-    wire [31:0] rdata1_sel = (latch_flag & !fwd_1[2]) ? rdata1_q : rdata1;
-    wire [31:0] rdata2_sel = (latch_flag & !fwd_2[2]) ? rdata2_q : rdata2;
-    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1_sel;
-    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2_sel;
+    assign src1 = idu_exu_alu_arc1 ? idu_exu_pc  : rdata1;
+    assign src2 = idu_exu_alu_arc2 ? idu_exu_imm : rdata2;
 
     // branch
     wire eq  = (src1 == src2);
@@ -234,7 +210,7 @@ module ysyx_26010027_EXU (
             exu_lsu_mem_w    <= idu_exu_mem_w;
             exu_lsu_mem_r    <= idu_exu_mem_r;
             exu_lsu_mem_addr <= alu_result; // ALU-访存地址
-            exu_lsu_wdata    <= rdata2_sel; // rdata2寄存器
+            exu_lsu_wdata    <= rdata2; // rdata2寄存器
 
             exu_lsu_reg_w      <= idu_exu_reg_w;
             exu_lsu_rf_res     <= idu_exu_rf_res;

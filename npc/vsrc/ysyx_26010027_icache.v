@@ -96,9 +96,9 @@ module ysyx_26010027_icache (
     // ----- out to IFU -----
     reg [31:0] rdata_o;
     reg        rvalid_o;
-    assign ifu_rvalid = rvalid_o;
-    assign ifu_rdata  = rdata_o;
-    assign ifu_rresp  = arb_rresp;
+    assign ifu_rvalid  = rvalid_o;
+    assign ifu_rdata   = rdata_o;
+    assign ifu_rresp   = (state == BURST && arb_rvalid) ? arb_rresp : 2'b00;
     assign ifu_arready = (state == IDLE) && ifu_arvalid;
 
     wire handshake_ar = arb_arvalid && arb_arready;
@@ -144,9 +144,7 @@ module ysyx_26010027_icache (
                             // MISS
                             araddr_o   <= {ifu_araddr[31:BLK_OFF_W], {BLK_OFF_W{1'b0}}}; // 地址对齐
                             arvalid_o  <= 1'b1;
-                            rready_o   <= 1'b1;
                             arlen_o    <= BURST_LEN; // BEATS-1
-
                             state       <= WAIT;
                             burst_count <= {BURST_W{1'b0}};
                         end
@@ -155,6 +153,7 @@ module ysyx_26010027_icache (
                 WAIT: begin
                     if (handshake_ar) begin
                         arvalid_o <= 1'b0;
+                        rready_o  <= 1'b1;
                         state     <= BURST;
                     end
                 end
@@ -173,6 +172,7 @@ module ysyx_26010027_icache (
 
                             valid[index_q][miss_way] <= 1'b1;
                             rvalid_o <= 1'b1;
+                            rready_o <= 1'b0;
                             state <= IDLE;
                         end else begin
                             burst_count <= burst_count + 1;

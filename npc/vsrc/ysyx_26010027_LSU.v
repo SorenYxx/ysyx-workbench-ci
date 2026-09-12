@@ -95,12 +95,42 @@ module ysyx_26010027_LSU (
     wire is_store = (l_mem_w != 2'b11);
     wire mem_op   = is_load || is_store;
 
+    // ----- CLINT -----
+    localparam [15:0] CLINT_BASE_HI = 16'h0200;
+    localparam [13:0] MTIME_OFF     = 14'h0000; // 0x0200_0000 >> 2
+    localparam [13:0] MTIMEH_OFF    = 14'h0001; // 0x0200_0004 >> 2
+    localparam [13:0] MTIME_S_OFF   = 14'h2ffe; // 0x0200_bff8 >> 2
+    localparam [13:0] MTIMEH_S_OFF  = 14'h2fff; // 0x0200_bffc >> 2
+
+    wire addr_is_clint = (l_mem_addr[31:16] == CLINT_BASE_HI);
+    wire clint_access  = l_busy && mem_op && addr_is_clint && !mem_done;
+
+    reg [31:0] mtime_l;
+    reg [31:0] mtime_h;
+    always @(posedge clock, posedge reset) begin
+        if (reset) begin 
+            mtime_l <= 32'b0;
+            mtime_h <= 32'b0;
+        end 
+        else begin
+            mtime_l <= mtime_l + 32'd1;
+            mtime_h <= mtime_l == 32'hFFFF_FFFF ? mtime_h + 32'd1 : mtime_h;
+        end
+    end
+
+    wire mtime_l_sel = (l_mem_addr[15:2] == MTIME_OFF)  || (l_mem_addr[15:2] == MTIME_S_OFF);
+    wire mtime_h_sel = (l_mem_addr[15:2] == MTIMEH_OFF) || (l_mem_addr[15:2] == MTIMEH_S_OFF);
+
+    wire [31:0] clint_rdata = mtime_l_sel ? mtime_l :
+                              mtime_h_sel ? mtime_h : 32'b0;
+
     // ----- state -----
     reg [2:0] state_w;
     reg [1:0] state_r;
-    localparam W_IDLE = 3'b000;
-    localparam W_WAIT = 3'b001;
-    localparam W_RESP = 3'b010;
+    localparam W_IDLE    = 3'b000;
+    localparam W_WAIT_W  = 3'b001;
+    localparam W_WAIT_AW = 3'b010;
+    localparam W_RESP    = 3'b011;
     localparam R_IDLE = 2'b00;
     localparam R_WAIT = 2'b01;
 
@@ -109,7 +139,7 @@ module ysyx_26010027_LSU (
 
     // ----- 访存相关数据 -----
     // 数据移位信号 w/r
-    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // ！！桶形移位
+    wire [31:0] wdata_shifted = (l_mem_w == 2'b00) ? l_wdata : (l_wdata << (l_mem_addr[1:0] * 8)); // 桶形移位
     wire [31:0] rdata_shifted = cpu_lsu_rdata >> (l_mem_addr[1:0] * 8);
 
     assign lsu_cpu_awaddr  = l_mem_addr;
@@ -131,9 +161,9 @@ module ysyx_26010027_LSU (
     assign lsu_cpu_arlen   = 8'h0;
     assign lsu_cpu_arburst = 2'b01;
 
-    assign lsu_cpu_awvalid = (state_w == W_IDLE) && store_q;
-    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT) && store_q; // 同时请求
-    assign lsu_cpu_arvalid = (state_r == R_IDLE) && load_q;
+    assign lsu_cpu_awvalid = (state_w == W_IDLE || state_w == W_WAIT_AW) && store_q && !addr_is_clint;
+    assign lsu_cpu_wvalid  = (state_w == W_IDLE || state_w == W_WAIT_W)  && store_q && !addr_is_clint;
+    assign lsu_cpu_arvalid = (state_r == R_IDLE) && load_q && !addr_is_clint;
     assign lsu_cpu_rready  = (state_r == R_WAIT);
     assign lsu_cpu_bready  = (state_w == W_RESP);
 
@@ -141,17 +171,19 @@ module ysyx_26010027_LSU (
     wire handshake_aw = cpu_lsu_awready && lsu_cpu_awvalid;
     wire handshake_w  = cpu_lsu_wready  && lsu_cpu_wvalid;
     wire handshake_ar = cpu_lsu_arready && lsu_cpu_arvalid;
-    wire handshake_r  = lsu_cpu_rready  && cpu_lsu_rvalid && (cpu_lsu_rresp == 2'b00);
-    wire handshake_b  = cpu_lsu_bvalid  && lsu_cpu_bready && (cpu_lsu_bresp == 2'b00);
+    wire handshake_r  = lsu_cpu_rready  && cpu_lsu_rvalid;
+    wire handshake_b  = cpu_lsu_bvalid  && lsu_cpu_bready;
 
     // ----- W 状态机 -----
     always @(posedge clock, posedge reset) begin
         if (reset) state_w <= W_IDLE;
         else case (state_w)
             W_IDLE: if (handshake_aw && handshake_w) state_w <= W_RESP;
-                    else if (handshake_aw) state_w <= W_WAIT;
-            W_WAIT: if (handshake_w) state_w <= W_RESP;
-            W_RESP: if (handshake_b) state_w <= W_IDLE;
+                    else if (handshake_aw) state_w <= W_WAIT_W;
+                    else if (handshake_w)  state_w <= W_WAIT_AW;
+            W_WAIT_W:  if (handshake_w)  state_w <= W_RESP;
+            W_WAIT_AW: if (handshake_aw) state_w <= W_RESP;
+            W_RESP:    if (handshake_b)  state_w <= W_IDLE;
             default: state_w <= W_IDLE;
         endcase
     end
@@ -189,7 +221,7 @@ module ysyx_26010027_LSU (
             mem_done <= 1'b0;
         else if (exu_lsu_valid && lsu_exu_ready)
             mem_done <= 1'b0; // 数据交接 标记进行中
-        else if (handshake_r || handshake_b)
+        else if (handshake_r || handshake_b || clint_access)
             mem_done <= 1'b1; // 捕捉返回标志 标记完成
     end
     
@@ -232,11 +264,12 @@ module ysyx_26010027_LSU (
             l_wdata            <= exu_lsu_wdata;
         end
         // 单独写回load值 缩短访存时间 
-        if (handshake_r)
-            lsu_wbu_mem_result <= mem_rdata;
+        if (handshake_r || clint_access)
+            lsu_wbu_mem_result <= addr_is_clint ? clint_rdata : mem_rdata;
     end
 
 
+    wire unused_ok = &{cpu_lsu_rresp, cpu_lsu_bresp};
 //  DIFFTEST
 `ifdef NPC_SIM
     always @(posedge clock, posedge reset) begin

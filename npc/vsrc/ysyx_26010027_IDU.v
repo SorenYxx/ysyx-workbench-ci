@@ -30,19 +30,11 @@ module ysyx_26010027_IDU (
     input             exu_flush,
 
     output reg [ 3:0] idu_exu_raddr1, idu_exu_raddr2,
-    output reg [31:0] idu_exu_rdata1, idu_exu_rdata2, // 读寄存器数据
 
     output reg [11:0] idu_exu_csr_addr,
-    output reg [31:0] idu_exu_csr_rdata, // 读 CSR 数据
     output reg        idu_exu_csr_we,
     output reg        idu_exu_csr_ecall,
-    output reg        idu_exu_csr_mret,
-
-    // IDU - WBU
-    input      [31:0] wbu_idu_csr_rdata,
-    input      [31:0] wbu_idu_rdata1, wbu_idu_rdata2,
-    output     [11:0] idu_wbu_csr_raddr,
-    output     [ 3:0] idu_wbu_raddr1, idu_wbu_raddr2 // 组合 raddr
+    output reg        idu_exu_csr_mret
 
 );
 
@@ -193,11 +185,6 @@ module ysyx_26010027_IDU (
     wire [ 3:0] raddr2 = inst_R || inst_S || inst_B ? inst[23:20] : 4'b0;
     wire [ 3:0] waddr  = inst[10:7];
 
-    // to WBU
-    assign idu_wbu_raddr1 = raddr1;
-    assign idu_wbu_raddr2 = raddr2;
-    assign idu_wbu_csr_raddr = csr_addr;
-
   // handshake
     assign idu_ifu_ready = exu_idu_ready | !idu_exu_valid;
     always @(posedge clock or posedge reset) begin
@@ -235,11 +222,8 @@ module ysyx_26010027_IDU (
 
         idu_exu_raddr1    <= raddr1;
         idu_exu_raddr2    <= raddr2;
-        idu_exu_rdata1    <= wbu_idu_rdata1;
-        idu_exu_rdata2    <= wbu_idu_rdata2;
 
         idu_exu_csr_addr  <= csr_addr;
-        idu_exu_csr_rdata <= wbu_idu_csr_rdata;
         idu_exu_csr_we    <= csrrw;
         idu_exu_csr_ecall <= csr_ecall;
         idu_exu_csr_mret  <= csr_mret;

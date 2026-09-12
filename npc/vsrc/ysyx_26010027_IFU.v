@@ -1,8 +1,4 @@
-`ifdef TOP_SOC
-  `define ysyx_26010027_PC_START 32'h3000_0000
-`else
-  `define ysyx_26010027_PC_START 32'h8000_0000
-`endif
+`define ysyx_26010027_PC_START 32'h3000_0000
 
 module ysyx_26010027_IFU (
     input             clock,
@@ -50,7 +46,7 @@ module ysyx_26010027_IFU (
 
     wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q; // 取指flag ready反压
     wire handshake_ar = arvalid_q && cpu_ifu_arready;
-    wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready && (cpu_ifu_rresp == 2'b00);
+    wire handshake_r  = cpu_ifu_rvalid && ifu_cpu_rready;
 
     // State machine
     always @(posedge clock, posedge reset) begin
@@ -150,7 +146,7 @@ module ysyx_26010027_IFU (
 // debug
 `ifndef SYNTHESIS
     always @(*) begin
-        if (cpu_ifu_rresp != 2'b00) $fatal(1, "[IFU] AXI4 rresp ERROR: rresp=%b at ifu_pc=0x%08x", cpu_ifu_rresp, ifu_idu_pc);
+        if (cpu_ifu_rvalid && ifu_cpu_rready && cpu_ifu_rresp != 2'b00) $fatal(1, "[IFU] AXI4 rresp ERROR: rresp=%b at ifu_pc=0x%08x", cpu_ifu_rresp, ifu_idu_pc);
     end
 `endif
 
