@@ -182,7 +182,7 @@ module ysyx_26010027_IDU (
     
     wire [31:0] target = ifu_idu_pc + b_imm; // branch
     wire [ 3:0] raddr1 = inst[18:15];
-    wire [ 3:0] raddr2 = inst_R || inst_S || inst_B ? inst[23:20] : 4'b0;
+    wire [ 3:0] raddr2 = inst[23:20];
     wire [ 3:0] waddr  = inst[10:7];
 
   // handshake
@@ -202,8 +202,12 @@ module ysyx_26010027_IDU (
       end
     end
 
-    always @(posedge clock) begin
-      if (ifu_idu_valid && idu_ifu_ready) begin
+    always @(posedge clock, posedge reset) begin
+      if (reset) begin
+        idu_exu_raddr1 <= 4'b0;
+        idu_exu_raddr2 <= 4'b0;
+      end
+      else if (ifu_idu_valid && idu_ifu_ready) begin
         idu_exu_pc       <= ifu_idu_pc;
         idu_exu_inst     <= ifu_idu_inst;
         idu_exu_target   <= target; // pc + imm

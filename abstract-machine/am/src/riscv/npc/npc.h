@@ -9,19 +9,16 @@
 
 #define MMIO_BASE 0x10000000
 
-#define SERIAL_PORT     (DEVICE_BASE + 0x0000000)
-#define UART_RX         (DEVICE_BASE + 0x0000000)
-#define KBD_ADDR        (DEVICE_BASE + 0x0000060)
-#define RTC_ADDR        (DEVICE_BASE + 0x0000048)
-#define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)
+#define SERIAL_PORT (DEVICE_BASE + 0x0000000)
+#define UART_RX     (DEVICE_BASE + 0x0000000)
+#define RTC_ADDR    (DEVICE_BASE + 0x0000048)
 
 extern char _pmem_start;
 #define PMEM_SIZE (128 * 1024 * 1024)
 #define PMEM_END  ((uintptr_t)&_pmem_start + PMEM_SIZE)
 #define NEMU_PADDR_SPACE \
   RANGE(&_pmem_start, PMEM_END), \
-  RANGE(FB_ADDR, FB_ADDR + 0x200000), \
-  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc, screen, keyboard */
+  RANGE(MMIO_BASE, MMIO_BASE + 0x1000) /* serial, rtc */
 
 typedef uintptr_t PTE;
 

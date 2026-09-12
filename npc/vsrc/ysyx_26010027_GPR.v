@@ -23,11 +23,7 @@ module ysyx_26010027_GPR #(
         end
     end
 
-    assign rdata1 = (raddr1 == 0) ? 32'b0 :
-                    (wen && (waddr == raddr1)) ? wdata :
-                    rf[raddr1];
-    assign rdata2 = (raddr2 == 0) ? 32'b0 :
-                    (wen && (waddr == raddr2)) ? wdata :
-                    rf[raddr2];
+    assign rdata1 = (raddr1 == 0) ? 32'b0 : rf[raddr1];
+    assign rdata2 = (raddr2 == 0) ? 32'b0 : rf[raddr2];
 
 endmodule

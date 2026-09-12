@@ -99,8 +99,6 @@ module ysyx_26010027_LSU (
     localparam [15:0] CLINT_BASE_HI = 16'h0200;
     localparam [13:0] MTIME_OFF     = 14'h0000; // 0x0200_0000 >> 2
     localparam [13:0] MTIMEH_OFF    = 14'h0001; // 0x0200_0004 >> 2
-    localparam [13:0] MTIME_S_OFF   = 14'h2ffe; // 0x0200_bff8 >> 2
-    localparam [13:0] MTIMEH_S_OFF  = 14'h2fff; // 0x0200_bffc >> 2
 
     wire addr_is_clint = (l_mem_addr[31:16] == CLINT_BASE_HI);
     wire clint_access  = l_busy && mem_op && addr_is_clint && !mem_done;
@@ -118,8 +116,8 @@ module ysyx_26010027_LSU (
         end
     end
 
-    wire mtime_l_sel = (l_mem_addr[15:2] == MTIME_OFF)  || (l_mem_addr[15:2] == MTIME_S_OFF);
-    wire mtime_h_sel = (l_mem_addr[15:2] == MTIMEH_OFF) || (l_mem_addr[15:2] == MTIMEH_S_OFF);
+    wire mtime_l_sel = (l_mem_addr[15:2] == MTIME_OFF);
+    wire mtime_h_sel = (l_mem_addr[15:2] == MTIMEH_OFF);
 
     wire [31:0] clint_rdata = mtime_l_sel ? mtime_l :
                               mtime_h_sel ? mtime_h : 32'b0;

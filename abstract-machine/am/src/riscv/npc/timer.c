@@ -1,6 +1,5 @@
 #include <am.h>
-
-#define RTC_ADDR 0x10000048
+#include "npc.h"
 
 #ifndef CPU_FREQ_HZ
 #define CPU_FREQ_HZ 100000  // 默认 100kHz（Verilator 仿真）
