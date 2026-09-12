@@ -163,7 +163,7 @@ void sim_init(int argc, char *argv[]) {
   /* Initialize the simple debugger. */
   init_sdb();
 
-  IFDEF(CONFIG_ITRACE, init_disasm());
+  init_disasm();   // 环形缓冲始终维护, 出错时可 itrace_dump; 实时日志另由 CONFIG_ITRACE 控制
 
   /* Display welcome message. */
   welcome();

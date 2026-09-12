@@ -20,10 +20,10 @@
 #else
 #include "Vtop.h"
 #include "Vtop___024root.h"
-#define CPU_PC()    (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_pc) // commit pc
-#define CPU_DNPC()  (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_dnpc) // dnpc
-#define CPU_INST()  (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_inst)
-#define CPU_REG_W() (top->rootp->top__DOT__Core_cpu__DOT__lsu_wbu_reg_w)
+#define CPU_PC()    (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_pc) // commit pc
+#define CPU_DNPC()  (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_dnpc) // dnpc
+#define CPU_INST()  (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_inst)
+#define CPU_REG_W() (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_reg_w)
 #define CPU_VALID() (exu_valid)  // = lsu_wbu_valid (提交有效), 由 get_cpu_state 每拍更新
 #endif
 
@@ -73,6 +73,7 @@ extern Vtop* top;
 #endif
 
 void itrace_record(int pc, int inst);
+void itrace_dump(int n);
 void init_disasm();
 
 //exec

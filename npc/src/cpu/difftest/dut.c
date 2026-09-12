@@ -8,10 +8,10 @@ void (*ref_difftest_regcpy)(void *dut, bool direction) = NULL;
 void (*ref_difftest_exec)(uint64_t n) = NULL;
 
 #ifdef CONFIG_SOC
-#define SOC_ADDR() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_mem_addr)
+#define MEM_ADDR() (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_mem_addr)
 #define IS_MEM()   (top->rootp->ysyxSoCFull__DOT__asic__DOT__cpu__DOT__cpu__DOT__lsu_wbu_mem_en)
 
-bool in_soc_device (uint32_t addr) {
+bool in_device (uint32_t addr) {
   if (addr >= 0x02000000 && addr < 0x02010000
    || addr >= 0x10000000 && addr < 0x10001000 
    || addr >= 0x10001000 && addr < 0x10002000
@@ -23,19 +23,31 @@ bool in_soc_device (uint32_t addr) {
   return false;
 }
 
+#else
+#define MEM_ADDR() (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_mem_addr)
+#define IS_MEM()   (top->rootp->top__DOT__my_cpu__DOT__lsu_wbu_mem_en)
+
+bool in_device (uint32_t addr) {
+  if (addr >= 0x02000000 && addr < 0x02010000) {
+    return true;
+  }
+  return false;
+}
+
+#endif
+
 void check_device() {
   // printf("%d %d 0x%08x\n", IS_MEM(), in_soc_device(SOC_ADDR()), SOC_ADDR());
-  if (IS_MEM() && in_soc_device(SOC_ADDR())) {
+  if (IS_MEM() && in_device(MEM_ADDR())) {
     difftest_skip_ref();
   }
 }
-#endif
 
 static bool is_skip_ref = false;
 
 void difftest_skip_ref() {
   is_skip_ref = true;
-  // skip_dut_nr_inst = 0;
+  // Log("[difftest] skip ref at pc=0x%08x addr=0x%08x", CPU_PC(), MEM_ADDR());
 }
 
 void init_difftest(const char *ref_so_file, long img_size) {
@@ -101,6 +113,7 @@ static void checkregs(CPU_state *ref) {
     npc_state.state = NPC_ABORT;
     npc_state.halt_pc = CPU_PC();
     isa_reg_display();
+    itrace_dump(16);
   }
 }
 

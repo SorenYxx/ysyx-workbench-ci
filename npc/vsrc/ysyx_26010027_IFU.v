@@ -1,4 +1,12 @@
-`define ysyx_26010027_PC_START 32'h3000_0000
+`ifdef NPC_SIM
+`ifdef TOP_SOC
+    `define ysyx_26010027_PC_START 32'h3000_0000 // SoC
+`else
+    `define ysyx_26010027_PC_START 32'h8000_0000 // 纯 NPC
+`endif
+`else
+    `define ysyx_26010027_PC_START 32'h3000_0000 // iverilog
+`endif
 
 module ysyx_26010027_IFU (
     input             clock,
@@ -42,7 +50,6 @@ module ysyx_26010027_IFU (
     reg [31:0] araddr_q;
     reg        flush_q;
     reg        flush_ar_sent; // 冲刷后 AR 已发出
-    // reg        fence_pend;    // fence.i: EXU 接受前暂停预取
 
     wire ar_flag      = (state == IDLE) && idu_ifu_ready && !arvalid_q; // 取指flag ready反压
     wire handshake_ar = arvalid_q && cpu_ifu_arready;

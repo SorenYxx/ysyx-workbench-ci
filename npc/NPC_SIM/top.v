@@ -35,11 +35,7 @@ module top (
     reg         axi_bvalid;
     wire        axi_bready;
 
-    ysyx_26010027 Core_cpu (
-        .clock            (clock),
-        .reset            (reset),
-        .io_interrupt     (1'b0),
-
+    ysyx_26010027 my_cpu (
         // master
         .io_master_araddr (axi_araddr),
         .io_master_arid   (axi_arid),
@@ -101,7 +97,11 @@ module top (
         .io_slave_rid     (),
         .io_slave_rdata   (),
         .io_slave_rresp   (),
-        .io_slave_rlast   ()
+        .io_slave_rlast   (),
+
+        .clock            (clock),
+        .reset            (reset),
+        .io_interrupt     (1'b0)
     );
 
     // ----- 存储器 -----

@@ -104,9 +104,9 @@ void step_and_eval() {
   // nvboard
   IFDEF(CONFIG_NVBOARD, nvboard_update());
 
-  // difftest with SoC
+  // difftest
   cpu_n.pc = CPU_DNPC();
-  IFDEF(CONFIG_SOC, check_device());
+  check_device();
 
   // statistics
   get_cpu_state(lsu_r_valid, lsu_w_valid, exu_valid, alu_valid, csr_valid, jump, branch, icache_hit_counter, icache_miss_counter, icache_miss_latency);
@@ -124,7 +124,7 @@ static void trace_and_difftest() {
   cpu_valid = CPU_VALID();
   in_bootloader = (CPU_PC() >= CONFIG_FLASH_BASE && CPU_PC() < CONFIG_FLASH_BASE + CONFIG_FLASH_SIZE) || (CPU_PC() >= CONFIG_SRAM_BASE && CPU_PC() < CONFIG_SRAM_BASE + CONFIG_SRAM_SIZE);
   if (cpu_valid) {
-    IFDEF(CONFIG_ITRACE, itrace_record(CPU_PC(), CPU_INST()));
+    itrace_record(CPU_PC(), CPU_INST());
     IFDEF(CONFIG_WATCHPOINT, check_watchpoints());
     IFDEF(CONFIG_DIFFTEST, check_difftest());
     total_inst ++;
@@ -175,6 +175,7 @@ void finish_sim() {
   else {
     Log("\033[1;31mHIT BAD TRAP\033[0m");
     npc_state.state = NPC_ABORT;
+    itrace_dump(16);
   }
 }
 

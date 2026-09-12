@@ -3,7 +3,7 @@ NPC_HOME  = $(shell pwd)
 CSRC      = $(shell find ./src -name "*.cpp" -o -name "*.c" | grep -v '/tools/capstone/repo/') $(SRC_AUTO_BIND) # auto_bind 文件
 INC_PATH  = $(NPC_HOME)/include $(NPC_HOME)/src/tools/capstone/repo/include
 REF_SO    = $(abspath $(NEMU_HOME)/build/riscv32-nemu-interpreter-so)
-OBJ_DIR   = build/obj_dir
+OBJ_DIR   = build/obj_dir_$(if $(filter y,$(CONFIG_SOC)),soc,npc)
 DUMP      = wave.fst
 LOGFILE   = build/npc-log.txt
 LIBS      += -L$(NPC_HOME)/src/tools/capstone/repo -lcapstone -lreadline -ldl
@@ -26,6 +26,8 @@ $(CONFIG_MK): $(NPC_HOME)/.config $(CONF)
 # ------------------
 
 # ----- Mode change -----
+CONFIG_SOC ?= n
+CONFIG_NVBOARD ?= $(if $(filter y,$(CONFIG_SOC)),y,n)
 ifeq ($(CONFIG_SOC),y)
   TOP       = ysyxSoCFull
   VFLAGS    = $(shell find ./vsrc -name "*.v") $(shell find ../ysyxSoC/perip -name "*.v") ../ysyxSoC/build/ysyxSoCFull.v

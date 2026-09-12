@@ -5,7 +5,6 @@ module tb_ysyx_26010027;
   reg clock;
   reg reset;
 
-  // DUT：top 包装 CPU + AXI 存储器
   top dut (
     .clock   (clock),
     .reset   (reset)
@@ -32,15 +31,15 @@ module tb_ysyx_26010027;
 
   // finish sim
   reg [31:0] a0;
-  always @(*) a0 = dut.Core_cpu.my_WBU.my_gpr.rf[10];
+  always @(*) a0 = dut.my_cpu.my_WBU.my_gpr.rf[10];
   always @(posedge clock) begin
     if (!reset) begin
-      // $display("pc: 0x%08x, inst=0x%08x, a0=0x%08x", dut.Core_cpu.my_IFU.ifu_idu_pc, dut.Core_cpu.my_IFU.ifu_idu_inst, a0);
-      if (dut.Core_cpu.lsu_wbu_valid && dut.Core_cpu.lsu_wbu_inst == 32'h0010_0073) begin
+      // $display("pc: 0x%08x, inst=0x%08x, a0=0x%08x", dut.my_cpu.my_IFU.ifu_idu_pc, dut.my_cpu.my_IFU.ifu_idu_inst, a0);
+      if (dut.my_cpu.lsu_wbu_valid && dut.my_cpu.lsu_wbu_inst == 32'h0010_0073) begin
         if (a0 == 32'd0) $display("[TB] -HIT GOOD TRAP- EBREAK committed at time=%0t, pc=0x%08x",
-                 $time, dut.Core_cpu.lsu_wbu_pc);
+                 $time, dut.my_cpu.lsu_wbu_pc);
         else $display("[TB] -HIT BAD TRAP- EBREAK committed at time=%0t, pc=0x%08x,",
-                 $time, dut.Core_cpu.lsu_wbu_pc);
+                 $time, dut.my_cpu.lsu_wbu_pc);
         $finish;
       end
     end
@@ -49,7 +48,7 @@ module tb_ysyx_26010027;
   // timeout
   initial begin
     #10000000;
-    $display("[TB] TIMEOUT at %0t, pc=0x%08x", $time, dut.Core_cpu.lsu_wbu_pc);
+    $display("[TB] TIMEOUT at %0t, pc=0x%08x", $time, dut.my_cpu.lsu_wbu_pc);
     $finish;
   end
 

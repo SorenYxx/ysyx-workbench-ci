@@ -1,23 +1,5 @@
 mainmenu "NPC Configuration Menu"
 
-menu "Running Mode"
-
-config SOC
-    bool "Enable cpu run with ysyxSoC"
-    default y
-    help
-        CPU with SoC
-
-if SOC
-
-config NVBOARD
-    bool "Enable Nvboard"
-    default n
-
-endif
-
-endmenu
-
 menu "Tracing Options"
 
 config WAVE_DUMP
