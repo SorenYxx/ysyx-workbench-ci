@@ -53,11 +53,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->snpc = pc;
   isa_exec_once(s);
 
-  if (idx <= 10) buf[idx++] = cpu.pc;
-  else {
-    for (int i = 0; i < 10; i ++) buf[i] = buf[i + 1];
-    buf[10] = cpu.pc;
-  }
+  buf[idx] = cpu.pc;
+  idx = (idx + 1) % 10;
 
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
@@ -138,12 +135,16 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
 
-      if (nemu_state.state == NEMU_ABORT) {
-	      int i = 0;
-        for (; i < 10 && buf[i]; i ++) printf("--%d--  pc: 0x%08x inst: %08x\n", i, buf[i], vaddr_read(buf[i], 4));
-        printf("--%d-- pc: 0x%08x inst: %08x <---\n", i, buf[i], vaddr_read(buf[i], 4));
-	      for (int k = 1; k < 5; k ++) printf("--%d-- pc: 0x%08x inst: %08x\n", 10 + k, buf[10] + k * 4, vaddr_read(buf[10] + k * 4, 4));
-      }
+	if (nemu_state.state == NEMU_ABORT) {
+  	  for (int k = 0; k < 10; k ++) {
+		  int pos = (idx + k) % 10;
+    	  printf("--%d-- pc: 0x%08x inst: %08x\n", k, buf[pos], vaddr_read(buf[pos], 4));
+  	  }
+  	  uint32_t bad_pc = nemu_state.halt_pc;
+  	  for (int k = 1; k < 5; k ++) {
+    	  printf("--%d-- pc: 0x%08x inst: %08x\n", 10 + k, bad_pc + k * 4, vaddr_read(bad_pc + k * 4, 4));
+  	  }
+	}
 
       // fall through
     case NEMU_QUIT: statistic();
