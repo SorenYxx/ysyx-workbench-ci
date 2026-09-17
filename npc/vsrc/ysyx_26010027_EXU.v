@@ -84,7 +84,7 @@ module ysyx_26010027_EXU (
     wire load_use_stall;
 
     // raw 前递
-    wire lsu_fwd_raw = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01); // rf_res选ALU/SNPC-11/10
+    wire lsu_fwd_raw = exu_lsu_valid && exu_lsu_reg_w && (exu_lsu_rf_res != 2'b01); // rf_res选ALU/SNPC-00/11
     wire wbu_fwd_raw = lsu_wbu_valid && lsu_wbu_reg_w && (lsu_wbu_rf_res != 2'b01);
     assign fwd_1[0] = (|idu_exu_raddr1 && idu_exu_raddr1 == exu_lsu_waddr && lsu_fwd_raw);
     assign fwd_2[0] = (|idu_exu_raddr2 && idu_exu_raddr2 == exu_lsu_waddr && lsu_fwd_raw);
