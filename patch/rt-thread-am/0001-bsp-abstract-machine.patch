@@ -1,35 +1,39 @@
-From fd96857d04ac57dbed97df566de10dff1e9d9172 Mon Sep 17 00:00:00 2001
+From 5efc4fcc1399a337393c0e611a1dde428c7cdf94 Mon Sep 17 00:00:00 2001
 From: Soren <3319253385@qq.com>
-Date: Sun, 23 Aug 2026 16:03:03 +0800
-Subject: [PATCH] =?UTF-8?q?bsp/abstract-machine=20=E9=80=82=E9=85=8D?=
- =?UTF-8?q?=EF=BC=88=E4=B8=B2=E5=8F=A3/=E4=B8=8A=E4=B8=8B=E6=96=87/?=
- =?UTF-8?q?=E9=93=BE=E6=8E=A5=E8=84=9A=E6=9C=AC=EF=BC=89?=
+Date: Fri, 18 Sep 2026 23:12:21 +0800
+Subject: [PATCH] =?UTF-8?q?bsp/abstract-machine:=20=E5=B0=86=20RT-Thread?=
+ =?UTF-8?q?=20=E9=80=82=E9=85=8D=E5=88=B0=20AM=20(=E4=B8=B2=E5=8F=A3/?=
+ =?UTF-8?q?=E4=B8=8A=E4=B8=8B=E6=96=87/=E9=93=BE=E6=8E=A5=E8=84=9A?=
+ =?UTF-8?q?=E6=9C=AC=E7=AD=89=204=20=E5=A4=84=E6=94=B9=E5=8A=A8)?=
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
 ---
- bsp/abstract-machine/Makefile      |  6 +++-
- bsp/abstract-machine/extra.ld      |  2 ++
- bsp/abstract-machine/src/context.c | 58 +++++++++++++++++++++++++++---
- bsp/abstract-machine/src/uart.c    | 12 ++++++-
- 4 files changed, 71 insertions(+), 7 deletions(-)
+ bsp/abstract-machine/Makefile             |  9 +++-
+ bsp/abstract-machine/extra.ld             |  2 +
+ bsp/abstract-machine/integrate-am-apps.py |  2 +-
+ bsp/abstract-machine/src/context.c        | 58 +++++++++++++++++++++--
+ bsp/abstract-machine/src/uart.c           | 12 ++++-
+ 5 files changed, 75 insertions(+), 8 deletions(-)
 
 diff --git a/bsp/abstract-machine/Makefile b/bsp/abstract-machine/Makefile
-index 8d70f310b..29993c9a0 100644
+index 8d70f310b..ef29bb31d 100644
 --- a/bsp/abstract-machine/Makefile
 +++ b/bsp/abstract-machine/Makefile
-@@ -8,7 +8,11 @@ NAME = rtthread
+@@ -8,7 +8,14 @@ NAME = rtthread
  SRCS = $(shell find src -name "*.c")
  CFLAGS += -DHAVE_CCONFIG_H -D__RTTHREAD__
  CFLAGS += -Wno-nonnull-compare
 -LDFLAGS += -T extra.ld
-+ifeq ($(CONFIG_SOC), n)
-+  -LDFLAGS += -T extra.ld
++CFLAGS += -Wno-stringop-overflow
++
++ifneq ($(findstring ysyxsoc,$(ARCH)),)
++  LDFLAGS +=
 +else
-+  -LDFLAGS +=
++  LDFLAGS += -T extra.ld
 +endif
++
  -include $(FILE_MK)
  -include $(AM_APPS_MK)
  include $(AM_HOME)/Makefile
@@ -43,6 +47,19 @@ index 5cdc65670..f2021a286 100644
  SECTIONS {
    .data.extra : {
      /* section information for finsh shell */
+diff --git a/bsp/abstract-machine/integrate-am-apps.py b/bsp/abstract-machine/integrate-am-apps.py
+index 8968df387..fec3b7884 100644
+--- a/bsp/abstract-machine/integrate-am-apps.py
++++ b/bsp/abstract-machine/integrate-am-apps.py
+@@ -11,7 +11,7 @@ app_dir_list = [
+   AM_KERNELS_HOME / "benchmarks" / "microbench",
+   AM_KERNELS_HOME / "kernels" / "typing-game",
+   AM_KERNELS_HOME / "kernels" / "snake",
+-  AM_KERNELS_HOME / ".." / "fceux-am",
++#  AM_KERNELS_HOME / ".." / "fceux-am",
+ ]
+ 
+ if len(sys.argv) != 3:
 diff --git a/bsp/abstract-machine/src/context.c b/bsp/abstract-machine/src/context.c
 index ee38829ae..25d696b1f 100644
 --- a/bsp/abstract-machine/src/context.c
@@ -154,4 +171,3 @@ index e4eb86689..02f519f47 100644
  const struct rt_uart_ops _uart_ops = {
 -- 
 2.43.0
-

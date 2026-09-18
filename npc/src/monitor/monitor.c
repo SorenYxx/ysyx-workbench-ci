@@ -114,7 +114,7 @@ static void init_verilator(int argc, char *argv[]) {
 }
 
 static void init_csr() {
-  cpu_n.mstatus = 0;
+  cpu_n.mstatus = 0x1800;
   cpu_n.mtvec   = 0;
   cpu_n.mepc    = 0;
   cpu_n.mcause  = 0;
